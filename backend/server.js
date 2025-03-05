@@ -76,7 +76,6 @@ const initializeApp = async () => {
 	// Middleware to validate username
 	const validateUsername = (req, res, next) => {
 		const { username } = req.body;
-		console.log(JSON.stringify(username));
 
 		// Check if username exists
 		if (!username) {
