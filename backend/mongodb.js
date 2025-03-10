@@ -9,7 +9,7 @@ const connectDB = async () => {
     
     console.log('MongoDB connected successfully');
     
-    db = mongoose.connection.useDb('tpeo_new_fellow_project');
+    db = mongoose.connection;
     
     return db;
   } 
