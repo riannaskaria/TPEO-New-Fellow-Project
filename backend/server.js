@@ -1,181 +1,153 @@
 const express = require("express");
-const {connectDB, getDB} = require('./mongodb');
+const { connectDB, getDB } = require("./mongodb");
 const cors = require("cors");
-require('dotenv').config();
+require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;	
+const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000", // Allow frontend to access backend
+    methods: "GET,POST,DELETE",
+    allowedHeaders: "Content-Type,Authorization",
+  })
+);
 app.use(express.json());
 
-// Connect to MongoDB before setting up routes
 const initializeApp = async () => {
-	await connectDB();
-	
-	// Default endpoint
-	app.get('/', (req, res) => {
-		res.send('Hello from the backend!');
-	});
+  await connectDB();
 
-	// GET endpoint to retrieve all users
-	app.get('/users', async (req, res) => {
-	  try {
-		const db = getDB();
-		const usersCollection = db.collection('users');
-		
-		const users = await usersCollection.find({}).toArray();
-		
-		res.json({
-		  success: true,
-		  count: users.length,
-		  data: users
-		});
-	  } 
-	  catch (err) {
-		console.error('Error fetching users:', err);
-		res.status(500).json({
-		  success: false,
-		  error: 'Server Error'
-		});
-	  }
-	});
+  // Default endpoint
+  app.get("/", (req, res) => {
+    res.send("Hello from the backend!");
+  });
 
-	// GET endpoint to retrieve a user by username
-	app.get('/users/username/:username', async (req, res) => {
-		try {
-			const { username } = req.params;
-			const db = getDB();
-			const usersCollection = db.collection('users');
-			
-			// Find documents in the users collection with matching username
-			const users = await usersCollection.find({ username }).toArray();
-			
-			if (users.length === 0) {
-				return res.status(404).json({
-				success: false,
-				message: `No user found with username: ${username}`
-				});
-			}
-			
-			res.json({
-				success: true,
-				count: users.length,
-				data: users
-			});
-		} 
-		catch (err) {
-			console.error('Error fetching user by username:', err);
-			res.status(500).json({
-				success: false,
-				error: 'Server Error'
-			});
-		}
-	});
-  
-	// Middleware to validate username
-	const validateUsername = (req, res, next) => {
-		const { username } = req.body;
+  // GET all users
+  app.get("/users", async (req, res) => {
+    try {
+      const db = getDB();
+      const users = await db.collection("users").find({}).toArray();
+      res.json({ success: true, count: users.length, data: users });
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      res.status(500).json({ success: false, error: "Server Error" });
+    }
+  });
 
-		// Check if username exists
-		if (!username) {
-			return res.status(400).json({
-				success: false,
-				error: 'Username is required'
-			});
-		}
+  // GET user by username (for login)
+  app.get("/users/username/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const db = getDB();
+      const user = await db.collection("users").findOne({ username });
 
-		// Check if username is a string
-		if (typeof username !== 'string') {
-			return res.status(400).json({
-				success: false,
-				error: 'Username must be a string'
-			});
-		}
+      if (!user) {
+        return res.status(404).json({
+          success: false,
+          message: `No user found with username: ${username}`,
+        });
+      }
 
-		// Check if username is not empty after trimming
-		if (username.trim() === '') {
-			return res.status(400).json({
-				success: false,
-				error: 'Username cannot be empty'
-			});
-		}
+      res.json({ success: true, data: user });
+    } catch (err) {
+      console.error("Error fetching user by username:", err);
+      res.status(500).json({ success: false, error: "Server Error" });
+    }
+  });
 
-		// If all validations pass, proceed to the next middleware/route handler
-		next();
-	};
+  // POST (Register a new user)
+  app.post("/users", async (req, res) => {
+    try {
+      const { username, password } = req.body;
 
-	// POST endpoint to add a new user with MongoDB ObjectId
-	app.post('/users', validateUsername, async (req, res) => {
-		try {
-			const { username } = req.body;
-			
-			const db = getDB();
-			const usersCollection = db.collection('users');
-			
-			// Create the new user document (only with username field)
-			const newUser = {username};
-			
-			const result = await usersCollection.insertOne(newUser);
-			
-			res.status(201).json({
-				success: true,
-				data: newUser,
-				message: 'User added successfully'
-			});
-		} 
-		catch (err) {
-			console.error('Error adding new user:', err);
-			res.status(500).json({
-				success: false,
-				error: 'Server Error'
-			});
-		}
-	});
-  
-	app.delete('/users/:username', async (req, res) => {
-		try{
-			const {username} = req.params;
+      if (!username || !password) {
+        return res.status(400).json({
+          success: false,
+          error: "Username and password are required",
+        });
+      }
 
-			if(!username || username.trim() === ''){
-				return res.status(400).json({
-					success: false,
-					error: 'Valid username is required'
-				});
-			}
+      const db = getDB();
+      const usersCollection = db.collection("users");
 
-			const db = getDB();
-			const usersCollection = db.collection('users');
+      // Check if the user already exists
+      const existingUser = await usersCollection.findOne({ username });
+      if (existingUser) {
+        return res.status(400).json({
+          success: false,
+          error: "Username already taken",
+        });
+      }
 
-			const result = await usersCollection.deleteOne({ username });
+      // Save user
+      const newUser = { username, password };
+      await usersCollection.insertOne(newUser);
 
-			if(result.deletedCount === 0){
-				return res.status(400).json({
-					success: false,
-        			error: `User with username \"${username}\" not found`
-				});
-			}
+      res.status(201).json({
+        success: true,
+        message: "User registered successfully",
+      });
+    } catch (err) {
+      console.error("Error adding new user:", err);
+      res.status(500).json({ success: false, error: "Server Error" });
+    }
+  });
 
-			res.json({
-				success: true,
-				message: `User "${username}" successfully deleted`,
-				deletedCount: result.deletedCount
-			});
-		}
-		catch (err){
-			console.error('Error deleting user:', err);
-			res.status(500).json({
-				success: false,
-				error: 'Server Error'
-			});
-		}
-	});
-  
-	// Start server
-	app.listen(PORT, () => {console.log(`Server running on port ${PORT}`);});
+  // POST (Login user)
+  app.post("/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+      return res.status(400).json({ error: "Missing username or password" });
+    }
+
+    try {
+      const db = getDB();
+      const user = await db.collection("users").findOne({ username });
+
+      if (!user || user.password !== password) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+
+      res.json({ message: "Login successful", user });
+    } catch (err) {
+      console.error("Error logging in user:", err);
+      res.status(500).json({ error: "Server Error" });
+    }
+  });
+
+  // DELETE user
+  app.delete("/users/:username", async (req, res) => {
+    try {
+      const { username } = req.params;
+      const db = getDB();
+      const result = await db.collection("users").deleteOne({ username });
+
+      if (result.deletedCount === 0) {
+        return res.status(400).json({
+          success: false,
+          error: `User "${username}" not found`,
+        });
+      }
+
+      res.json({
+        success: true,
+        message: `User "${username}" deleted successfully`,
+      });
+    } catch (err) {
+      console.error("Error deleting user:", err);
+      res.status(500).json({ success: false, error: "Server Error" });
+    }
+  });
+
+  // Start server
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
 };
-  
-initializeApp().catch(err => {
-	console.error('Failed to initialize server:', err);
-	process.exit(1);
+
+initializeApp().catch((err) => {
+  console.error("Failed to initialize server:", err);
+  process.exit(1);
 });

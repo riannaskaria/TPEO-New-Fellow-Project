@@ -1,0 +1,152 @@
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 20px;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+}
+
+.nav-links {
+  display: flex;
+  gap: 15px;
+}
+
+.nav-button {
+  padding: 10px 15px;
+  background-color: #007bff;
+  color: white;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  cursor: pointer;
+}
+
+.nav-button:hover {
+  background-color: #0056b3;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+}
+
+.profile-pic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1400px;
+  margin-top: 20px;
+}
+
+section {
+  margin-bottom: 40px;
+}
+
+.events-list, .categories-list {
+  display: flex;
+  gap: 20px;
+  font-family: 'Inter', sans-serif;
+
+  overflow-x: auto;
+}
+
+.event-card {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  position: relative;
+  margin-left: 60px; /* Adjust for spacing */
+}
+
+.event-number {
+  position: absolute;
+  top: 50%; /* Vertically center the number */
+  left: -35px; /* Position the number to the left of the card */
+  transform: translateY(-50%); /* Adjust for exact vertical centering */
+  font-size: 96px; /* Set the number size to 96px */
+  font-weight: 900; /* Bold text */
+  color: #F07605BF; /* Orange color */
+  line-height: 36px; /* Control the line height */
+  letter-spacing: 0px; /* No letter spacing */
+  -webkit-text-stroke: 2px #F07605;
+  padding: 5px; /* Optional padding */
+  z-index: 1; /* Ensure the number stays on top */
+  font-family: 'Inter', sans-serif; /* Use 'Inter' font */
+}
+
+
+.trending-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 32px; /* Adjust size as per Figma */
+  line-height: 40px; /* Adjust line height */
+  letter-spacing: 0px;
+  color: #121111; /* Or any color you need for the header */
+  text-align: left; /* Align the text to the left */
+}
+
+
+.event-details {
+  padding-left: 40px; /* Pushes the details to the right to avoid overlap */
+}
+
+.category-button {
+  display: flex;
+  flex-direction: column; /* Stack the name and count vertically */
+  justify-content: center;
+  align-items: center; /* Center the content horizontally */
+  padding: 8px;
+  background-color: #F0760580; /* Your desired color */
+  border: none;
+  border-radius: 8px;
+  width: auto;
+  min-width: 180px; /* Makes the button wider */
+  max-width: 220px; /* Set a max width if desired */
+}
+
+.category-name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 20px;
+  letter-spacing: 0px;
+  width: 100%; /* Take full width of the button */
+  text-align: center; /* Center the category name horizontally */
+}
+
+.event-count {
+  font-family: 'Inter', sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  line-height: 12px;
+  letter-spacing: 0px;
+  width: 100%; /* Take full width of the button */
+  text-align: center; /* Center the event count horizontally */
+  margin-top: 4px; /* Space between category name and event count */
+}
+
+.categories-list {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent buttons from wrapping to the next line */
+  gap: 20px; /* Space between the buttons */
+  justify-content: flex-start; /* Align the buttons to the left */
+  overflow-x: auto;
+}
