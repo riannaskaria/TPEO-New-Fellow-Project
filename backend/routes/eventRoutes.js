@@ -162,4 +162,77 @@ router.post('/', authenticateToken, async (req, res) => {
 	}
 });
 
+router.put('/:id', async (req, res) => {
+	try{
+		const { id } = req.params;
+		const newEventData = req.body;
+
+		if(!ObjectId.isValid(id)){
+			return res.status(400).json({
+				success: false,
+				message: 'Invalid event ID format'
+			});
+		}
+
+		const updatedEvent = await Event.findByIdAndUpdate(
+			id, 
+			newEventData, 
+			{ new: true, runValidators: true, strict: "throw" }
+		);
+
+		if (!updatedEvent) {
+			return res.status(404).json({ 
+				success: false, 
+				message: `No event found with ID: ${id}` 
+			});
+		}
+
+		res.status(200).json({ 
+			success: true, 
+			data: updatedEvent 
+		});
+	}
+	catch(err){
+		console.error('Error updating event:', err);
+    res.status(400).json({ 
+			success: false, 
+			message: 'Error updating event', error: err.message 
+		});
+	}
+});
+
+router.delete('/:id', async (req, res) => {
+	try{
+		const { id } = req.params;
+
+		if(!ObjectId.isValid(id)){
+			return res.status(400).json({
+				success: false,
+				message: 'Invalid event ID format'
+			});
+		}
+
+		const deletedEvent = await Event.findByIdAndDelete(id);
+
+		if (!deletedEvent) {
+			return res.status(404).json({ 
+				success: false, 
+				message: `No event found with ID: ${id}` 
+			});
+		}
+
+		res.status(200).json({ 
+			success: true,
+			data: deletedEvent 
+		});
+	}
+	catch(err){
+		console.error('Error deleting event:', err);
+    res.status(400).json({ 
+			success: false, 
+			message: 'Error deleting event', error: err.message 
+		});
+	}
+});
+
 module.exports = router;

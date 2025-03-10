@@ -163,4 +163,43 @@ router.post("/login", async (req, res) => {
 	}
 });
 
+router.put('/:id', async (req, res) => {
+	try{
+		const { id } = req.params;
+		const newUserData = req.body;
+
+		if(!ObjectId.isValid(id)){
+			return res.status(400).json({
+				success: false,
+				message: 'Invalid user ID format'
+			});
+		}
+
+		const updatedUser = await User.findByIdAndUpdate(
+			id, 
+			newUserData,
+			{ new: true, runValidators: true, strict: "throw" }
+		);
+
+		if (!updatedUser) {
+			return res.status(404).json({ 
+				success: false, 
+				message: `No user found with ID: ${id}` 
+			});
+		}
+
+		res.status(200).json({ 
+			success: true, 
+			data: updatedUser 
+		});
+	}
+	catch(err){
+		console.error('Error updating event:', err);
+    res.status(400).json({ 
+			success: false, 
+			message: 'Error updating event', error: err.message 
+		});
+	}
+});
+
 module.exports = router;
