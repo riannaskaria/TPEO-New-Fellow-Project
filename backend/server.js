@@ -1,6 +1,8 @@
 const express = require("express");
 const cors = require("cors");
-require('dotenv').config();
+const jwt = require("jsonwebtoken"); // Add this package
+const bcrypt = require("bcrypt"); // Add this package for password hashing
+require("dotenv").config();
 
 // Database and routes requirements
 const { connectDB } = require('./mongodb');
@@ -11,7 +13,8 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 // Get app instance
 const app = express();
-const PORT = process.env.PORT || 5000;	
+const PORT = process.env.PORT || 5000;
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Add this line
 
 // Configure middleware
 app.use(
