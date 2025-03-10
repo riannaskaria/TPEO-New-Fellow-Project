@@ -6,10 +6,13 @@ const Org = require('../models/org');
 
 const router = express.Router();
 
+// Get all orgs
 router.get("/", authenticateToken, async (req, res) => {
 	try{
+		// Find all orgs
 		const orgs = await Org.find({});
 
+		// No orgs
 		if (!orgs) {
 			return res.status(404).json({
 				success: false,
@@ -32,10 +35,12 @@ router.get("/", authenticateToken, async (req, res) => {
 	}
 });
 
+// Get org by ID
 router.get("/:id", authenticateToken, async (req, res) => {
 	try{
 		const { id } = req.params;
 
+		// Validate ID
 		if(!ObjectId.isValid(id)){
 			return res.status(400).json({
 				success: false,
@@ -43,8 +48,10 @@ router.get("/:id", authenticateToken, async (req, res) => {
 			});
 		}
 
+		// Find org in orgs collection with matching ID
 		const org = await Org.findById(id);
 
+		// No org
 		if (!org) {
 			return res.status(404).json({
 				success: false,
@@ -67,14 +74,17 @@ router.get("/:id", authenticateToken, async (req, res) => {
 	}
 });
 
+// Post new org
 router.post("/", authenticateToken, async (req, res) => {
 	try{
 		const { name } = req.body;
 
+		// Create new org
 		const newOrg = new Org({
 			name
 		});
 
+		// Post new org
 		const savedOrg = await newOrg.save();
 
 		res.status(201).json({
@@ -86,6 +96,7 @@ router.post("/", authenticateToken, async (req, res) => {
 	catch(err){
 		console.error('Error creating organization:', err);
 
+		// Invalid format
 		if (err.name === 'ValidationError') {
 			return res.status(400).json({
 				success: false,

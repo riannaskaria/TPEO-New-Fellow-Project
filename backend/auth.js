@@ -12,6 +12,7 @@ const authenticateToken = (req, res, next) => {
 	const authHeader = req.headers['authorization'];
 	const token = authHeader && authHeader.split(' ')[1]; // Get token from Bearer header
   
+	// No token
 	if (!token) {
 	  	return res.status(401).json({ 
 			success: false, 
@@ -19,6 +20,7 @@ const authenticateToken = (req, res, next) => {
 		});
 	}
   
+	// Verify token
 	try {
 		const verified = jwt.verify(token, JWT_SECRET);
 		req.user = verified;
