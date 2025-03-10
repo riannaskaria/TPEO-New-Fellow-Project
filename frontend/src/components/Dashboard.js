@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import '../styles.css/Dashboard.css';
+import { authService } from '../services/authService'; // Import auth service
 
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
+  // State for user info
+  const [user, setUser] = useState(null);
+
   // Example categories and events
   const [categories, setCategories] = useState([
     { name: 'Athletics', eventsCount: 22 },
@@ -19,6 +23,7 @@ const Dashboard = () => {
     { name: 'COLA Research Fair', date: 'March 13, 2025', location: 'Main Hall' },
     { name: 'TPEO JavaScript Course', date: 'March 14, 2025', location: 'Room 101' },
     { name: 'Kupid Dating Show', date: 'March 15, 2025', location: 'Event Center' },
+    { name: 'Demystifying Taxes Workshop', date: 'March 7, 2025', location: 'Event Center' },
   ]);
 
   const [recommendedEvents, setRecommendedEvents] = useState([
@@ -44,13 +49,6 @@ const Dashboard = () => {
       category: 'Career Fair',
     },
     {
-      name: 'Women’s Basketball Game',
-      date: 'Sunday, March 2nd',
-      startTime: '3:00 PM',
-      friendsSaved: 12,
-      category: 'Athletics',
-    },
-    {
       name: 'Demystifying Taxes Workshop',
       date: 'Friday, March 7th',
       startTime: '12:00 PM',
@@ -68,36 +66,74 @@ const Dashboard = () => {
 
 
   useEffect(() => {
-    // Fetch data from API or database as needed
+    // Get current user from localStorage (set during login)
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+    }
+
+    const fetchData = async () => {
+      try {
+
+        const response = await authService.fetchWithAuth('http://localhost:3001/api/events');
+        if (response.ok) {
+          const data = await response.json();
+          // can update state with the fetched data here
+          // setTrendingEvents(data.trending);
+          // setRecommendedEvents(data.recommended);
+          // setCategories(data.categories);
+        }
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    // fetchData();
   }, []);
+
+  // Handle logout
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout(); // Call the logout function from App.js
+    }
+  };
 
   return (
     <div className="dashboard-container">
       {/* Header Section */}
       <header className="dashboard-header">
         {/* Search Bar */}
-  <div className="search-bar-container">
-    <input
-      type="text"
-      className="search-bar"
-      placeholder="Search events, people, or organizations"
-    />
-  </div>
-        <nav className="nav-links">
-        <button className="nav-button active">Discover</button> {/* Set 'active' for Discover */}
-        <button className="nav-button">Friends</button>
-        <button className="nav-button">Saved</button>
-        </nav>
+        <div className="search-bar-container">
 
+          <input
+            type="text"
+            className="search-bar"
+            placeholder="Search events, people, or organizations"
+          />
+        </div>
+        <nav className="nav-links">
+          <button className="nav-button active">Discover</button>
+          <button className="nav-button">Friends</button>
+          <button className="nav-button">Saved</button>
+
+          {/* User info and logout */}
+          <div className="user-section">
+            {user && (
+              <>
+                <button className="logout-button" onClick={handleLogout}>Logout</button>
+              </>
+            )}
+          </div>
+        </nav>
       </header>
+
       {/* Main Content */}
       <div className="main-content">
-
         {/* Trending Events Section */}
         <section className="trending-events">
           <h2 className="trending-title">Trending Events</h2>
           <div className="events-list">
-            {trendingEvents.slice(0, 4).map((event, index) => (
+            {trendingEvents.map((event, index) => (
               <div key={index} className="event-card">
                 <div className="event-number">{index + 1}</div>
                 <div className="event-details">
@@ -122,29 +158,27 @@ const Dashboard = () => {
         </section>
 
         {/* Recommended Events Section */}
-<section className="recommended-events">
-  <h2 className="recommended-title">For You</h2>
-  <div className="events-list">
-    {recommendedEvents.map((event, index) => (
-      <div key={index} className="event-card">
-        <div className="event-details">
-          {/* Event Name */}
-          <p><strong>{event.name}</strong></p>
-          {/* Date and Start Time */}
-          <p>{event.date} • {event.startTime}</p>
-          {/* Number of Friends Saved */}
-          <p>{event.friendsSaved} Friends Saved This Event</p>
-
-          {/* Category Box */}
-          <div className="category-box">
-            <span className="category-name">{event.category}</span>
+        <section className="recommended-events">
+          <h2 className="recommended-title">For You</h2>
+          <div className="events-list">
+            {recommendedEvents.map((event, index) => (
+              <div key={index} className="event-card">
+                <div className="event-details">
+                  {/* Event Name */}
+                  <p><strong>{event.name}</strong></p>
+                  {/* Date and Start Time */}
+                  <p>{event.date} • {event.startTime}</p>
+                  {/* Number of Friends Saved */}
+                  <p>{event.friendsSaved} Friends Saved This Event</p>
+                  {/* Category Box */}
+                  <div className="category-box">
+                    <span className="category-name">{event.category}</span>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
-    ))}
-  </div>
-</section>
-
+        </section>
       </div>
     </div>
   );

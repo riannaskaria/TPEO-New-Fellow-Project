@@ -8,7 +8,8 @@ import {
   Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
+import { authService } from "../services/authService";
+import "../styles.css/Login.css";
 function Login({ setIsAuthenticated }) {
   const navigate = useNavigate();
 
@@ -16,99 +17,87 @@ function Login({ setIsAuthenticated }) {
   const [password, setPassword] = useState("");
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     setError(null);
-    const url = isRegisterMode
-      ? "http://localhost:3001/users"
-      : "http://localhost:3001/login";
+    setLoading(true);
 
     try {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || "Error processing request");
-      }
-
       if (isRegisterMode) {
-        alert("Signup successful! Please log in.");
-        setIsRegisterMode(false); // Switch to login mode
+        await authService.register(username, password);
+        alert("Registration successful! Please log in.");
+        setIsRegisterMode(false);
       } else {
-        alert("Login successful!");
-
-        // Store the authentication token in localStorage
-        localStorage.setItem('authToken', 'your-auth-token'); // Replace with actual token from API response
-
-        // Update authentication state and redirect
-        setIsAuthenticated(true);
-        navigate("/dashboard"); // Redirect to dashboard after login
+        await authService.login(username, password);
+        setIsAuthenticated(true); // This ensures the authentication state is updated
+        navigate("/dashboard");
       }
     } catch (error) {
       setError(error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+
   return (
-    <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-        }}
-      >
-        <Typography component="h1" variant="h4" fontWeight="bold">
-          {isRegisterMode ? "Register" : "Login"}
+    <Container component="main" maxWidth="xs" className="login-container">
+      <Box className="login-box">
+        <Typography component="h1" variant="h4" className="login-title">
+          {isRegisterMode ? "Register" : "Log in"}
         </Typography>
-        <Box sx={{ mt: 1 }}>
+        <Box className="login-form">
           <TextField
+            className="login-input"
             variant="outlined"
-            margin="normal"
             required
             fullWidth
             label="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoFocus
+            disabled={loading}
           />
           <TextField
+            className="login-input"
             variant="outlined"
-            margin="normal"
             required
             fullWidth
             label="Password"
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={loading}
           />
           <Button
+            className="login-button"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
             onClick={handleSubmit}
+            disabled={loading || !username || !password}
           >
-            {isRegisterMode ? "Register" : "Login"}
+            {loading ? "Processing..." : isRegisterMode ? "Register" : "Log in"}
           </Button>
           <Button
+            className="toggle-mode-button"
             fullWidth
-            color="secondary"
-            sx={{ mt: 1 }}
-            onClick={() => setIsRegisterMode((prev) => !prev)}
+            onClick={() => {
+              setIsRegisterMode((prev) => !prev);
+              setError(null);
+            }}
+            disabled={loading}
           >
-            {isRegisterMode ? "Already have an account? Login" : "Don't have an account? Register"}
+            {isRegisterMode
+              ? "Already have an account? Log in"
+              : "Don't have an account? Register"}
           </Button>
         </Box>
-        {error && <Alert severity="error">{error}</Alert>}
+        {error && <Alert severity="error" className="login-error">{error}</Alert>}
       </Box>
     </Container>
   );
 }
 
 export default Login;
+
