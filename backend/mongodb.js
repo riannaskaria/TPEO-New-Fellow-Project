@@ -3,13 +3,14 @@ require('dotenv').config();
 
 let db;
 
+// Async method to connect to database
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     
     console.log('MongoDB connected successfully');
     
-    db = mongoose.connection.useDb('tpeo_new_fellow_project');
+    db = mongoose.connection;
     
     return db;
   } 
