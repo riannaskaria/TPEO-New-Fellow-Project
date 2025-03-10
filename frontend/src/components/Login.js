@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-function Login() {
+function Login({ setIsAuthenticated }) {
   const navigate = useNavigate();
 
   const [username, setUsername] = useState("");
@@ -41,7 +41,13 @@ function Login() {
         setIsRegisterMode(false); // Switch to login mode
       } else {
         alert("Login successful!");
-        navigate("/"); // Redirect after login
+
+        // Store the authentication token in localStorage
+        localStorage.setItem('authToken', 'your-auth-token'); // Replace with actual token from API response
+
+        // Update authentication state and redirect
+        setIsAuthenticated(true);
+        navigate("/dashboard"); // Redirect to dashboard after login
       }
     } catch (error) {
       setError(error.message);
@@ -106,5 +112,3 @@ function Login() {
 }
 
 export default Login;
-
-

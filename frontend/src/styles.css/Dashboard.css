@@ -61,7 +61,6 @@ section {
   display: flex;
   gap: 20px;
   font-family: 'Inter', sans-serif;
-
   overflow-x: auto;
 }
 

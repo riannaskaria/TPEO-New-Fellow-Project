@@ -81,7 +81,7 @@ const Dashboard = () => {
 
       {/* Recommended Events Section */}
       <section className="recommended-events">
-        <h2 className="trending-title">Recommended Events</h2>
+        <h2 className="trending-title">For You</h2>
         <div className="events-list">
           {recommendedEvents.map((event, index) => (
             <div key={index} className="event-card">
