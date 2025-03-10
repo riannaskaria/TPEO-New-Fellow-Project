@@ -1,5 +1,6 @@
 body {
   font-family: 'Inter', sans-serif;
+  background-color: #fcf3eb;
 }
 
 .dashboard-container {
@@ -9,36 +10,72 @@ body {
   padding: 10px;
 }
 
+/* Header Section */
 .dashboard-header {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 100%;
   padding: 10px 20px;
-  background-color: #f8f9fa;
-  border-bottom: 1px solid #ddd;
+  margin-top: 5px;
+  background-color: #fcf3eb;
 }
 
 .nav-links {
   display: flex;
   gap: 15px;
+  justify-content: flex-end; /* Align the buttons to the right */
+  width: 100%; /* Ensure buttons span the full width */
 }
 
 .nav-button {
   padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
+  background-color: transparent; /* Remove the background */
+  color: black; /* Default text color */
   font-family: 'Inter', sans-serif;
+  font-weight: 900;
+  font-size: 20px;
+  line-height: 36px;
+  letter-spacing: 0px;
   border: none;
   cursor: pointer;
 }
 
 .nav-button:hover {
-  background-color: #0056b3;
+  color: #F07605; /* Change text color to orange on hover */
+}
+
+/* Highlight the active tab (for Discover) */
+.nav-button.active {
+  color: #F07605; /* Set text color to orange when active */
+}
+
+/* Search Bar Styling */
+.search-bar-container {
+  margin-left: 50px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.search-bar {
+  padding: 10px;
+  font-size: 16px;
+  width: 356px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #fff;
+  outline: none;
+}
+
+.search-bar:focus {
+  border-color: #F07605; /* Change border color when focused */
 }
 
 .profile-section {
   display: flex;
   align-items: center;
+  justify-content: center;
+  /* No profile image section now */
 }
 
 .profile-pic {
@@ -57,68 +94,79 @@ section {
   margin-bottom: 40px;
 }
 
-.events-list, .categories-list {
-  display: flex;
-  gap: 20px;
+.trending-events {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling */
+  overflow-y: hidden; /* Disable vertical scrolling */
+}
+
+.trending-title {
   font-family: 'Inter', sans-serif;
-  overflow-x: auto;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 40px;
+  color: #121111;
+  text-align: left;
+  margin-bottom: 20px; /* Space between the title and the events */
+}
+
+.events-list {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling */
+  overflow-y: hidden; /* Disable vertical scrolling */
+  text-align: left;
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  gap: 20px; /* Space between event cards */
+  justify-content: flex-start;
+  margin-left: -30px;
 }
 
 .event-card {
   display: flex;
-  align-items: center;
+  align-items: left;
   min-width: 200px;
+  max-width: 300px; /* Prevent cards from stretching too wide */
   padding: 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
   position: relative;
   margin-left: 60px; /* Adjust for spacing */
+  background-color: #fff;
 }
 
 .event-number {
   position: absolute;
-  top: 50%; /* Vertically center the number */
-  left: -35px; /* Position the number to the left of the card */
-  transform: translateY(-50%); /* Adjust for exact vertical centering */
-  font-size: 96px; /* Set the number size to 96px */
-  font-weight: 900; /* Bold text */
-  color: #F07605BF; /* Orange color */
-  line-height: 36px; /* Control the line height */
-  letter-spacing: 0px; /* No letter spacing */
-  -webkit-text-stroke: 2px #F07605;
-  padding: 5px; /* Optional padding */
-  z-index: 1; /* Ensure the number stays on top */
-  font-family: 'Inter', sans-serif; /* Use 'Inter' font */
-}
-
-
-.trending-title {
-  font-family: 'Inter', sans-serif;
-  font-weight: 700;
-  font-size: 32px; /* Adjust size as per Figma */
-  line-height: 40px; /* Adjust line height */
+  top: 50%;
+  left: -35px;
+  transform: translateY(-50%);
+  font-size: 96px;
+  font-weight: 900;
+  color: #F07605BF;
+  line-height: 36px;
   letter-spacing: 0px;
-  color: #121111; /* Or any color you need for the header */
-  text-align: left; /* Align the text to the left */
+  -webkit-text-stroke: 2px #F07605;
+  padding: 5px;
+  z-index: 1;
+  font-family: 'Inter', sans-serif;
 }
-
 
 .event-details {
-  padding-left: 40px; /* Pushes the details to the right to avoid overlap */
+  padding-left: 40px;
 }
 
 .category-button {
   display: flex;
-  flex-direction: column; /* Stack the name and count vertically */
+  flex-direction: column;
   justify-content: center;
-  align-items: center; /* Center the content horizontally */
-  padding: 8px;
-  background-color: #F0760580; /* Your desired color */
+  align-items: center;
+  padding: 12px;
+  background-color: #F0760580;
   border: none;
   border-radius: 8px;
   width: auto;
-  min-width: 180px; /* Makes the button wider */
-  max-width: 220px; /* Set a max width if desired */
+  min-width: 180px;
+  max-width: 220px;
 }
 
 .category-name {
@@ -126,9 +174,8 @@ section {
   font-weight: 600;
   font-size: 24px;
   line-height: 20px;
-  letter-spacing: 0px;
-  width: 100%; /* Take full width of the button */
-  text-align: center; /* Center the category name horizontally */
+  width: 100%;
+  text-align: center;
 }
 
 .event-count {
@@ -136,16 +183,92 @@ section {
   font-weight: 300;
   font-size: 12px;
   line-height: 12px;
-  letter-spacing: 0px;
-  width: 100%; /* Take full width of the button */
-  text-align: center; /* Center the event count horizontally */
-  margin-top: 4px; /* Space between category name and event count */
+  width: 100%;
+  text-align: center;
+  margin-top: 4px;
 }
 
 .categories-list {
   display: flex;
-  flex-wrap: nowrap; /* Prevent buttons from wrapping to the next line */
-  gap: 20px; /* Space between the buttons */
-  justify-content: flex-start; /* Align the buttons to the left */
+  flex-wrap: nowrap;
+  gap: 20px;
+  justify-content: flex-start;
   overflow-x: auto;
+}
+
+.recommended-title {
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 40px;
+  color: #121111;
+  text-align: left;
+  margin-bottom: 20px;
+  margin-left: 30px;
+}
+
+.recommended-events {
+  width: 100%;
+  overflow-x: auto; /* Allow horizontal scrolling */
+  margin-left: -30px;
+}
+
+.recommended-events .events-list {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping */
+  gap: 10px;
+  justify-content: flex-start; /* Align to the left */
+  overflow-x: auto; /* Horizontal scrolling */
+}
+
+.recommended-events .event-card {
+  display: flex;
+  align-items: center;
+  max-width: 350px;
+  min-width: 300px; /* Ensure cards don't stretch too wide */
+  padding: 20px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background-color: #fff;
+  position: relative; /* To position the category box inside the card */
+}
+
+.recommended-events .event-details {
+  padding-left: 20px; /* Adjust the left padding for better alignment */
+  display: flex;
+  flex-direction: column; /* Stack the elements vertically */
+}
+
+.recommended-events .event-details p {
+  margin-bottom: 8px; /* Space between each paragraph */
+}
+
+.recommended-events .event-details p strong {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 12px;
+  letter-spacing: 0px;
+  text-align: left; /* Aligns just the event title to the left */
+  vertical-align: middle;
+  width: 500px; /* Set the width of the title to 500px */
+}
+
+.recommended-events .category-box {
+  width: 40%;
+  height: 2%;
+  padding: 4px;
+  background-color: #FEC87280;
+  border-radius: 8px;
+  margin-top: 10px; /* Move the button lower */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.recommended-events .category-name {
+  font-family: 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  color: #333;
 }
