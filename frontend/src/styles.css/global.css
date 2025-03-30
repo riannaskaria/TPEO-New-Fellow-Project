@@ -1,0 +1,127 @@
+body {
+    font-family: "Roboto", sans-serif;
+    background: #FFF1E5;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Container for both login and register forms */
+  .auth-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+
+  /* Form box */
+  .box {
+    background: #FFFEFC;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+  }
+
+  /* Form structure */
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between inputs */
+    width: 100%;
+  }
+
+  /* Inputs */
+  .input {
+    background: #F0760540;
+    border-radius: 5px;
+    padding: 10px;
+  }
+
+  .signup-input {
+    background: #FFF1E5;
+  }
+
+  /* Input row for side-by-side fields */
+  .input-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px; /* Space between username/email and password/major fields */
+  }
+
+  /* Ensure inputs in a row take up equal space */
+  .input-row .MuiTextField-root {
+    flex: 1;
+  }
+
+  /* Button styling */
+  .button {
+    background-color: #F07605 !important;
+    color: white !important;
+    font-weight: bold;
+    margin-top: 15px;
+  }
+
+  .button:hover {
+    background-color: #d96204 !important;
+  }
+
+  /* Interest selection buttons */
+  .interests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    padding: 15px 0;
+  }
+
+  .interest-button {
+    background: #ddd;
+    border-radius: 5px;
+    padding: 8px 12px;
+    cursor: pointer;
+    border: none;
+    font-size: 16px;
+  }
+
+  .interest-button.selected {
+    background: #F07605;
+    color: white;
+  }
+
+  /* Error message */
+  .error-message {
+    margin-top: 10px;
+  }
+
+  /* Toggle button for switching between login and register */
+  .toggle-mode-button {
+    margin-top: 15px;
+    color: #F07605 !important;
+    font-weight: bold;
+  }
+
+  .link {
+    color: #F07605 !important; /* Orange text */
+    font-weight: bold;
+    text-transform: none; /* Remove uppercase styling */
+  }
+
+  .link:hover {
+    text-decoration: underline;
+    background: transparent !important;
+  }
+
+  .header-content {
+    display: flex;
+    align-items: center;
+    width: 100%;
+  }
+
+  .logo {
+    width: 100px;
+    height: auto;
+    margin-right: 20px;
+  }
+

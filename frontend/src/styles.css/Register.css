@@ -1,0 +1,117 @@
+/* General container for login and registration form */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Inter', sans-serif;
+    height: 100vh;
+  }
+
+  /* Styling for the login/registration box */
+  .login-box {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    max-width: 800px;
+    height: auto;
+  }
+
+  /* Title for the form */
+  .login-title {
+    font-weight: 700;
+    color: #333;
+    font-family: 'Inter', sans-serif;
+    margin-bottom: 30px;
+  }
+
+  /* Styling for the input fields and labels */
+  .login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .input-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+
+  .input-row .login-input {
+    width: 48%;
+  }
+
+  /* Interests container to wrap interests across rows */
+  .interests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  /* Interest button styling */
+  .interest-button {
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    padding: 8px 16px;
+    background: white;
+    color: #333;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+  }
+
+  .interest-button:hover {
+    background-color: #e0e0e0;
+  }
+
+  .interest-button.selected {
+    background-color: green;
+    border-color: green;
+    color: white;
+  }
+
+  /* Styling for the form buttons */
+  .login-button {
+    background-color: #F07605 !important;
+    color: white !important;
+    font-weight: bold;
+    padding: 12px;
+    border-radius: 8px;
+    width: 100%;
+    margin-top: 20px;
+  }
+
+  .login-button:hover {
+    background-color: #d95d00 !important;
+  }
+
+  /* Toggle button styling for switching modes */
+  .toggle-mode-button {
+    font-size: 0.9rem;
+    color: #F07605 !important;
+    font-weight: bold;
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
+  .toggle-mode-button:hover {
+    text-decoration: underline;
+  }
+
+  /* Styling for the alert messages */
+  .login-error {
+    margin-top: 10px;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 480px) {
+    .input-row {
+      flex-direction: column;
+    }
+    .input-row .login-input {
+      width: 100%;
+    }
+  }

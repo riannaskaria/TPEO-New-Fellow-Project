@@ -16,7 +16,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 router.get('/:id', authenticateToken, async (req, res) => {
 	try {
 		const { id } = req.params;
-		
+
 		// Validate ID
 		if(!ObjectId.isValid(id)){
 			return res.status(400).json({
@@ -24,10 +24,10 @@ router.get('/:id', authenticateToken, async (req, res) => {
 				message: 'Invalid user ID format'
 			});
 		}
-		
+
 		// Find user in the users collection with matching id and exclude password attribute
 		const user = await User.findById(id).select('-password');
-		
+
 		// No user found
 		if (!user) {
 			return res.status(404).json({
@@ -35,12 +35,12 @@ router.get('/:id', authenticateToken, async (req, res) => {
 				message: `No user found with ID: ${id}`
 			});
 		}
-		
+
 		res.status(200).json({
 			success: true,
 			data: user
 		});
-	} 
+	}
 	catch (err) {
 		console.error('Error fetching user by ID:', err);
 		res.status(500).json({
@@ -64,7 +64,7 @@ router.post('/', async (req, res) => {
 				error: "Invalid email: Must be a UT Austin email (@utexas.edu).",
 			});
 		}
-		
+
 		// Check if the user already exists
 		const existingUser = await User.findOne({ email });
 		if (existingUser) {
@@ -97,6 +97,7 @@ router.post('/', async (req, res) => {
 			success: true,
 			message: 'User created successfully',
 			event: savedUser
+
 		});
 	}
 	catch(err){
@@ -110,7 +111,7 @@ router.post('/', async (req, res) => {
 				error: err.message
 			});
 		  }
-	  
+
 		res.status(400).json({
 			success: false,
 			message: 'Error creating user',
@@ -125,9 +126,9 @@ router.post("/login", async (req, res) => {
 
 	// Check that email and password exists
 	if (!email || !password) {
-		return res.status(400).json({ 
+		return res.status(400).json({
 			success: false,
-			error: "Error logging in user: missing email or password" 
+			error: "Error logging in user: missing email or password"
 		});
 	}
 
@@ -145,7 +146,7 @@ router.post("/login", async (req, res) => {
 		// Compare passwords
 		const validPassword = await bcrypt.compare(password, user.password);
 		if (!validPassword) {
-			return res.status(401).json({ 
+			return res.status(401).json({
 				success: false,
 				error: `Invalid credentials: incorrect password for ${email}`
 			});
@@ -188,31 +189,53 @@ router.put('/:id', async (req, res) => {
 
 		// Update user data
 		const updatedUser = await User.findByIdAndUpdate(
-			id, 
+			id,
 			newUserData,
 			{ new: true, runValidators: true, strict: "throw" }
 		);
 
 		// No user
 		if (!updatedUser) {
-			return res.status(404).json({ 
-				success: false, 
-				message: `No user found with ID: ${id}` 
+			return res.status(404).json({
+				success: false,
+				message: `No user found with ID: ${id}`
 			});
 		}
 
-		res.status(200).json({ 
-			success: true, 
-			data: updatedUser 
+		res.status(200).json({
+			success: true,
+			data: updatedUser
 		});
 	}
 	catch(err){
 		console.error('Error updating event:', err);
-    res.status(400).json({ 
-			success: false, 
-			message: 'Error updating event', error: err.message 
+    res.status(400).json({
+			success: false,
+			message: 'Error updating event', error: err.message
 		});
 	}
 });
+
+router.delete('/delete', async (req, res) => {
+	try {
+	  const { email } = req.body;
+
+	  // Validate email
+	  if (!email) {
+		return res.status(400).json({ success: false, message: 'Email is required' });
+	  }
+
+	  const user = await User.findOneAndDelete({ email });
+	  if (!user) {
+		return res.status(404).json({ success: false, message: 'User not found' });
+	  }
+
+	  res.status(200).json({ success: true, message: 'User deleted successfully' });
+	} catch (err) {
+	  console.error('Error deleting user:', err);
+	  res.status(500).json({ success: false, message: 'Error deleting user', error: err.message });
+	}
+  });
+
 
 module.exports = router;

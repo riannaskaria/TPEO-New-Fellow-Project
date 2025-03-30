@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import '../styles.css/Dashboard.css';
+import Header from "./Header.js";
+import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService'; // Import auth service
 
 const Dashboard = ({ onLogout }) => {
   // State for user info
   const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+
 
   // Example categories and events
   const [categories, setCategories] = useState([
@@ -101,32 +105,7 @@ const Dashboard = ({ onLogout }) => {
   return (
     <div className="dashboard-container">
       {/* Header Section */}
-      <header className="dashboard-header">
-        {/* Search Bar */}
-        <div className="search-bar-container">
-
-          <input
-            type="text"
-            className="search-bar"
-            placeholder="Search events, people, or organizations"
-          />
-        </div>
-        <nav className="nav-links">
-          <button className="nav-button active">Discover</button>
-          <button className="nav-button">Friends</button>
-          <button className="nav-button">Saved</button>
-
-          {/* User info and logout */}
-          <div className="user-section">
-            {user && (
-              <>
-                <button className="logout-button" onClick={handleLogout}>Logout</button>
-              </>
-            )}
-          </div>
-        </nav>
-      </header>
-
+      <Header user={user} handleLogout={handleLogout} />
       {/* Main Content */}
       <div className="main-content">
         {/* Trending Events Section */}
