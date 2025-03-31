@@ -9,7 +9,7 @@ function Header({ user, handleLogout }) {
     <header className="dashboard-header">
       {/* Logo and Search Bar Container */}
       <div className="header-content">
-        <img src="/assets/logo.png" alt="Logo" className="logo" />
+        <img src="/assets/logo.svg" alt="Logo" className="logo" />
         {/* Search Bar */}
         <div className="search-bar-container">
           <input
