@@ -1,117 +1,124 @@
-/* General container for login and registration form */
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Inter', sans-serif;
-    height: 100vh;
-  }
+/* Register Page Container */
+.register-container {
+  background-color: var(--light-orange);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
 
-  /* Styling for the login/registration box */
-  .login-box {
-    background: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
-    max-width: 800px;
-    height: auto;
-  }
+/* White Box Holding Registration Form */
+.register-box {
+  background-color: var(--white);
+  width: 50%;
+  max-width: 700px;
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
 
-  /* Title for the form */
-  .login-title {
-    font-weight: 700;
-    color: #333;
-    font-family: 'Inter', sans-serif;
-    margin-bottom: 30px;
-  }
+/* Step Title */
+.register-title {
+  font: var(--page-heading);
+  color: var(--text-black);
+  margin-bottom: 20px;
+  text-align: left;
+}
 
-  /* Styling for the input fields and labels */
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-  }
+/* Input Fields */
+.register-input-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
 
-  .input-row {
-    display: flex;
-    justify-content: space-between;
-    gap: 10px;
-  }
+.register-input {
+  flex: 1;
+  background-color: var(--light-orange);
+  border: var(--border-width) solid var(--border-grey);
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 16px;
+  outline: none;
+}
 
-  .input-row .login-input {
-    width: 48%;
-  }
+.register-input:focus {
+  border-color: var(--dark-orange);
+}
 
-  /* Interests container to wrap interests across rows */
-  .interests-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-  }
+/* Interest Selection Container */
+.register-interests-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
 
-  /* Interest button styling */
-  .interest-button {
-    border: 2px solid #ccc;
-    border-radius: 8px;
-    padding: 8px 16px;
-    background: white;
-    color: #333;
-    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
-  }
+/* Interest Button Styling */
+.register-interest-button {
+  font: var(--event-tags);
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid var(--border-grey);
+  cursor: pointer;
+  transition: 0.3s;
+  background-color: var(--white);
+}
 
-  .interest-button:hover {
-    background-color: #e0e0e0;
-  }
+/* Selected State for Buttons */
+.register-interest-button.selected {
+  color: var(--text-black);
+}
 
-  .interest-button.selected {
-    background-color: green;
-    border-color: green;
-    color: white;
-  }
+.register-interest-button.selected.academic {
+  background-color: var(--tag-green);
+}
 
-  /* Styling for the form buttons */
-  .login-button {
-    background-color: #F07605 !important;
-    color: white !important;
-    font-weight: bold;
-    padding: 12px;
-    border-radius: 8px;
-    width: 100%;
-    margin-top: 20px;
-  }
+.register-interest-button.selected.social {
+  background-color: var(--tag-orange);
+}
 
-  .login-button:hover {
-    background-color: #d95d00 !important;
-  }
+.register-interest-button.selected.career {
+  background-color: var(--tag-blue);
+}
 
-  /* Toggle button styling for switching modes */
-  .toggle-mode-button {
-    font-size: 0.9rem;
-    color: #F07605 !important;
-    font-weight: bold;
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin-top: 10px;
-  }
+/* Register Submit/Next Button */
+.register-submit-button {
+  background-color: var(--dark-orange);
+  color: var(--white);
+  font-size: 16px;
+  padding: 12px;
+  margin-top: 20px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
 
-  .toggle-mode-button:hover {
-    text-decoration: underline;
-  }
+.register-submit-button:hover {
+  background-color: #e06604;
+}
 
-  /* Styling for the alert messages */
-  .login-error {
-    margin-top: 10px;
-  }
+/* Disabled Button State */
+.register-submit-button:disabled {
+  background-color: var(--medium-orange);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 
-  /* Responsive Design */
-  @media (max-width: 480px) {
-    .input-row {
-      flex-direction: column;
-    }
-    .input-row .login-input {
-      width: 100%;
-    }
-  }
+/* Login Redirect Button */
+.register-toggle-login-button {
+  background: none;
+  border: none;
+  color: var(--dark-orange);
+  font-size: 14px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.register-toggle-login-button:hover {
+  text-decoration: underline;
+}

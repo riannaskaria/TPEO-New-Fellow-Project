@@ -1,19 +1,10 @@
 import React, { useState } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles.css/Register.css";
+import "../styles.css/Register.css"; // Ensure the correct path
 
 function Register() {
   const navigate = useNavigate();
-
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -39,21 +30,15 @@ function Register() {
   const handleInterestToggle = (type, category) => {
     if (type === "academic") {
       setAcademicInterests((prev) =>
-        prev.includes(category)
-          ? prev.filter((i) => i !== category)
-          : [...prev, category]
+        prev.includes(category) ? prev.filter((i) => i !== category) : [...prev, category]
       );
     } else if (type === "social") {
       setSocialInterests((prev) =>
-        prev.includes(category)
-          ? prev.filter((i) => i !== category)
-          : [...prev, category]
+        prev.includes(category) ? prev.filter((i) => i !== category) : [...prev, category]
       );
     } else if (type === "career") {
       setCareerInterests((prev) =>
-        prev.includes(category)
-          ? prev.filter((i) => i !== category)
-          : [...prev, category]
+        prev.includes(category) ? prev.filter((i) => i !== category) : [...prev, category]
       );
     }
   };
@@ -79,10 +64,8 @@ function Register() {
         await authService.register(userData);
         alert("Registration successful! Please log in.");
 
-        // Redirect to login after a short delay
-        setTimeout(() => {
-          navigate("/login");
-        }, 500);
+        // Redirect to login
+        setTimeout(() => navigate("/login"), 500);
       } else {
         setCurrentStep(currentStep + 1);
       }
@@ -93,14 +76,12 @@ function Register() {
     }
   };
 
-  const handleLoginRedirect = () => {
-    navigate("/login");
-  };
+  const handleLoginRedirect = () => navigate("/login");
 
   return (
-    <Container component="main" maxWidth={false} className="login-container">
-      <Box className="login-box">
-        <Typography component="h1" variant="h4">
+    <div className="register-container">
+      <div className="register-box">
+        <h1 className="register-title">
           {currentStep === 1
             ? "Personal Information"
             : currentStep === 2
@@ -108,24 +89,26 @@ function Register() {
             : currentStep === 3
             ? "Select Your Social Interests"
             : "Select Your Career Interests"}
-        </Typography>
+        </h1>
 
-        <Box className="login-form">
+        <div className="register-form">
           {currentStep === 1 && (
             <>
               {/* Row for Username and Email */}
-              <div className="input-row">
-                <TextField
-                  fullWidth
-                  label="Username"
+              <div className="register-input-row">
+                <input
+                  type="text"
+                  className="register-input"
+                  placeholder="Username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
                   disabled={loading}
                 />
-                <TextField
-                  fullWidth
-                  label="Email"
+                <input
+                  type="email"
+                  className="register-input"
+                  placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -134,19 +117,20 @@ function Register() {
               </div>
 
               {/* Row for Password and Majors */}
-              <div className="input-row">
-                <TextField
-                  fullWidth
-                  label="Password"
+              <div className="register-input-row">
+                <input
                   type="password"
+                  className="register-input"
+                  placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
                 />
-                <TextField
-                  fullWidth
-                  label="Majors (comma-separated)"
+                <input
+                  type="text"
+                  className="register-input"
+                  placeholder="Majors (comma-separated)"
                   value={majors}
                   onChange={(e) => setMajors(e.target.value)}
                   required
@@ -154,12 +138,12 @@ function Register() {
                 />
               </div>
 
-              {/* Row for Year */}
-              <div className="input-row">
-                <TextField
-                  fullWidth
-                  label="Year"
+              {/* Year Input */}
+              <div className="register-input-row">
+                <input
                   type="number"
+                  className="register-input"
+                  placeholder="Year"
                   value={year}
                   onChange={(e) => setYear(e.target.value)}
                   required
@@ -169,74 +153,53 @@ function Register() {
             </>
           )}
 
-          {currentStep === 2 && (
-            <div className="interests-container">
-              {academicCategories.map((category) => (
-                <Button
+          {/* Interest Selection */}
+          {(currentStep === 2 || currentStep === 3 || currentStep === 4) && (
+            <div className="register-interests-container">
+              {(currentStep === 2 ? academicCategories :
+                currentStep === 3 ? socialCategories : careerCategories).map((category) => (
+                <button
                   key={category}
-                  className={`interest-button ${academicInterests.includes(category) ? "selected" : ""}`}
-                  onClick={() => handleInterestToggle("academic", category)}
+                  className={`register-interest-button ${
+                    (currentStep === 2 && academicInterests.includes(category)) ||
+                    (currentStep === 3 && socialInterests.includes(category)) ||
+                    (currentStep === 4 && careerInterests.includes(category))
+                      ? `selected ${currentStep === 2 ? "academic" : currentStep === 3 ? "social" : "career"}`
+                      : ""
+                  }`}
+                  onClick={() => handleInterestToggle(
+                    currentStep === 2 ? "academic" : currentStep === 3 ? "social" : "career",
+                    category
+                  )}
                 >
                   {category}
-                </Button>
+                </button>
               ))}
             </div>
           )}
 
-          {currentStep === 3 && (
-            <div className="interests-container">
-              {socialCategories.map((category) => (
-                <Button
-                  key={category}
-                  className={`interest-button ${socialInterests.includes(category) ? "selected" : ""}`}
-                  onClick={() => handleInterestToggle("social", category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          {currentStep === 4 && (
-            <div className="interests-container">
-              {careerCategories.map((category) => (
-                <Button
-                  key={category}
-                  className={`interest-button ${careerInterests.includes(category) ? "selected" : ""}`}
-                  onClick={() => handleInterestToggle("career", category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          <Button
-            fullWidth
-            variant="contained"
+          {/* Next / Register Button */}
+          <button
+            className="register-submit-button"
             onClick={handleSubmit}
             disabled={
               loading ||
-              (currentStep === 1 &&
-                (!username || !email || !majors || !year || !password))
+              (currentStep === 1 && (!username || !email || !majors || !year || !password))
             }
           >
             {loading ? "Processing..." : currentStep === 4 ? "Register" : "Next"}
-          </Button>
-        </Box>
+          </button>
+        </div>
 
-        {error && <Alert severity="error">{error}</Alert>}
+        {/* Error Message */}
+        {error && <div className="register-error">{error}</div>}
 
-        <Button
-          fullWidth
-          className="toggle-mode-button"
-          onClick={handleLoginRedirect}
-          disabled={loading}
-        >
+        {/* Login Redirect */}
+        <button className="register-toggle-login-button" onClick={handleLoginRedirect} disabled={loading}>
           Already have an account? Login
-        </Button>
-      </Box>
-    </Container>
+        </button>
+      </div>
+    </div>
   );
 }
 
