@@ -1,15 +1,14 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Dashboard from "./Dashboard";
 import Login from "./Login";
 import Register from "./Register";
 import Profile from "./Profile";
 import Saved from "./Saved";
-
-
-
+import Dashboard from "./Dashboard";
 import { useState, useEffect } from "react";
 import { authService } from "../services/authService";
-import '../styles.css/global.css';
+import '../styles/global.css';
+import AddEvent from "./events/AddEvent";
+import Explore from "./events/Explore";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -44,23 +43,43 @@ function App() {
       <div className="App">
         <Routes>
           {/* Redirect to login if user is not authenticated */}
-          <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to="/add-event" /> : <Navigate to="/login" />} />
 
-          {/* Login Route */}
+          <Route path="/register" element={<Register />} />
+
           <Route path="/login" element={
             isAuthenticated ?
-              <Navigate to="/dashboard" /> :
+              <Navigate to="/add-event" /> :
               <Login setIsAuthenticated={setIsAuthenticated} />
           } />
 
-          <Route path="/register" element={<Register />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/saved" element={<Saved />} />
-
-          {/* Dashboard Route (only accessible when authenticated) */}
-          <Route path="/dashboard" element={
+					<Route path="/dashboard" element={
             isAuthenticated ?
               <Dashboard onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+          <Route path="/add-event" element={
+            isAuthenticated ?
+              <AddEvent onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+					<Route path="/explore" element={
+            isAuthenticated ?
+              <Explore onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+					<Route path="/profile" element={
+            isAuthenticated ?
+              <Profile onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+          <Route path="/saved" element={
+            isAuthenticated ?
+              <Saved onLogout={handleLogout} /> :
               <Navigate to="/login" />
           } />
         </Routes>

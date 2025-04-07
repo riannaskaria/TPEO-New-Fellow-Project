@@ -1,10 +1,14 @@
 const express = require('express');
 const { ObjectId } = require('mongodb');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 const authenticateToken = require("../auth");
 
 const Event = require('../models/event');
 const User = require('../models/user');
 const Org = require('../models/org');
+
+const { getGridFsBucket } = require("../mongodb");
 
 const router = express.Router();
 
@@ -115,67 +119,138 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 	}
 });
 
+// GET image by imageId
+router.get('/image/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({ success: false, message: 'Invalid image id format' });
+    }
+
+    const bucket = getGridFsBucket();
+    const downloadStream = bucket.openDownloadStream(new ObjectId(id));
+
+    res.set('Content-Type', 'application/octet-stream');
+
+    downloadStream.on('data', (chunk) => {
+      res.write(chunk);
+    });
+
+    downloadStream.on('error', (err) => {
+      console.error(err);
+      res.status(404).json({ success: false, message: 'Image not found' });
+    });
+
+    downloadStream.on('end', () => {
+      res.end();
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Error retrieving image', error: err.message });
+  }
+});
+
 // Post new event
-router.post('/', authenticateToken, async (req, res) => {
-	try{
-		const {userId, orgId, title, date, location, description, categories} = req.body;
+router.post('/', authenticateToken, upload.single('image'), async (req, res) => {
+  try {
+    const { userId, orgId, title, date, startTime, endTime, location, description, categories, ticketInfo } = req.body;
 
-		// Invalid user ID
-		const user = await User.findById(userId);
-		if (!user) {
-			return res.status(404).json({
-				success: false,
-				message: 'User not found'
-			});
+    // Validate user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'User not found' 
+      });
+    }
+
+    // Validate organization
+		if(orgId && ObjectId.isValid(orgId)){
+			const org = await Org.findById(orgId);
+			if (!org) {
+				return res.status(404).json({ 
+					success: false, 
+					message: 'Organization not found' 
+				});
+			}
 		}
 
-		// Invalid org ID
-		const org = await Org.findById(orgId);
-		if (!org) {
-			return res.status(404).json({
-				success: false,
-				message: 'Organization not found'
-			});
-		}
+    // Convert date (yyyy-mm-dd) and time (hh:mm) strings into Date objects
+    // Use Number() to convert string parts to numbers
+    const [year, month, day] = date.split('-');
+    const [startHour, startMinute] = startTime.split(':');
+    const [endHour, endMinute] = endTime.split(':');
 
-		// Create new event
-		const newEvent = new Event({
+    const startDate = new Date(
+      Number(year),
+      Number(month) - 1, // month is 0-indexed
+      Number(day),
+      Number(startHour),
+      Number(startMinute)
+    );
+
+    const endDate = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      Number(endHour),
+      Number(endMinute)
+    );
+
+    // Upload image to GridFS if an image file is provided
+    let imageId = null;
+    if (req.file) {
+      const bucket = getGridFsBucket();
+      const uploadStream = bucket.openUploadStream(req.file.originalname, {
+        contentType: req.file.mimetype,
+      });
+      uploadStream.end(req.file.buffer);
+
+      // Wait for the upload to complete
+      await new Promise((resolve, reject) => {
+        uploadStream.on('finish', resolve);
+        uploadStream.on('error', reject);
+      });
+
+      imageId = uploadStream.id;  // Save this ObjectId in your event
+    }
+
+    // Create new event document with converted Date objects
+    const newEvent = new Event({
 			author: userId,
-			org: orgId,
+			org: orgId && orgId.trim() !== "" ? orgId : undefined,
 			title,
-			date,
+			startTime: startDate,
+			endTime: endDate,
 			location,
 			description,
-			categories
-		});
+			categories: JSON.parse(categories || "[]"),
+			ticketInfo,
+			imageId
+		});		
 
-		// Post new event
-		const savedEvent = await newEvent.save();
+    const savedEvent = await newEvent.save();
 
-		res.status(201).json({
-			success: true,
-			message: 'Event created successfully',
-			event: savedEvent
-		});
-	}
-	catch(err){
-		console.error('Error creating event:', err);
-
-		// Invalid format
-		if (err.name === 'ValidationError') {
-			return res.status(400).json({
-				success: false,
-				message: 'Validation error',
-				error: err.message
-			});
-		  }
-
-		res.status(400).json({
-			success: false,
-			message: 'Error creating event',
-			error: err.message
-		});
-	}
+    res.status(201).json({
+      success: true,
+      message: 'Event created successfully',
+      event: savedEvent
+    });
+  } catch (err) {
+    console.error('Error creating event:', err);
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        error: err.message
+      });
+    }
+    res.status(400).json({
+      success: false,
+      message: 'Error creating event',
+      error: err.message
+    });
+  }
 });
 
 // Update event by ID
