@@ -1,0 +1,119 @@
+.event-card {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-box);
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #fff;
+  margin: 0; /* Remove extra margin */
+  width: 100%;
+  max-width: 362px; /* Fixed maximum width */
+}
+
+.event-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20px;
+	padding-left: 16px;
+	padding-right: 16px;
+	padding-bottom: 12px;
+}
+
+.event-title {
+  font: var(--event-title);
+  margin: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.save-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.save-btn img {
+  width: 20px;
+  height: 20px;
+}
+
+.event-card-body {
+  display: flex;
+  padding-bottom: 20px;
+	padding-left: 16px;
+	padding-right: 16px;
+}
+
+.event-image {
+  flex-shrink: 0;
+  width: 103px;      /* Adjust width as needed */
+  height: 95px;     /* Adjust height as needed */
+  margin-right: 12px;
+  background-color: #f0f0f0;
+  border-radius: 12px; /* Rounded corners */
+  overflow: hidden;    /* Ensure the image doesn't overflow the rounded corners */
+}
+
+.event-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit; /* Inherit the parent's border radius */
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--light-grey);
+}
+
+.event-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.event-datetime {
+  font: var(--description);
+  color: var(--text-black);
+  margin-top: 8px; /* Adds space above the date/time text */
+}
+
+.event-tags {
+  display: flex;
+  gap: 6px;
+  overflow: hidden;
+  white-space: nowrap;
+  margin-bottom: 8px; /* Adds space below the tags */
+}
+
+/* Default styling for tag badges */
+.tag-badge {
+  background-color: #eee;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: var(--text-black);
+  font: var(--event-tags);
+}
+
+/* Styling for tags based on type */
+.tag-badge.academic {
+  background-color: var(--tag-green, #c0e6a3);
+}
+
+.tag-badge.social {
+  background-color: var(--tag-orange, #f7c6a3);
+}
+
+.tag-badge.career {
+  background-color: var(--tag-blue, #a3d2e6);
+}
+
+/* Additional styling for the "+x" badge if needed */
+.tag-badge.more-tags {
+  background-color: var(--more-tags-orange, #f7ba81);
+}

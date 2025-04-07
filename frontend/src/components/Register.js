@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles.css/Register.css";
+import "../styles/Register.css";
 
 function Register() {
   const navigate = useNavigate();

@@ -28,6 +28,22 @@ const userSchema = new mongoose.Schema({
         default: [],
         required: true
     },
+		friends: {
+			type: [{
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'User'
+			}],
+			default: [],
+			required: true
+		},
+		friendRequests: {
+			type: [{
+					type: mongoose.Schema.Types.ObjectId,
+					ref: 'User'
+			}],
+			default: [],
+			required: true
+		},
     interests: [{type: String, required: true}]
 }, {
     timestamps: true,

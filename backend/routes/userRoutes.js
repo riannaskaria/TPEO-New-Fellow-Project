@@ -54,7 +54,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 // Register a new user
 router.post('/', async (req, res) => {
 	try{
-		const { username, email, password, majors, year, savedEvents, orgs, interests } = req.body;
+		const { username, email, password, majors, year, savedEvents, orgs, friends, friendRequests, interests } = req.body;
 
 		// Validate that email ends with @utexas.edu
 		const emailRegex = /^[a-zA-Z0-9._%+-]+@utexas\.edu$/;
@@ -87,6 +87,8 @@ router.post('/', async (req, res) => {
 			year,
 			savedEvents,
 			orgs,
+			friends,
+			friendRequests,
 			interests
 		});
 

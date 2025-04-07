@@ -9,7 +9,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles.css/global.css"; // Import global styles
+import "../styles/global.css"; // Import global styles
 
 function Login({ setIsAuthenticated }) {
   const navigate = useNavigate();
