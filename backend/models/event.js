@@ -8,14 +8,16 @@ const eventSchema = new mongoose.Schema({
 	},
 	org: {
 		type: mongoose.Schema.Types.ObjectId,
-		ref: 'Org',
-		required: true
+		ref: 'Org'
 	},
 	title: {type: String, required: true},
-	date: {type: Date, required: true},
+	startTime: {type: Date, required: true},
+	endTime: {type: Date, required: true},
 	location: {type: String, required: true},
 	description: {type: String, required: true},
-	categories: [{type: String, required: true}]
+	categories: [{type: String, required: true}],
+	ticketInfo: {type: String},
+	imageId: { type: mongoose.Schema.Types.ObjectId }
 }, {
 	timestamps: true,
 	versionKey: false,

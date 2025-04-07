@@ -1,0 +1,27 @@
+:root {
+  /* colors */
+  --dark-orange: #F07605;
+  --light-orange: #FFF1E5;
+  --medium-orange: #FBD2AD;
+  --white: #FFFEFC;
+  --tag-green: #D2E4D0;
+  --tag-orange: #FEE3B7;
+  --tag-blue: #CEDDE6;
+	--more-tags-orange: #f7ba81;
+  --text-black: #332D28;
+  --light-grey: #F2F2F2;
+
+  /* font size */
+	--add-event-title: bold 32px "Roboto", sans-serif;
+  --page-heading: bold 24px "Roboto", sans-serif;
+  --event-title: normal 16px "Roboto", sans-serif;
+  --add-event-field: normal 16px "Roboto", sans-serif;
+  --description: normal 12px "Roboto", sans-serif;
+  --sign-up-tags: bold 20px "Roboto", sans-serif;
+  --button: bold 16px "Roboto", sans-serif;
+  --event-tags: normal 12px "Roboto", sans-serif;
+  --page-title-size: normal 100px 'Jomhuria', cursive;
+  --log-in-labels: 16px "Roboto", sans-serif;
+
+  --border-box: 1px solid #D9D9D9;
+}

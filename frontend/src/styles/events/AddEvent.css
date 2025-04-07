@@ -1,0 +1,240 @@
+/* Overall container */
+.add-event-container {
+  margin: 0;
+  padding: 0;
+}
+
+/* Main form container */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  height: 67vh;
+  aspect-ratio: 968 / 549;
+  margin: 15vh auto;
+}
+
+/* Title Section: full width at the top */
+.title-section {
+  width: 100%;
+  margin-bottom: 0.75em;
+}
+
+.event-title-input {
+  width: 100%;
+  border: none;
+  font: var(--add-event-title);
+  color: var(--dark-orange);
+  box-sizing: border-box;
+}
+
+.event-title-input::placeholder {
+  color: var(--dark-orange);
+  font: var(--add-event-title);
+}
+
+.event-title-input:focus {
+  border: none;
+  outline: none;
+}
+
+/* Content Section: holds left & right columns */
+.content-section {
+  display: flex;
+  gap: 4vw;
+}
+
+/* Left and Right Sections now share equal width */
+.left-section,
+.right-section {
+  flex: 1;
+}
+
+/* Left Section: Only contains the Image Section */
+.left-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Image Section: Fill the left container's width and maintain a square shape */
+.image-section {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 418 / 360;
+}
+
+.image-placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: var(--light-grey);
+	border: var(--border-box);
+	border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+/* Preview image styles */
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.image-upload-button {
+  position: absolute;
+  bottom: 4%;
+  right: calc(4% * calc(360/418));  /* Right offset in proportion to the container's aspect ratio */
+	width: 10%;
+  cursor: pointer;
+}
+
+.image-upload-button img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.no-image-text {
+  font: var(--add-event-field);
+  color: var(--text-black);
+  text-align: center;
+}
+
+/* Right Section: Buttons */
+.right-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Top Buttons: Row for Add Date, Start Time, End Time */
+.top-buttons {
+  display: flex;
+  gap: 0.5vw; /* Adjust this value to control spacing between the buttons */
+  margin-bottom: 0.5em;
+}
+
+.top-buttons .modal-button {
+  flex: 1;                  /* Each button takes equal width */
+  justify-content: center;  /* Center content horizontally */
+  text-align: center;
+}
+
+/* Bottom Buttons: All other buttons below the top row */
+.bottom-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.bottom-buttons .modal-button {
+  padding-left: 0.9em; /* Increase this value as needed */
+}	
+
+.optional-section {
+  margin-top: 2em;
+	display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.optional-text{
+	margin-top: 0;
+	margin-bottom: 0.5em;
+	font: var(--add-event-field);
+}
+
+/* Modal Button (for Add Date, etc.) */
+.modal-button {
+	background-color: var(--light-grey);
+  border: var(--border-box);
+  border-radius: 8px;
+  text-align: left;
+  padding: 0.5em;
+  font: var(--add-event-field);
+  color: var(--text-black);
+  cursor: pointer;
+  outline: none;
+  transition: filter 0.3s ease-in-out; /* Smooth transition for filter changes */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.modal-button:hover {
+	filter: brightness(97%); /* Darkens the button on hover */
+}
+
+.button-icon {
+  width: 1em;
+  height: 1em;
+}
+
+/* Create Post Button */
+.create-post-container {
+  text-align: center;
+  margin: 3em 0;
+}
+
+.create-post-button {
+  background-color: var(--dark-orange);
+  color: var(--white);
+  border: none;
+  padding: 0.5em 1em;
+  font: var(--button);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.create-post-button:hover {
+  background-color: #e07b0f;
+}
+
+.tags-section {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px; /* Adjust spacing as needed */
+  margin: 1em 0;
+}
+
+/* Optional: If you need the "Add Tags" button to have similar appearance as other modal buttons */
+.tags-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  border: none;
+  border-radius: 8px;
+  padding: 0.4em 0.75em;
+  font: var(--add-event-field);
+  background-color: var(--light-orange);
+  cursor: pointer;
+  transition: filter 0.2s ease-in-out;
+}
+
+.tags-button:hover {
+  filter: brightness(98%);
+}
+
+/* Tag badge styling (if not already defined) */
+.tag-badge {
+	border: none;
+  border-radius: 8px;
+  padding: 0.4em 0.75em;
+	font: var(--add-event-field);
+  color: var(--text-black);
+}
+
+/* Color them similarly */
+.tag-badge.academic {
+  background-color: var(--tag-green);
+}
+.tag-badge.social {
+  background-color: var(--tag-orange);
+}
+.tag-badge.career {
+  background-color: var(--tag-blue);
+}

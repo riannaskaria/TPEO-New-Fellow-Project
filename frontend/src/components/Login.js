@@ -9,13 +9,12 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles.css/Login.css";
+import "../styles/global.css"; // Import global styles
+
 function Login({ setIsAuthenticated }) {
   const navigate = useNavigate();
-
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -24,15 +23,9 @@ function Login({ setIsAuthenticated }) {
     setLoading(true);
 
     try {
-      if (isRegisterMode) {
-        await authService.register(username, password);
-        alert("Registration successful! Please log in.");
-        setIsRegisterMode(false);
-      } else {
-        await authService.login(username, password);
-        setIsAuthenticated(true); // This ensures the authentication state is updated
-        navigate("/dashboard");
-      }
+      await authService.login(username, password);
+      setIsAuthenticated(true);
+      navigate("/dashboard");
     } catch (error) {
       setError(error.message);
     } finally {
@@ -40,16 +33,19 @@ function Login({ setIsAuthenticated }) {
     }
   };
 
+  const handleRegisterRedirect = () => {
+    navigate("/register");
+  };
 
   return (
-    <Container component="main" maxWidth="xs" className="login-container">
-      <Box className="login-box">
-        <Typography component="h1" variant="h4" className="login-title">
-          {isRegisterMode ? "Register" : "Log in"}
+    <Container component="main" maxWidth="xs" className="auth-container">
+      <Box className="box">
+        <Typography component="h1" variant="h4">
+          Log in
         </Typography>
-        <Box className="login-form">
+        <Box className="form">
           <TextField
-            className="login-input"
+            className="input login-input"
             variant="outlined"
             required
             fullWidth
@@ -60,7 +56,7 @@ function Login({ setIsAuthenticated }) {
             disabled={loading}
           />
           <TextField
-            className="login-input"
+            className="input login-input"
             variant="outlined"
             required
             fullWidth
@@ -71,33 +67,24 @@ function Login({ setIsAuthenticated }) {
             disabled={loading}
           />
           <Button
-            className="login-button"
+            className="button"
             fullWidth
             variant="contained"
             onClick={handleSubmit}
             disabled={loading || !username || !password}
           >
-            {loading ? "Processing..." : isRegisterMode ? "Register" : "Log in"}
-          </Button>
-          <Button
-            className="toggle-mode-button"
-            fullWidth
-            onClick={() => {
-              setIsRegisterMode((prev) => !prev);
-              setError(null);
-            }}
-            disabled={loading}
-          >
-            {isRegisterMode
-              ? "Already have an account? Log in"
-              : "Don't have an account? Register"}
+            {loading ? "Processing..." : "Log in"}
           </Button>
         </Box>
-        {error && <Alert severity="error" className="login-error">{error}</Alert>}
+        {error && <Alert severity="error" className="error-message">{error}</Alert>}
+        <Box>
+          <Button fullWidth className="link" onClick={handleRegisterRedirect} disabled={loading}>
+            Don't have an account? Register
+          </Button>
+        </Box>
       </Box>
     </Container>
   );
 }
 
 export default Login;
-

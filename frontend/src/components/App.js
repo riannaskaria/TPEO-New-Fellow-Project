@@ -1,9 +1,11 @@
 import { BrowserRouter as Router, Route, Routes, Navigate } from "react-router-dom";
-import Dashboard from "./Dashboard";
 import Login from "./Login";
+import Register from "./Register";
 import { useState, useEffect } from "react";
 import { authService } from "../services/authService";
-import '../styles.css/App.css';
+import '../styles/global.css';
+import AddEvent from "./events/AddEvent";
+import Explore from "./events/Explore";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -30,7 +32,7 @@ function App() {
   };
 
   if (loading) {
-    return <div>Loading...</div>; 
+    return <div>Loading...</div>;
   }
 
   return (
@@ -38,19 +40,26 @@ function App() {
       <div className="App">
         <Routes>
           {/* Redirect to login if user is not authenticated */}
-          <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to="/add-event" /> : <Navigate to="/login" />} />
 
           {/* Login Route */}
           <Route path="/login" element={
             isAuthenticated ?
-              <Navigate to="/dashboard" /> :
+              <Navigate to="/add-event" /> :
               <Login setIsAuthenticated={setIsAuthenticated} />
           } />
 
-          {/* Dashboard Route (only accessible when authenticated) */}
-          <Route path="/dashboard" element={
+          <Route path="/register" element={<Register />} />
+
+          <Route path="/add-event" element={
             isAuthenticated ?
-              <Dashboard onLogout={handleLogout} /> :
+              <AddEvent onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+					<Route path="/explore" element={
+            isAuthenticated ?
+              <Explore onLogout={handleLogout} /> :
               <Navigate to="/login" />
           } />
         </Routes>
