@@ -17,11 +17,14 @@
   --event-title: normal 16px "Roboto", sans-serif;
   --add-event-field: normal 16px "Roboto", sans-serif;
   --description: normal 12px "Roboto", sans-serif;
-  --sign-up-tags: bold 20px "Roboto", sans-serif;
   --button: bold 16px "Roboto", sans-serif;
   --event-tags: normal 12px "Roboto", sans-serif;
-  --page-title-size: normal 100px 'Jomhuria', cursive;
   --log-in-labels: 16px "Roboto", sans-serif;
+	--sign-up-tags: normal 20px "Roboto", sans-serif;
+	--profile-tabs: bold 15px "Roboto", sans-serif;
+	--page-title-size: normal 100px 'Jomhuria';
+	--log-in-input: 20px "Roboto", sans-serif;
 
+	/* border */
   --border-box: 1px solid #D9D9D9;
 }

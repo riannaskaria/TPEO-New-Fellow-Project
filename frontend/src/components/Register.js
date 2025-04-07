@@ -1,19 +1,11 @@
 import React, { useState } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles/Register.css";
+import "../styles/global.css";
+import "../styles/Register.css"; // Ensure the correct path
 
 function Register() {
   const navigate = useNavigate();
-
   const [currentStep, setCurrentStep] = useState(1);
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,27 +25,43 @@ function Register() {
     "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
     "Fine Arts", "Nursing", "Pharmacy", "Public Affairs", "Social Work"
   ];
-  const socialCategories = ["Arts", "Entertainment", "Athletics", "Food"];
-  const careerCategories = ["Networking", "Career Fairs", "Info Sessions", "Employer Events", "Career Guidance"];
+  const socialCategories = [
+    "Cultural",
+    "Religious",
+    "Athletics",
+    "Visual Arts",
+    "Film and Media",
+    "Music",
+    "Volunteering",
+    "Comedy",
+    "Food",
+    "Politics",
+    "Wellness",
+    "Entertainment"
+  ];
+  const careerCategories = [
+    "Networking",
+    "Career Fairs",
+    "Company Info Sessions",
+    "Employer Events",
+    "Guidance",
+    "Alumni Events",
+    "Workshops",
+    "Mock Interviews"
+  ];
 
   const handleInterestToggle = (type, category) => {
     if (type === "academic") {
       setAcademicInterests((prev) =>
-        prev.includes(category)
-          ? prev.filter((i) => i !== category)
-          : [...prev, category]
+        prev.includes(category) ? prev.filter((i) => i !== category) : [...prev, category]
       );
     } else if (type === "social") {
       setSocialInterests((prev) =>
-        prev.includes(category)
-          ? prev.filter((i) => i !== category)
-          : [...prev, category]
+        prev.includes(category) ? prev.filter((i) => i !== category) : [...prev, category]
       );
     } else if (type === "career") {
       setCareerInterests((prev) =>
-        prev.includes(category)
-          ? prev.filter((i) => i !== category)
-          : [...prev, category]
+        prev.includes(category) ? prev.filter((i) => i !== category) : [...prev, category]
       );
     }
   };
@@ -79,10 +87,8 @@ function Register() {
         await authService.register(userData);
         alert("Registration successful! Please log in.");
 
-        // Redirect to login after a short delay
-        setTimeout(() => {
-          navigate("/login");
-        }, 500);
+        // Redirect to login
+        setTimeout(() => navigate("/login"), 500);
       } else {
         setCurrentStep(currentStep + 1);
       }
@@ -93,150 +99,183 @@ function Register() {
     }
   };
 
-  const handleLoginRedirect = () => {
-    navigate("/login");
-  };
+  const handleLoginRedirect = () => navigate("/login");
+
+  const steps = ["Personal Information", "Academic Interests", "Social Interests", "Career Interests"];
 
   return (
-    <Container component="main" maxWidth={false} className="login-container">
-      <Box className="login-box">
-        <Typography component="h1" variant="h4">
-          {currentStep === 1
-            ? "Personal Information"
-            : currentStep === 2
-            ? "Select Your Academic Interests"
-            : currentStep === 3
-            ? "Select Your Social Interests"
-            : "Select Your Career Interests"}
-        </Typography>
+    <div className="register-container">
+      <div className="register-box">
 
-        <Box className="login-form">
+        {/* Progress Bar */}
+        <div className="register-progress-steps">
+          {steps.map((step, index) => (
+            <div key={step} className="progress-step">
+              <img
+                src={
+                  currentStep > index + 1
+                    ? "/assets/circle.svg"  // Completed
+                    : currentStep === index + 1
+                    ? "/assets/bee.svg"  // Current step
+                    : "/assets/ellipse.svg"  // Uncompleted step
+                }
+                alt={`Step ${index + 1}`}
+                className="step-dot"
+              />
+              {index < steps.length - 1 && (
+                <img
+                  src={
+                    currentStep > index + 1
+                      ? "/assets/line.svg"  // Completed connection
+                      : "/assets/line.svg"  // Inactive connection
+                  }
+                  alt="Line"
+                  className="step-line"
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Registration Form */}
+        <div className="register-form">
           {currentStep === 1 && (
             <>
-              {/* Row for Username and Email */}
-              <div className="input-row">
-                <TextField
-                  fullWidth
-                  label="Username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-                <TextField
-                  fullWidth
-                  label="Email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  disabled={loading}
-                />
+              <h2 className="register-title">Personal Information</h2>
+              <div className="register-input-row">
+                <div className="input-field-group">
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    className="register-input"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="input-field-group">
+                  <input
+                    type="email"
+                    placeholder="Email"
+                    className="register-input"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="register-input-row">
+                <div className="input-field-group">
+                  <input
+                    type="password"
+                    placeholder="Password"
+                    className="register-input"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="input-field-group">
+                  <input
+                    type="text"
+                    placeholder="Majors (comma separated)"
+                    className="register-input"
+                    value={majors}
+                    onChange={(e) => setMajors(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+              </div>
+              <div className="register-input-row">
+                <div className="input-field-group" style={{ width: '100%' }}>
+                  <input
+                    type="number"
+                    placeholder="Year"
+                    className="register-input"
+                    value={year}
+                    onChange={(e) => setYear(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
               </div>
 
-              {/* Row for Password and Majors */}
-              <div className="input-row">
-                <TextField
-                  fullWidth
-                  label="Password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-                <TextField
-                  fullWidth
-                  label="Majors (comma-separated)"
-                  value={majors}
-                  onChange={(e) => setMajors(e.target.value)}
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              {/* Row for Year */}
-              <div className="input-row">
-                <TextField
-                  fullWidth
-                  label="Year"
-                  type="number"
-                  value={year}
-                  onChange={(e) => setYear(e.target.value)}
-                  required
-                  disabled={loading}
-                />
+              <div className="register-nav-buttons">
+                <button  className="register-toggle-login-button left-align" onClick={handleLoginRedirect} disabled={loading}>
+                  Already have an account?
+                </button>
+                <div className="next-button-container">
+                  <button
+                    className="next-button"
+                    onClick={handleSubmit}
+                    disabled={loading || !username || !email || !majors || !year || !password}
+                  >
+                    {loading ? "Processing..." : "Next"}
+                  </button>
+                </div>
               </div>
             </>
           )}
 
-          {currentStep === 2 && (
-            <div className="interests-container">
-              {academicCategories.map((category) => (
-                <Button
-                  key={category}
-                  className={`interest-button ${academicInterests.includes(category) ? "selected" : ""}`}
-                  onClick={() => handleInterestToggle("academic", category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
+          {(currentStep === 2 || currentStep === 3 || currentStep === 4) && (
+            <>
+              <h2 className="register-title">
+                {currentStep === 2
+                  ? "Select all types of academic events you're interested in:"
+                  : currentStep === 3
+                  ? "Select social activities you enjoy:"
+                  : "Select career services you're interested in:"}
+              </h2>
+              <div className="register-interests-container">
+                {(currentStep === 2 ? academicCategories :
+                  currentStep === 3 ? socialCategories : careerCategories).map((category) => {
+                  const type = currentStep === 2 ? "academic" : currentStep === 3 ? "social" : "career";
+                  const isSelected =
+                    (type === "academic" && academicInterests.includes(category)) ||
+                    (type === "social" && socialInterests.includes(category)) ||
+                    (type === "career" && careerInterests.includes(category));
+
+                  return (
+                    <button
+                      key={category}
+                      className={`register-interest-button ${type} ${isSelected ? "selected" : ""}`}
+                      onClick={() => handleInterestToggle(type, category)}
+                    >
+                      {isSelected && <img src="/assets/cancel.svg" alt="Remove" className="cancel-icon" />}
+                      {category}
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="register-nav-buttons">
+                <button className="back-button" onClick={() => setCurrentStep(currentStep - 1)} disabled={loading}>
+                  Back
+                </button>
+                <div className="next-button-container">
+                  <button className="skip-button" onClick={() => setCurrentStep(currentStep + 1)}>
+                    Skip
+                  </button>
+                  <button
+                    className="next-button"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    {currentStep === 4 ? "Register" : "Next"}
+                  </button>
+                </div>
+              </div>
+            </>
           )}
+        </div>
 
-          {currentStep === 3 && (
-            <div className="interests-container">
-              {socialCategories.map((category) => (
-                <Button
-                  key={category}
-                  className={`interest-button ${socialInterests.includes(category) ? "selected" : ""}`}
-                  onClick={() => handleInterestToggle("social", category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          {currentStep === 4 && (
-            <div className="interests-container">
-              {careerCategories.map((category) => (
-                <Button
-                  key={category}
-                  className={`interest-button ${careerInterests.includes(category) ? "selected" : ""}`}
-                  onClick={() => handleInterestToggle("career", category)}
-                >
-                  {category}
-                </Button>
-              ))}
-            </div>
-          )}
-
-          <Button
-            fullWidth
-            variant="contained"
-            onClick={handleSubmit}
-            disabled={
-              loading ||
-              (currentStep === 1 &&
-                (!username || !email || !majors || !year || !password))
-            }
-          >
-            {loading ? "Processing..." : currentStep === 4 ? "Register" : "Next"}
-          </Button>
-        </Box>
-
-        {error && <Alert severity="error">{error}</Alert>}
-
-        <Button
-          fullWidth
-          className="toggle-mode-button"
-          onClick={handleLoginRedirect}
-          disabled={loading}
-        >
-          Already have an account? Login
-        </Button>
-      </Box>
-    </Container>
+        {/* Error Message */}
+        {error && <div className="register-error">{error}</div>}
+      </div>
+    </div>
   );
 }
 

@@ -1,15 +1,8 @@
 import React, { useState } from "react";
-import {
-  Container,
-  TextField,
-  Button,
-  Typography,
-  Box,
-  Alert,
-} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles/global.css"; // Import global styles
+import "../styles/global.css";
+import "../styles/Login.css";
 
 function Login({ setIsAuthenticated }) {
   const navigate = useNavigate();
@@ -38,52 +31,55 @@ function Login({ setIsAuthenticated }) {
   };
 
   return (
-    <Container component="main" maxWidth="xs" className="auth-container">
-      <Box className="box">
-        <Typography component="h1" variant="h4">
-          Log in
-        </Typography>
-        <Box className="form">
-          <TextField
-            className="input login-input"
-            variant="outlined"
-            required
-            fullWidth
-            label="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            autoFocus
-            disabled={loading}
-          />
-          <TextField
-            className="input login-input"
-            variant="outlined"
-            required
-            fullWidth
-            label="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            disabled={loading}
-          />
-          <Button
-            className="button"
-            fullWidth
-            variant="contained"
-            onClick={handleSubmit}
+    <div className="auth-container">
+      <img src="/assets/logo.svg" alt="Logo" className="logo-login" />
+      <div className="box">
+        <h1 className="login-title">LOG IN</h1>
+        <form className="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+          <div className="input-group">
+            <input
+              id="username"
+              className="input-field"
+              type="text"
+              placeholder="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+          <div className="input-group">
+            <input
+              id="password"
+              className="input-field"
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              disabled={loading}
+              required
+            />
+          </div>
+          <button
+            className="submit-button"
+            type="submit"
             disabled={loading || !username || !password}
           >
-            {loading ? "Processing..." : "Log in"}
-          </Button>
-        </Box>
-        {error && <Alert severity="error" className="error-message">{error}</Alert>}
-        <Box>
-          <Button fullWidth className="link" onClick={handleRegisterRedirect} disabled={loading}>
-            Don't have an account? Register
-          </Button>
-        </Box>
-      </Box>
-    </Container>
+            {loading ? "Processing..." : "Sign In"}
+          </button>
+        </form>
+        {error && <div className="error-message">{error}</div>}
+        <button
+          className="register-link"
+          onClick={handleRegisterRedirect}
+          disabled={loading}
+        >
+          don't have an account? sign up
+        </button>
+        <img src="/assets/bee-line.svg" alt="bee line" className="bee-line-graphic" />
+        <img src="/assets/bee.svg" alt="bee line" className="bee-graphic" />
+      </div>
+    </div>
   );
 }
 
