@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import '../styles.css/Dashboard.css';
+import '../styles/Dashboard.css';
 import Header from "./Header.js";
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService'; // Import auth service

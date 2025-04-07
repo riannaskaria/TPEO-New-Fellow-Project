@@ -2,8 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import Header from "./Header";
-import "../styles.css/global.css";
-import "../styles.css/Profile.css";
+import "../styles/global.css";
+import "../styles/Profile.css";
 
 const Profile = ({ onLogout }) => {
   const [user, setUser] = useState(null);

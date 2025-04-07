@@ -54,10 +54,10 @@ input:-webkit-autofill:active {
 
   .input-field {
     background-color: var(--light-orange);
-    border: var(--border-width) solid var(--grey);
+    border: var(--border-box);
     border-radius: 8px;
     padding:8px;
-    gap:10px;
+    gap: 10px;
     font: var(--log-in-labels);
     color: var(--text-black);
     width: 100%;

@@ -31,7 +31,7 @@
   font: var(--profile-tabs);
   background-color: var(--white);
   color: var(--text-black);
-  border: 1px solid var(--border-grey);
+  border: var(--border-box);
   border-radius: 6px;
   cursor: pointer;
   transition: 0.2s ease-in-out;
@@ -74,7 +74,7 @@
 .field textarea {
   padding: 10px 12px;
   font-size: 20px;
-  border: 1px solid var(--border-grey);
+	border: var(--border-box);
   border-radius: 5px;
   color: var(--text-black);
   background-color: var(--white);

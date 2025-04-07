@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
-import "../styles.css/global.css";
-import "../styles.css/Register.css"; // Ensure the correct path
+import "../styles/global.css";
+import "../styles/Register.css"; // Ensure the correct path
 
 function Register() {
   const navigate = useNavigate();
