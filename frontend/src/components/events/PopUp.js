@@ -19,7 +19,7 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
   // For organization modal, fetch organizations using authService.fetchWithAuth
   useEffect(() => {
     if (modalType === "organization") {
-      authService.fetchWithAuth("http://localhost:5000/orgs")
+      authService.fetchWithAuth("http://localhost:3001/orgs")
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -106,10 +106,10 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
                 onClick={() => handleTagToggle(cat)}
               >
                 <span>{cat}</span>
-                <img 
-                  src="/assets/add-event/plus-circle.svg" 
-                  alt="Plus Icon" 
-                  className="tag-plus-icon" 
+                <img
+                  src="/assets/add-event/plus-circle.svg"
+                  alt="Plus Icon"
+                  className="tag-plus-icon"
                 />
               </button>
             ))}
@@ -123,10 +123,10 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
                 onClick={() => handleTagToggle(cat)}
               >
                 <span>{cat}</span>
-                <img 
-                  src="/assets/add-event/plus-circle.svg" 
-                  alt="Plus Icon" 
-                  className="tag-plus-icon" 
+                <img
+                  src="/assets/add-event/plus-circle.svg"
+                  alt="Plus Icon"
+                  className="tag-plus-icon"
                 />
               </button>
             ))}
@@ -140,10 +140,10 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
                 onClick={() => handleTagToggle(cat)}
               >
                 <span>{cat}</span>
-                <img 
-                  src="/assets/add-event/plus-circle.svg" 
-                  alt="Plus Icon" 
-                  className="tag-plus-icon" 
+                <img
+                  src="/assets/add-event/plus-circle.svg"
+                  alt="Plus Icon"
+                  className="tag-plus-icon"
                 />
               </button>
             ))}

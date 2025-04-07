@@ -62,7 +62,7 @@ function AddEvent() {
       if (eventData.image) {
         formData.append("image", eventData.image);
       }
-      
+
       formData.append("userId", authService.getCurrentUser()._id || "");
       formData.append("orgId", eventData.organization);
       formData.append("title", eventData.title);
@@ -74,7 +74,7 @@ function AddEvent() {
       formData.append("categories", JSON.stringify(eventData.categories));
       formData.append("ticketInfo", eventData.ticketInfo);
 
-      const response = await authService.fetchWithAuth("http://localhost:5000/events", {
+      const response = await authService.fetchWithAuth("http://localhost:3001/events", {
         method: "POST",
         body: formData,
       });
