@@ -28,6 +28,19 @@ function Explore() {
   const careerTags = ["Networking", "Career Fairs", "Info Sessions", "Employer Events", "Career Guidance"];
 
   useEffect(() => {
+    // Get the selected category from localStorage
+    const selectedCategory = JSON.parse(localStorage.getItem('selectedCategory'));
+    if (selectedCategory) {
+      const { name, type } = selectedCategory;
+      // Update state to filter events by the selected category
+      if (type === 'academic') {
+        setSelectedAcademic([name]);
+      } else if (type === 'social') {
+        setSelectedSocial([name]);
+      } else if (type === 'career') {
+        setSelectedCareer([name]);
+      }
+    }
     authService.fetchWithAuth("http://localhost:3001/events")
       .then((res) => res.json())
       .then((data) => {

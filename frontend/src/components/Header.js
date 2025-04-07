@@ -13,7 +13,7 @@ function Header({ user, handleLogout }) {
     const isHovered = hoveredButton === buttonName;
 
     if (buttonName === "discover") {
-      const isActive = window.location.pathname === "/dashboard";
+      const isActive = window.location.pathname === "/explore";
       return isHovered || isActive
         ? `/assets/orange discover.svg`
         : `/assets/black-discover.svg`;
@@ -59,7 +59,7 @@ function Header({ user, handleLogout }) {
 
       <nav className="nav-links">
         <button
-          className={`nav-button ${window.location.pathname === "/dashboard" ? "active" : ""}`}
+          className={`nav-button ${window.location.pathname === "/explore" ? "active" : ""}`}
           onClick={() => navigate("/explore")}
           onMouseEnter={() => setHoveredButton("discover")}
           onMouseLeave={() => setHoveredButton(null)}

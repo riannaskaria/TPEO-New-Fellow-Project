@@ -3,97 +3,200 @@ import '../styles/Dashboard.css';
 import Header from "./Header.js";
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService'; // Import auth service
+import EventCard from './events/EventCard';
+
 
 const Dashboard = ({ onLogout }) => {
   // State for user info
   const [user, setUser] = useState(null);
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([
-    { name: 'Athletics', eventsCount: 22, icon: 'athletics.svg' },
-    { name: 'Career Fairs', eventsCount: 8, icon: 'career-fairs.svg' },
-    { name: 'Arts', eventsCount: 10, icon: 'arts.svg' },
-    { name: 'Wellness', eventsCount: 12, icon: 'wellness.svg' },
-    { name: 'Food', eventsCount: 16, icon: 'food.svg' },
-    { name: 'Guidance', eventsCount: 14, icon: 'guidance.svg' },
-    { name: 'Business', eventsCount: 8, icon: 'business.svg' },
-    { name: 'Music', eventsCount: 22, icon: 'music.svg' }
+    { name: 'Athletics', icon: 'athletics.svg' },
+    { name: 'Career Fairs', icon: 'career-fairs.svg' },
+    { name: 'Arts', icon: 'arts.svg' },
+    { name: 'Wellness', icon: 'wellness.svg' },
+    { name: 'Food', icon: 'food.svg' },
+    { name: 'Guidance', icon: 'guidance.svg' },
+    { name: 'Business', icon: 'business.svg' },
+    { name: 'Music', icon: 'music.svg' }
   ]);
-  const [trendingEvents, setTrendingEvents] = useState([
-    { name: 'Women\'s Basketball', date: 'March 12, 2025', location: 'Sports Arena' },
-    { name: 'COLA Research Fair', date: 'March 13, 2025', location: 'Main Hall' },
-    { name: 'TPEO JavaScript Course', date: 'March 14, 2025', location: 'Room 101' },
-    { name: 'Kupid Dating Show', date: 'March 15, 2025', location: 'Event Center' },
-    { name: 'Demystifying Taxes Workshop', date: 'March 7, 2025', location: 'Event Center' },
-  ]);
+  const [trendingEvents, setTrendingEvents] = useState([]);
   const [recommendedEvents, setRecommendedEvents] = useState([]);
+  const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Get current user from localStorage (set during login)
+    // Check if user is logged in
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
 
-      // Fetch all events without filtering
-      const fetchAllEvents = async () => {
+      // Fetch all events
+      const fetchEvents = async () => {
         try {
-          const response = await authService.fetchWithAuth('http://localhost:3001/events'); // Fixed the URL
+          const response = await authService.fetchWithAuth('http://localhost:3001/events');
           if (response.ok) {
             const data = await response.json();
-            setEvents(data.data); 
-            setRecommendedEvents(data.data);
+            const allEvents = data.data;
+
+            // Sort all events by start date (closest first)
+            const sortedEvents = [...allEvents].sort((a, b) =>
+              new Date(a.startTime) - new Date(b.startTime)
+            );
+
+            setEvents(sortedEvents);
+
+            // Set trending events (if needed to be filtered can add later)
+            setTrendingEvents(sortedEvents);
+
+            // Filter recommended events based on user preferences
+            filterRecommendedEvents(sortedEvents, currentUser);
+
+            // Update categories with event counts
+            updateCategoryCounts(sortedEvents);
           }
         } catch (error) {
           console.error('Failed to fetch events:', error);
         }
       };
 
-      fetchAllEvents();
+      fetchEvents();
     }
   }, []);
 
-  // Handle logout
+  // Calculate event counts for each category
+  const updateCategoryCounts = (allEvents) => {
+    if (!allEvents || allEvents.length === 0) return;
+
+    const updatedCategories = categories.map(category => {
+      // Count events that belong to this category
+      const eventsCount = allEvents.filter(event =>
+        event.categories && event.categories.includes(category.name)
+      ).length;
+
+      return { ...category, eventsCount };
+    });
+
+    setCategories(updatedCategories);
+  };
+
+  const handleToggleSave = (eventId, newSavedState) => {
+    const updatedSavedEvents = newSavedState
+      ? [...(currentUser.savedEvents || []), eventId]
+      : (currentUser.savedEvents || []).filter(id => id !== eventId);
+
+    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ savedEvents: updatedSavedEvents })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setCurrentUser(data.data);
+          localStorage.setItem("user", JSON.stringify(data.data));
+          console.log("Saved events updated");
+        }
+      })
+      .catch((err) => console.error("Error updating saved events:", err));
+  };
+
+
+  // Filter recommended events based on user preferences - simplified version
+  const filterRecommendedEvents = (allEvents, user) => {
+    if (!user || !allEvents || allEvents.length === 0) return; // If user has no preferences, no possible events
+    const userInterests = user.interests || [];
+    const userMajors = user.majors || [];
+    const userOrgs = user.orgs || [];
+
+    // Filter events that match user preferences
+    const recommended = allEvents.filter(event => {
+      // Check if any category matches user interests or majors
+      const hasMatchingCategory = event.categories &&
+        event.categories.some(category =>
+          userInterests.includes(category) || userMajors.includes(category)
+        );
+
+      // Check if org matches any of user's orgs
+      const hasMatchingOrg = userOrgs.length > 0 &&
+        event.org && userOrgs.includes(event.org.toString());
+
+      return hasMatchingCategory || hasMatchingOrg;
+    });
+
+    // If no matches found, use all events as fallback
+    setRecommendedEvents(recommended.length > 0 ? recommended : allEvents);
+  };
+
   const handleLogout = () => {
     if (onLogout) {
-      onLogout(); // Call the logout function from App.js
+      onLogout();
     }
+  };
+
+  // Handle category selection - redirect to Explore page with category filter
+  const handleCategorySelect = (categoryName) => {
+    // Determine category type (academic, social, or career)
+    const academicTags = [
+      "Business", "Liberal Arts", "Natural Sciences", "Engineering", "Communications",
+      "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
+      "Fine Arts", "Nursing", "Pharmacy", "Public Affairs", "Social Work"
+    ];
+
+    const socialTags = ["Arts", "Entertainment", "Athletics", "Food"];
+
+    const careerTags = ["Career Fairs", "Networking", "Info Sessions", "Employer Events", "Career Guidance"];
+
+    // Save selected category and its type in localStorage
+    localStorage.setItem('selectedCategory', JSON.stringify({
+      name: categoryName,
+      type: academicTags.includes(categoryName) ? 'academic' :
+            socialTags.includes(categoryName) ? 'social' :
+            careerTags.includes(categoryName) ? 'career' : null
+    }));
+
+    // Navigate to the Explore page
+    navigate('/explore');
   };
 
   return (
     <div className="dashboard-page">
-      {/* Header Section */}
-      <Header user={user} handleLogout={handleLogout} />
-      <h1 className="login-title">WHAT’S THE BUZZ?</h1>
-      <div className="trending-container">
-      {/* Main Content */}
-      <div className="main-content">
-        {/* Trending Events Section */}
-        <div className="trending-events-wrapper">
-        <section className="trending-events">
-          <h2 className="page-heading">Trending Events</h2>
-          <div className="events-list">
-            {trendingEvents.map((event, index) => (
-              <div key={index} className="event-card">
-                <div className="event-number">{index + 1}</div>
-                <div className="event-details">
-                  <p><strong>{event.name}</strong></p>
-                </div>
+      <div className="orange-container">
+        {/* Header Section */}
+        <Header user={user} handleLogout={handleLogout} />
+        <h1 className="login-title">WHAT'S THE BUZZ?</h1>
+        {/* Main Content */}
+        <div className="main-content">
+          {/* Trending Events Section */}
+          <div className="trending-events-wrapper">
+            <section className="trending-events">
+              <h2 className="page-heading">Trending Events</h2>
+              <div className="events-list">
+                {trendingEvents.length === 0 ? (
+                  <p>No trending events available at the moment.</p>
+                ) : (
+                  trendingEvents.map((event, index) => (
+                    <EventCard key={index} event={event} currentUser={user} onToggleSave={handleToggleSave}/>
+                  ))
+                )}
               </div>
-            ))}
+            </section>
           </div>
-        </section>
         </div>
       </div>
-      </div>
+
       <div className="dashboard-container">
         <div className="main-content">
-        {/* Browse by Category Section */}
-
+          {/* Browse by Category Section */}
           <h2 className="page-heading">Browse by Category</h2>
           <div className="categories-list">
             {categories.map((category, index) => (
-              <button key={index} className="category-button">
+              <button
+                key={index}
+                className="category-button"
+                onClick={() => handleCategorySelect(category.name)}
+              >
                 <div className="category-header">
                   <img
                     src={`/assets/${category.icon}`}
@@ -102,34 +205,25 @@ const Dashboard = ({ onLogout }) => {
                   />
                   <span className="category-name">{category.name}</span>
                 </div>
-                <span className="event-count">{category.eventsCount} Events</span>
+                <span className="event-count">{category.eventsCount || 0} Events</span>
               </button>
             ))}
           </div>
 
-        {/* Recommended Events Section */}
+          {/* Recommended Events Section */}
           <h2 className="page-heading">For You</h2>
           <div className="events-list">
             {recommendedEvents.length === 0 ? (
               <p>No recommended events available at the moment.</p>
             ) : (
               recommendedEvents.map((event, index) => (
-                <div key={index} className="event-card">
-                  <div className="event-details">
-                    <p><strong>{event.name}</strong></p>
-                    <p>{event.date} • {event.startTime}</p>
-                    <p>{event.friendsSaved} Friends Saved This Event</p>
-                    <div className="category-box">
-                      <span className="category-name">{event.category}</span>
-                    </div>
-                  </div>
-                </div>
+                <EventCard key={index} event={event} currentUser={user} onToggleSave={handleToggleSave}/>
               ))
             )}
           </div>
+        </div>
       </div>
-      </div>
-      </div>
+    </div>
   );
 };
 
