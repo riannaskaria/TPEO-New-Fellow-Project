@@ -1,17 +1,9 @@
-body {
-  background-color: var(--light-orange); /* Set the default background to white */
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-}
-
 .trending-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   width: 100%;
   background-color: var(--light-orange);
-
 }
 
 .main-content {
@@ -27,7 +19,6 @@ body {
   width: 100%;
   background-color: var(--white);
   height: 475px;
-
 }
 
 .main-content {
@@ -40,16 +31,13 @@ body {
   background-color: var(--white);
 }
 
-section {
-  margin-bottom: 40px;
-}
-
 .trending-events-wrapper {
   width: 100%; /* Ensure it takes full width */
   background-color: var(--light-orange); /* Light orange background */
 }
 
 .trending-events {
+	margin-bottom: 40px;
   width: 100%;
   overflow-x: auto;
   background-color: var(--light-orange); /* Keeps the background light orange for Trending Events */
@@ -76,7 +64,7 @@ section {
   justify-content: flex-start;
 }
 
-.event-card {
+/* .event-card {
   display: flex;
   align-items: left;
   min-width: 200px;
@@ -87,7 +75,7 @@ section {
   position: relative;
   margin-left: 60px;
   background-color: #fff;
-}
+} */
 
 .event-number {
   position: absolute;

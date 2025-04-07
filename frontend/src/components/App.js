@@ -43,13 +43,13 @@ function App() {
       <div className="App">
         <Routes>
           {/* Redirect to login if user is not authenticated */}
-          <Route path="/" element={isAuthenticated ? <Navigate to="/add-event" /> : <Navigate to="/login" />} />
+          <Route path="/" element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/login" />} />
 
           <Route path="/register" element={<Register />} />
 
           <Route path="/login" element={
             isAuthenticated ?
-              <Navigate to="/add-event" /> :
+              <Navigate to="/dashboard" /> :
               <Login setIsAuthenticated={setIsAuthenticated} />
           } />
 

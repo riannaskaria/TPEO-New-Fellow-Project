@@ -233,7 +233,7 @@ function AddEvent() {
             <img src="/assets/add-event/plus-circle.svg" alt="Tag Icon" className="button-icon" />
           </button>
           {eventData.categories.map((tag, index) => (
-            <span key={index} className={`tag-badge ${getTagColorClass(tag)}`}>
+            <span key={index} className={`add-event-tag-badge ${getTagColorClass(tag)}`}>
               {tag}
             </span>
           ))}

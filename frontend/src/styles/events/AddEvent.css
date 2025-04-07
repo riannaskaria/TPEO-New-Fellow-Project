@@ -220,21 +220,21 @@
 }
 
 /* Tag badge styling (if not already defined) */
-.tag-badge {
+.add-event-tag-badge {
 	border: none;
   border-radius: 8px;
   padding: 0.4em 0.75em;
-	font: var(--add-event-field);
+	font: var(--add-event-tags);
   color: var(--text-black);
 }
 
 /* Color them similarly */
-.tag-badge.academic {
+.add-event-tag-badge.academic {
   background-color: var(--tag-green);
 }
-.tag-badge.social {
+.add-event-tag-badge.social {
   background-color: var(--tag-orange);
 }
-.tag-badge.career {
+.add-event-tag-badge.career {
   background-color: var(--tag-blue);
 }

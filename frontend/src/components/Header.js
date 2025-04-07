@@ -10,7 +10,7 @@ function Header({ user, handleLogout }) {
 
   const getIconSrc = (buttonName) => {
     const isActive = hoveredButton === buttonName || (buttonName === "discover" && window.location.pathname === "/dashboard");
-    return isActive ? `/assets/orange-${buttonName}.svg` : `/assets/black-${buttonName}.svg`;
+    return isActive ? `/assets/orange ${buttonName}.svg` : `/assets/black-${buttonName}.svg`;
   };
 
   return (
@@ -32,7 +32,7 @@ function Header({ user, handleLogout }) {
       <nav className="nav-links">
         <button
           className={`nav-button ${window.location.pathname === "/dashboard" ? "active" : ""}`}
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/explore")}
           onMouseEnter={() => setHoveredButton("discover")}
           onMouseLeave={() => setHoveredButton(null)}
         >

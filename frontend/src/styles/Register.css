@@ -87,7 +87,7 @@
 
 /* Interest Button Styling */
 .register-interest-button {
-  font: var(--event-tags);
+  font: var(--sign-up-tags);
   padding: 8px 16px;
   border-radius: 8px;
   border: 1px solid #E0E0E0;
