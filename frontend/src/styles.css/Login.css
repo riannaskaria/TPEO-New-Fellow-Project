@@ -9,9 +9,10 @@ input:-webkit-autofill:active {
 }
 
 .auth-container {
-    max-width: 32%;
+    max-width: 40%;
     margin: 50px auto;
     padding: 40px 20px;
+    color: var(--light-orange);
   }
 
   .box {
@@ -52,10 +53,11 @@ input:-webkit-autofill:active {
   }
 
   .input-field {
-    background-color: var(--medium-orange);
-    border: var(--border-width) solid var(--border-grey);
-    border-radius: 4px;
-    padding: 12px 15px;
+    background-color: var(--light-orange);
+    border: var(--border-width) solid var(--grey);
+    border-radius: 8px;
+    padding:8px;
+    gap:10px;
     font: var(--log-in-labels);
     color: var(--text-black);
     width: 100%;
@@ -130,12 +132,11 @@ input:-webkit-autofill:active {
     position: absolute;
     width: 80%;
     height: auto;
-    top: 35%;
+    bottom: 0;
     left: 5%;
     z-index: -1;
     transform: translateX(-7%);
-  }
-
+}
 
 .bee-graphic {
   position: absolute;

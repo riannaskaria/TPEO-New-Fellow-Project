@@ -1,87 +1,17 @@
 body {
-  font-family: 'Inter', sans-serif;
-  background-color: #fcf3eb;
+  background-color: var(--light-orange); /* Set the default background to white */
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
 }
 
-.dashboard-container {
+.trending-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 10px;
-}
-
-/* Header Section */
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
   width: 100%;
-  padding: 10px 20px;
-  margin-top: 5px;
-  background-color: #fcf3eb;
-}
+  background-color: var(--light-orange);
 
-.nav-links {
-  display: flex;
-  gap: 15px;
-  justify-content: flex-end;
-  width: 100%;
-}
-
-.nav-button {
-  padding: 10px 15px;
-  background-color: transparent;
-  color: black;
-  font-family: 'Inter', sans-serif;
-  font-weight: 900;
-  font-size: 20px;
-  line-height: 36px;
-  letter-spacing: 0px;
-  border: none;
-  cursor: pointer;
-}
-
-.nav-button:hover {
-  color: #F07605;
-}
-
-
-.nav-button.active {
-  color: #F07605;
-}
-
-/* Search Bar Styling */
-.search-bar-container {
-  margin-left: 50px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.search-bar {
-  padding: 10px;
-  font-size: 16px;
-  width: 356px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  background-color: #fff;
-  outline: none;
-}
-
-.search-bar:focus {
-  border-color: #F07605;
-}
-
-.profile-section {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-}
-
-.profile-pic {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
 }
 
 .main-content {
@@ -90,13 +20,39 @@ body {
   margin-top: 20px;
 }
 
+.dashboard-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  background-color: var(--white);
+  height: 475px;
+
+}
+
+.main-content {
+  width: 100%;
+  max-width: 1400px;
+  margin-top: 20px;
+}
+
+.outer-content-white {
+  background-color: var(--white);
+}
+
 section {
   margin-bottom: 40px;
+}
+
+.trending-events-wrapper {
+  width: 100%; /* Ensure it takes full width */
+  background-color: var(--light-orange); /* Light orange background */
 }
 
 .trending-events {
   width: 100%;
   overflow-x: auto;
+  background-color: var(--light-orange); /* Keeps the background light orange for Trending Events */
 }
 
 .trending-title {
@@ -118,7 +74,6 @@ section {
   flex-wrap: nowrap;
   gap: 20px;
   justify-content: flex-start;
-  margin-left: -30px;
 }
 
 .event-card {
@@ -158,14 +113,21 @@ section {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
+  align-items: left;
+  gap: 10px; /* Add space between the icon and category name */
   padding: 12px;
-  background-color: #F0760580;
-  border: none;
+  background-color: var(--white);
+  border-color: var(--bor);
   border-radius: 8px;
   width: auto;
-  min-width: 180px;
-  max-width: 220px;
+  border-width: var(--border-width);
+  min-width: 210px;
+}
+
+.category-button .category-header {
+  display: flex;
+  align-items: left;
+  gap: 10px;
 }
 
 .category-name {
@@ -174,7 +136,7 @@ section {
   font-size: 24px;
   line-height: 20px;
   width: 100%;
-  text-align: center;
+  text-align: left;
 }
 
 .event-count {
@@ -183,8 +145,7 @@ section {
   font-size: 12px;
   line-height: 12px;
   width: 100%;
-  text-align: center;
-  margin-top: 4px;
+  text-align: left;
 }
 
 .categories-list {
@@ -209,6 +170,7 @@ section {
 .recommended-events {
   width: 100%;
   overflow-x: auto;
+  background-color: var(--white); /* Keep this section's background white */
   margin-left: -30px;
 }
 
@@ -237,7 +199,6 @@ section {
   display: flex;
   flex-direction: column;
 }
-
 
 .recommended-events .event-details p strong {
   font-family: 'Inter', sans-serif;
@@ -299,4 +260,3 @@ section {
 .logout-button:hover {
   background-color: #d95d00;
 }
-

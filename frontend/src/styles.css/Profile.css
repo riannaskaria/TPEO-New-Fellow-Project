@@ -1,0 +1,217 @@
+/* Page Wrapper */
+.profile-page {
+  background-color: var(--white);
+  min-height: 100vh;
+}
+
+/* Settings Title */
+.profile-page h2 {
+  font: var(--page-heading);
+  text-align: left;
+  margin-bottom: 30px;
+  color: var(--text-black);
+}
+
+/* Profile Content Section */
+.profile-content {
+  font: var(--event-title);
+  padding: 30px;
+}
+
+/* Tabs */
+.profile-tabs {
+  display: flex;
+  justify-content: flex-start;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.profile-tabs button {
+  padding: 10px 20px;
+  font: var(--profile-tabs);
+  background-color: var(--white);
+  color: var(--text-black);
+  border: 1px solid var(--border-grey);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease-in-out;
+  width: 182px;
+}
+
+.profile-tabs button.active {
+  background-color: var(--dark-orange);
+  color: var(--white);
+}
+
+.profile-tabs button:hover {
+  background-color: var(--medium-orange);
+  color: var(--white);
+}
+
+/* Form Row Layout */
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 25px;
+}
+
+/* Input Field Styles */
+.field {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+}
+
+.field label {
+  font-size: 20px;
+  margin-bottom: 6px;
+  color: var(--text-black);
+}
+
+.field input,
+.field textarea {
+  padding: 10px 12px;
+  font-size: 20px;
+  border: 1px solid var(--border-grey);
+  border-radius: 5px;
+  color: var(--text-black);
+  background-color: var(--white);
+  transition: border-color 0.2s ease-in-out;
+}
+
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--dark-orange);
+  outline: none;
+}
+
+.field input:disabled,
+.field textarea:disabled {
+  background-color: white;
+}
+
+.field input:not(:disabled),
+.field textarea:not(:disabled) {
+  background-color: var(--light-orange);
+}
+
+/* Action Buttons */
+.profile-page .account-tab button,
+.profile-page .preferences-tab button {
+  padding: 10px 20px;
+  background-color: var(--dark-orange);
+  color: var(--white);
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.profile-page .account-tab button:hover,
+.profile-page .preferences-tab button:hover {
+  background-color: var(--medium-orange);
+}
+
+.preferences-container {
+    background-color: var(--light-orange);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+  }
+
+  /* White Box Holding Preferences */
+  .preferences-box {
+    background-color: var(--white);
+    width: 903px;
+    min-height: 529px;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  /* Section Title */
+  .preferences-title {
+    font: var(--page-heading);
+    color: var(--text-black);
+    margin-bottom: 4%;
+    margin-left: 4%;
+    text-align: left;
+  }
+
+  /* Subtitle */
+  .preferences-subtitle {
+    font: var(--sub-heading);
+    color: var(--text-black);
+    margin-bottom: 20px;
+    text-align: left;
+    margin-left: 4%;
+  }
+
+  /* Interests Container */
+  .preferences-interests-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: flex-start;
+    margin-left: 4%;
+    max-width: 90%;
+    margin-bottom: 30px;
+  }
+
+  /* Interest Buttons */
+  .preferences-interest-button {
+    font: var(--event-tags);
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid #E0E0E0;
+    cursor: pointer;
+    transition: 0.3s;
+    background-color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-right: 2%;
+    margin-bottom: 2%;
+  }
+
+  /* Selected State */
+  .preferences-interest-button.academic.selected {
+    background-color: var(--tag-green);
+  }
+  .preferences-interest-button.social.selected {
+    background-color: var(--tag-orange);
+  }
+  .preferences-interest-button.career.selected {
+    background-color: var(--tag-blue);
+  }
+
+  /* Save Button */
+  .preferences-save-button {
+    background-color: var(--dark-orange);
+    color: var(--white);
+    border: none;
+    border-radius: 6px;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .preferences-save-button:hover {
+    background-color: #e06604;
+  }
+
+  .preferences-save-button:disabled {
+    background-color: var(--medium-orange);
+    opacity: 0.6;
+    cursor: not-allowed;
+  }

@@ -3,6 +3,10 @@ import Dashboard from "./Dashboard";
 import Login from "./Login";
 import Register from "./Register";
 import Profile from "./Profile";
+import Saved from "./Saved";
+
+
+
 import { useState, useEffect } from "react";
 import { authService } from "../services/authService";
 import '../styles.css/global.css';
@@ -51,6 +55,7 @@ function App() {
 
           <Route path="/register" element={<Register />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/saved" element={<Saved />} />
 
           {/* Dashboard Route (only accessible when authenticated) */}
           <Route path="/dashboard" element={

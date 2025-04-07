@@ -7,21 +7,17 @@ import { authService } from '../services/authService'; // Import auth service
 const Dashboard = ({ onLogout }) => {
   // State for user info
   const [user, setUser] = useState(null);
-  const navigate = useNavigate();
-
-
-  // Example categories and events
+  const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([
-    { name: 'Athletics', eventsCount: 22 },
-    { name: 'Career Fairs', eventsCount: 8 },
-    { name: 'Arts', eventsCount: 10 },
-    { name: 'Wellness', eventsCount: 12 },
-    { name: 'Food', eventsCount: 16 },
-    { name: 'Guidance', eventsCount: 14 },
-    { name: 'Business', eventsCount: 8 },
-    { name: 'Music', eventsCount: 22 }
+    { name: 'Athletics', eventsCount: 22, icon: 'athletics.svg' },
+    { name: 'Career Fairs', eventsCount: 8, icon: 'career-fairs.svg' },
+    { name: 'Arts', eventsCount: 10, icon: 'arts.svg' },
+    { name: 'Wellness', eventsCount: 12, icon: 'wellness.svg' },
+    { name: 'Food', eventsCount: 16, icon: 'food.svg' },
+    { name: 'Guidance', eventsCount: 14, icon: 'guidance.svg' },
+    { name: 'Business', eventsCount: 8, icon: 'business.svg' },
+    { name: 'Music', eventsCount: 22, icon: 'music.svg' }
   ]);
-
   const [trendingEvents, setTrendingEvents] = useState([
     { name: 'Women\'s Basketball', date: 'March 12, 2025', location: 'Sports Arena' },
     { name: 'COLA Research Fair', date: 'March 13, 2025', location: 'Main Hall' },
@@ -29,70 +25,32 @@ const Dashboard = ({ onLogout }) => {
     { name: 'Kupid Dating Show', date: 'March 15, 2025', location: 'Event Center' },
     { name: 'Demystifying Taxes Workshop', date: 'March 7, 2025', location: 'Event Center' },
   ]);
+  const [recommendedEvents, setRecommendedEvents] = useState([]);
 
-  const [recommendedEvents, setRecommendedEvents] = useState([
-    {
-      name: 'Women’s Basketball Game',
-      date: 'Sunday, March 2nd',
-      startTime: '3:00 PM',
-      friendsSaved: 12,
-      category: 'Athletics',
-    },
-    {
-      name: 'Demystifying Taxes Workshop',
-      date: 'Friday, March 7th',
-      startTime: '12:00 PM',
-      friendsSaved: 4,
-      category: 'Guidance',
-    },
-    {
-      name: 'COLA Research Fair',
-      date: 'Wednesday, March 2nd',
-      startTime: '3:00 PM',
-      friendsSaved: 22,
-      category: 'Career Fair',
-    },
-    {
-      name: 'Demystifying Taxes Workshop',
-      date: 'Friday, March 7th',
-      startTime: '12:00 PM',
-      friendsSaved: 4,
-      category: 'Guidance',
-    },
-    {
-      name: 'COLA Career Fair',
-      date: 'Wednesday, March 2nd',
-      startTime: '3:00 PM',
-      friendsSaved: 22,
-      category: 'Career Fair',
-    },
-  ]);
-
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Get current user from localStorage (set during login)
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-    }
 
-    const fetchData = async () => {
-      try {
-
-        const response = await authService.fetchWithAuth('http://localhost:3001/api/events');
-        if (response.ok) {
-          const data = await response.json();
-          // can update state with the fetched data here
-          // setTrendingEvents(data.trending);
-          // setRecommendedEvents(data.recommended);
-          // setCategories(data.categories);
+      // Fetch all events without filtering
+      const fetchAllEvents = async () => {
+        try {
+          const response = await authService.fetchWithAuth('http://localhost:3001/events'); // Fixed the URL
+          if (response.ok) {
+            const data = await response.json();
+            setEvents(data.data); 
+            setRecommendedEvents(data.data);
+          }
+        } catch (error) {
+          console.error('Failed to fetch events:', error);
         }
-      } catch (error) {
-        console.error('Failed to fetch data:', error);
-      }
-    };
+      };
 
-    // fetchData();
+      fetchAllEvents();
+    }
   }, []);
 
   // Handle logout
@@ -103,14 +61,17 @@ const Dashboard = ({ onLogout }) => {
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="dashboard-page">
       {/* Header Section */}
       <Header user={user} handleLogout={handleLogout} />
+      <h1 className="login-title">WHAT’S THE BUZZ?</h1>
+      <div className="trending-container">
       {/* Main Content */}
       <div className="main-content">
         {/* Trending Events Section */}
+        <div className="trending-events-wrapper">
         <section className="trending-events">
-          <h2 className="trending-title">Trending Events</h2>
+          <h2 className="page-heading">Trending Events</h2>
           <div className="events-list">
             {trendingEvents.map((event, index) => (
               <div key={index} className="event-card">
@@ -122,44 +83,53 @@ const Dashboard = ({ onLogout }) => {
             ))}
           </div>
         </section>
-
+        </div>
+      </div>
+      </div>
+      <div className="dashboard-container">
+        <div className="main-content">
         {/* Browse by Category Section */}
-        <section className="browse-categories">
-          <h2 className="trending-title">Browse by Category</h2>
+
+          <h2 className="page-heading">Browse by Category</h2>
           <div className="categories-list">
             {categories.map((category, index) => (
               <button key={index} className="category-button">
-                <span className="category-name">{category.name}</span>
+                <div className="category-header">
+                  <img
+                    src={`/assets/${category.icon}`}
+                    alt={category.name}
+                    className="category-icon"
+                  />
+                  <span className="category-name">{category.name}</span>
+                </div>
                 <span className="event-count">{category.eventsCount} Events</span>
               </button>
             ))}
           </div>
-        </section>
 
         {/* Recommended Events Section */}
-        <section className="recommended-events">
-          <h2 className="recommended-title">For You</h2>
+          <h2 className="page-heading">For You</h2>
           <div className="events-list">
-            {recommendedEvents.map((event, index) => (
-              <div key={index} className="event-card">
-                <div className="event-details">
-                  {/* Event Name */}
-                  <p><strong>{event.name}</strong></p>
-                  {/* Date and Start Time */}
-                  <p>{event.date} • {event.startTime}</p>
-                  {/* Number of Friends Saved */}
-                  <p>{event.friendsSaved} Friends Saved This Event</p>
-                  {/* Category Box */}
-                  <div className="category-box">
-                    <span className="category-name">{event.category}</span>
+            {recommendedEvents.length === 0 ? (
+              <p>No recommended events available at the moment.</p>
+            ) : (
+              recommendedEvents.map((event, index) => (
+                <div key={index} className="event-card">
+                  <div className="event-details">
+                    <p><strong>{event.name}</strong></p>
+                    <p>{event.date} • {event.startTime}</p>
+                    <p>{event.friendsSaved} Friends Saved This Event</p>
+                    <div className="category-box">
+                      <span className="category-name">{event.category}</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
-        </section>
       </div>
-    </div>
+      </div>
+      </div>
   );
 };
 

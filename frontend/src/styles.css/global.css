@@ -9,16 +9,22 @@
     --tag-blue: #CEDDE6;
     --text-black: #332D28;
     --border-grey: #D9D9D9;
+    --grey: #A9A9A9;
 
     /* font size */
     --page-heading: bold 24px "Roboto", sans-serif;
     --event-title: normal 20px "Roboto", sans-serif;
     --description: normal 12px "Roboto", sans-serif;
-    --sign-up-tags: bold 20px "Roboto", sans-serif;
-    --event-tags: bold 12px "Roboto", sans-serif;
+    --sign-up-tags: normal 20px "Roboto", sans-serif;
+    --event-tags: normal 20px "Roboto", sans-serif;
+    --profile-tabs: bold 15px "Roboto", sans-serif;
     --page-title-size: normal 100px 'Jomhuria';
-    --log-in-labels: 16px "Roboto", sans-serif;
+    --log-in-input: 20px "Roboto", sans-serif;
 
     /* border width */
     --border-width: 1px;
+  }
+
+  body {
+    background-color: var(--light-orange); /* or any color you prefer */
   }

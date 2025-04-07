@@ -13,7 +13,7 @@ router.get('/', authenticateToken, async (req, res) => {
 	try{
 		// Find all events
 		const events = await Event.find({});
-		
+
 		// No events
 		if (!events) {
 			return res.status(404).json({
@@ -21,7 +21,7 @@ router.get('/', authenticateToken, async (req, res) => {
 				message: 'No events found'
 			});
 		}
-		
+
 		res.status(200).json({
 			success: true,
 			data: events
@@ -52,7 +52,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 
 		// Find event in the events collection with matching id
 		const event = await Event.findById(id);
-		
+
 		// No event
 		if (!event) {
 			return res.status(404).json({
@@ -60,7 +60,7 @@ router.get('/:id', authenticateToken, async (req, res) => {
 				message: `No event found with ID: ${id}`
 			});
 		}
-		
+
 		res.status(200).json({
 			success: true,
 			data: event
@@ -91,7 +91,7 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 
 		// Find events with matching user ID
 		const events = await Event.find({ author: new ObjectId(userId) });
-		
+
 		// No events
 		if (!events) {
 			return res.status(404).json({
@@ -99,7 +99,7 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 				message: `No events found with user ID: ${id}`
 			});
 		}
-		
+
 		res.status(200).json({
 			success: true,
 			data: events
@@ -123,18 +123,18 @@ router.post('/', authenticateToken, async (req, res) => {
 		// Invalid user ID
 		const user = await User.findById(userId);
 		if (!user) {
-			return res.status(404).json({ 
-				success: false, 
-				message: 'User not found' 
+			return res.status(404).json({
+				success: false,
+				message: 'User not found'
 			});
 		}
 
 		// Invalid org ID
 		const org = await Org.findById(orgId);
 		if (!org) {
-			return res.status(404).json({ 
-				success: false, 
-				message: 'Organization not found' 
+			return res.status(404).json({
+				success: false,
+				message: 'Organization not found'
 			});
 		}
 
@@ -169,7 +169,7 @@ router.post('/', authenticateToken, async (req, res) => {
 				error: err.message
 			});
 		  }
-	  
+
 		res.status(400).json({
 			success: false,
 			message: 'Error creating event',
@@ -194,29 +194,29 @@ router.put('/:id', async (req, res) => {
 
 		// Update event with strict schema
 		const updatedEvent = await Event.findByIdAndUpdate(
-			id, 
-			newEventData, 
+			id,
+			newEventData,
 			{ new: true, runValidators: true, strict: "throw" }
 		);
 
 		// No event to update
 		if (!updatedEvent) {
-			return res.status(404).json({ 
-				success: false, 
-				message: `No event found with ID: ${id}` 
+			return res.status(404).json({
+				success: false,
+				message: `No event found with ID: ${id}`
 			});
 		}
 
-		res.status(200).json({ 
-			success: true, 
-			data: updatedEvent 
+		res.status(200).json({
+			success: true,
+			data: updatedEvent
 		});
 	}
 	catch(err){
 		console.error('Error updating event:', err);
-    res.status(400).json({ 
-			success: false, 
-			message: 'Error updating event', error: err.message 
+    res.status(400).json({
+			success: false,
+			message: 'Error updating event', error: err.message
 		});
 	}
 });
@@ -239,22 +239,22 @@ router.delete('/:id', async (req, res) => {
 
 		// No event
 		if (!deletedEvent) {
-			return res.status(404).json({ 
-				success: false, 
-				message: `No event found with ID: ${id}` 
+			return res.status(404).json({
+				success: false,
+				message: `No event found with ID: ${id}`
 			});
 		}
 
-		res.status(200).json({ 
+		res.status(200).json({
 			success: true,
-			data: deletedEvent 
+			data: deletedEvent
 		});
 	}
 	catch(err){
 		console.error('Error deleting event:', err);
-    res.status(400).json({ 
-			success: false, 
-			message: 'Error deleting event', error: err.message 
+    res.status(400).json({
+			success: false,
+			message: 'Error deleting event', error: err.message
 		});
 	}
 });
