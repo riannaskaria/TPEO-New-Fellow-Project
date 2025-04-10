@@ -31,11 +31,11 @@ function EventCard({ event, currentUser, onToggleSave }) {
 		dummy.style.whiteSpace = "nowrap";
 		dummy.style.font = getComputedStyle(tagsContainerRef.current).font;
 		document.body.appendChild(dummy);
-	
+
 		let totalWidth = 0;
 		let count = 0;
 		const gap = 6; // <-- Change this if your CSS gap is different
-	
+
 		// Loop over sorted tags
 		for (let i = 0; i < sortedCategories.length; i++) {
 			dummy.innerText = sortedCategories[i];
@@ -58,11 +58,11 @@ function EventCard({ event, currentUser, onToggleSave }) {
 		}
 		document.body.removeChild(dummy);
 		setVisibleCount(count);
-	}, [sortedCategories]);	
+	}, [sortedCategories]);
 
   // Build image URL
   const imageUrl = event.imageId
-    ? `http://localhost:5000/events/image/${event.imageId}`
+    ? `http://localhost:3001/events/image/${event.imageId}`
     : null;
 
   // Save toggle

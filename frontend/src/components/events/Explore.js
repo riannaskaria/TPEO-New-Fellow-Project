@@ -11,7 +11,7 @@ function Explore() {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-  
+
   // Dropdown filters: each is an array of selected tags
   const [selectedAcademic, setSelectedAcademic] = useState([]);
   const [selectedSocial, setSelectedSocial] = useState([]);
@@ -37,7 +37,20 @@ function Explore() {
   };
 
   useEffect(() => {
-    authService.fetchWithAuth("http://localhost:5000/events")
+    // Get the selected category from localStorage
+    const selectedCategory = JSON.parse(localStorage.getItem('selectedCategory'));
+    if (selectedCategory) {
+      const { name, type } = selectedCategory;
+      // Update state to filter events by the selected category
+      if (type === 'academic') {
+        setSelectedAcademic([name]);
+      } else if (type === 'social') {
+        setSelectedSocial([name]);
+      } else if (type === 'career') {
+        setSelectedCareer([name]);
+      }
+    }
+    authService.fetchWithAuth("http://localhost:3001/events")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -101,7 +114,7 @@ function Explore() {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })

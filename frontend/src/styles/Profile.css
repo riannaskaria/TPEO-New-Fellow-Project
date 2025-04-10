@@ -116,23 +116,10 @@
 }
 
 .preferences-container {
-    background-color: var(--light-orange);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 40px;
-  }
-
-  /* White Box Holding Preferences */
-  .preferences-box {
-    background-color: var(--white);
-    width: 903px;
-    min-height: 529px;
-    padding: 40px;
-    border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    text-align: center;
   }
 
   /* Section Title */
@@ -166,20 +153,27 @@
 
   /* Interest Buttons */
   .preferences-interest-button {
-    font: var(--event-tags);
+    font: var(--sign-up-tags);
     padding: 8px 16px;
-    border-radius: 8px;
-    border: 1px solid #E0E0E0;
-    cursor: pointer;
-    transition: 0.3s;
-    background-color: var(--white);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-right: 2%;
-    margin-bottom: 2%;
+  border-radius: 8px;
+  border: 1px solid #E0E0E0;
+  cursor: pointer;
+  transition: 0.3s;
+  background-color: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  gap: 8px;
+  margin-right: 2%;
+  margin-bottom: 2%;
   }
+
+  .cancel-icon {
+    width: 16px;
+    height: 16px;
+  }
+
 
   /* Selected State */
   .preferences-interest-button.academic.selected {

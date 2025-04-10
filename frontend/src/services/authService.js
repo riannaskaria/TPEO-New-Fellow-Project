@@ -1,11 +1,11 @@
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:3001";
 
 export const authService = {
-  login: async (email, password) => {  // Change 'username' to 'email'
+  login: async (email, password) => {
     const response = await fetch(`${API_URL}/users/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),  // Pass email instead of username
+      body: JSON.stringify({ email, password }),
     });
 
     const data = await response.json();
@@ -23,12 +23,11 @@ export const authService = {
     return data;
   },
 
-
   register: async (userData) => {
     const response = await fetch(`${API_URL}/users`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(userData), // Send entire user data
+      body: JSON.stringify(userData),
     });
 
     const data = await response.json();
@@ -80,5 +79,8 @@ export const authService = {
     }
 
     return response;
-  }
+  },
+
+
+
 };
