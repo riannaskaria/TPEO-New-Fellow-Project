@@ -65,8 +65,8 @@ function Explore() {
   }, [events, selectedAcademic, selectedSocial, selectedCareer]);
 
   // Additional filtering based on search query.
-  // Matching logic: for each event, split its title and description by whitespace, and compare with each word in the query;
-  // also check if any query word exactly matches any tag.
+  // Matching logic: for each event, split its title and description by whitespace, 
+  // and compare with each word in the query; also check if any query word exactly matches any tag.
   const matchesSearch = (event, query) => {
     if (!query.trim()) return true;
     const queryWords = query.toLowerCase().split(/\s+/);
@@ -81,7 +81,7 @@ function Explore() {
     );
   };
 
-  // Filter events further based on search term (if any).
+  // Further filter events based on search term (if provided)
   const searchFilteredEvents = searchTerm
     ? filteredEvents.filter(event => matchesSearch(event, searchTerm))
     : filteredEvents;
@@ -94,6 +94,28 @@ function Explore() {
   const pastEvents = searchFilteredEvents
     .filter(event => new Date(event.startTime) <= now)
     .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
+
+  // Save toggle handler - updates the current user's savedEvents via a PUT request.
+  const handleToggleSave = (eventId, newSavedState) => {
+    const updatedSavedEvents = newSavedState
+      ? [...(currentUser.savedEvents || []), eventId]
+      : (currentUser.savedEvents || []).filter(id => id !== eventId);
+
+    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ savedEvents: updatedSavedEvents })
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setCurrentUser(data.data);
+          localStorage.setItem("user", JSON.stringify(data.data));
+          console.log("Saved events updated");
+        }
+      })
+      .catch((err) => console.error("Error updating saved events:", err));
+  };
 
   return (
     <>
@@ -193,7 +215,7 @@ function Explore() {
                   key={event._id}
                   event={event}
                   currentUser={currentUser}
-                  onToggleSave={(id, state) => {}}
+                  onToggleSave={handleToggleSave}
                 />
               ))}
             </div>
@@ -208,7 +230,7 @@ function Explore() {
                   key={event._id}
                   event={event}
                   currentUser={currentUser}
-                  onToggleSave={(id, state) => {}}
+                  onToggleSave={handleToggleSave}
                 />
               ))}
             </div>
