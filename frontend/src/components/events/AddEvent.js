@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import PopUp from "./PopUp";
 import { authService } from "../../services/authService";
+import Header from "../Header.js";
 import "../../styles/events/AddEvent.css";
 import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
@@ -63,7 +64,7 @@ function AddEvent() {
       if (eventData.image) {
         formData.append("image", eventData.image);
       }
-      
+
       formData.append("userId", authService.getCurrentUser()._id || "");
       formData.append("orgId", eventData.organization);
       formData.append("title", eventData.title);
@@ -75,7 +76,7 @@ function AddEvent() {
       formData.append("categories", JSON.stringify(eventData.categories));
       formData.append("ticketInfo", eventData.ticketInfo);
 
-      const response = await authService.fetchWithAuth("http://localhost:5000/events", {
+      const response = await authService.fetchWithAuth("http://localhost:3001/events", {
         method: "POST",
         body: formData,
       });
@@ -95,6 +96,7 @@ function AddEvent() {
 
   return (
     <div className="add-event-container">
+    <Header/>
       <div className="form-container">
         {/* Title Section */}
         <div className="title-section">

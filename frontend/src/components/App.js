@@ -82,6 +82,12 @@ function App() {
               <Saved onLogout={handleLogout} /> :
               <Navigate to="/login" />
           } />
+
+          <Route path="/myposts" element={
+            isAuthenticated ?
+              <Saved onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
         </Routes>
       </div>
     </Router>
