@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { authService } from "../../services/authService"; // Import your authService
 import "../../styles/events/PopUp.css";
+import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
 function PopUp({ modalType, initialValue, onClose, onSave }) {
   const [inputValue, setInputValue] = useState(initialValue);
@@ -33,15 +34,6 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
         );
     }
   }, [modalType]);
-
-  // For tags modal, define categories and toggle logic
-  const academicCategories = [
-    "Business", "Liberal Arts", "Natural Sciences", "Engineering", "Communications",
-    "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
-    "Fine Arts", "Nursing", "Pharmacy", "Public Affairs", "Social Work"
-  ];
-  const socialCategories = ["Arts", "Entertainment", "Athletics", "Food"];
-  const careerCategories = ["Networking", "Career Fairs", "Info Sessions", "Employer Events", "Career Guidance"];
 
   const handleTagToggle = (tag) => {
     setSelectedTags((prev) =>
@@ -99,52 +91,58 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
         <div className="tags-modal-container">
           <h4>Academic</h4>
           <div className="tags-row">
-            {academicCategories.map((cat) => (
+            {academicTags.map((cat) => (
               <button
                 key={cat}
                 className={`tag-button ${selectedTags.includes(cat) ? "selected academic" : ""}`}
                 onClick={() => handleTagToggle(cat)}
               >
                 <span>{cat}</span>
-                <img 
-                  src="/assets/add-event/plus-circle.svg" 
-                  alt="Plus Icon" 
-                  className="tag-plus-icon" 
-                />
+                {selectedTags.includes(cat) && (
+                  <img 
+                    src="/assets/add-event/x-circle.svg" 
+                    alt="Remove Tag Icon" 
+                    className="tag-remove-icon" 
+                  />
+                )}
               </button>
             ))}
           </div>
           <h4>Social</h4>
           <div className="tags-row">
-            {socialCategories.map((cat) => (
+            {socialTags.map((cat) => (
               <button
                 key={cat}
                 className={`tag-button ${selectedTags.includes(cat) ? "selected social" : ""}`}
                 onClick={() => handleTagToggle(cat)}
               >
                 <span>{cat}</span>
-                <img 
-                  src="/assets/add-event/plus-circle.svg" 
-                  alt="Plus Icon" 
-                  className="tag-plus-icon" 
-                />
+                {selectedTags.includes(cat) && (
+                  <img 
+                    src="/assets/add-event/x-circle.svg" 
+                    alt="Remove Tag Icon" 
+                    className="tag-remove-icon" 
+                  />
+                )}
               </button>
             ))}
           </div>
           <h4>Career</h4>
           <div className="tags-row">
-            {careerCategories.map((cat) => (
+            {careerTags.map((cat) => (
               <button
                 key={cat}
                 className={`tag-button ${selectedTags.includes(cat) ? "selected career" : ""}`}
                 onClick={() => handleTagToggle(cat)}
               >
                 <span>{cat}</span>
-                <img 
-                  src="/assets/add-event/plus-circle.svg" 
-                  alt="Plus Icon" 
-                  className="tag-plus-icon" 
-                />
+                {selectedTags.includes(cat) && (
+                  <img 
+                    src="/assets/add-event/x-circle.svg" 
+                    alt="Remove Tag Icon" 
+                    className="tag-remove-icon" 
+                  />
+                )}
               </button>
             ))}
           </div>

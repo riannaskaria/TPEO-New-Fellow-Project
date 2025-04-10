@@ -111,10 +111,16 @@
   transition: background-color 0.3s ease;
 }
 
+.tag-button span {
+  margin-right: 4px; /* Adjust the value to increase or decrease spacing */
+}
+
+/* When hovering over tag buttons */
 .tag-button:hover {
   background-color: #f9f9f9;
 }
 
+/* Color the selected tag buttons */
 .tag-button.selected.academic {
   background-color: var(--tag-green);
 }
@@ -125,9 +131,9 @@
   background-color: var(--tag-blue);
 }
 
-.tag-plus-icon {
+/* Tag remove icon: appears only for selected tags and is placed on the right */
+.tag-remove-icon {
   width: 1em;
   height: 1em;
-  margin-left: 4px;
-  /* With flexbox, vertical centering is handled by align-items: center on .tag-button */
+  margin-left: auto;
 }

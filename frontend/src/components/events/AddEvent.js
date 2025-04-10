@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom"; // Import useNavigate
 import PopUp from "./PopUp";
 import { authService } from "../../services/authService";
 import "../../styles/events/AddEvent.css";
+import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
 function AddEvent() {
   // Initialize eventData with a categories array
@@ -262,14 +263,6 @@ function AddEvent() {
 
 // Helper function to assign tag color classes (use your own logic)
 function getTagColorClass(tag) {
-  const academicTags = [
-    "Business", "Liberal Arts", "Natural Sciences", "Engineering", "Communications",
-    "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
-    "Fine Arts", "Nursing", "Pharmacy", "Public Affairs", "Social Work"
-  ];
-  const socialTags = ["Arts", "Entertainment", "Athletics", "Food"];
-  const careerTags = ["Networking", "Career Fairs", "Info Sessions", "Employer Events", "Career Guidance"];
-
   if (academicTags.includes(tag)) return "academic";
   if (socialTags.includes(tag)) return "social";
   if (careerTags.includes(tag)) return "career";
