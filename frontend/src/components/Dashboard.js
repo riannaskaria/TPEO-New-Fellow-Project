@@ -4,6 +4,7 @@ import Header from "./Header.js";
 import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService'; // Import auth service
 import EventCard from './events/EventCard';
+import { getRecommendedEvents } from '../utils/getRecommendedEvents';
 
 
 const Dashboard = ({ onLogout }) => {
@@ -51,7 +52,7 @@ const Dashboard = ({ onLogout }) => {
             setTrendingEvents(sortedEvents);
 
             // Filter recommended events based on user preferences
-            filterRecommendedEvents(sortedEvents, currentUser);
+            setRecommendedEvents(getRecommendedEvents(sortedEvents, currentUser));
 
             // Update categories with event counts
             updateCategoryCounts(sortedEvents);
@@ -100,33 +101,6 @@ const Dashboard = ({ onLogout }) => {
         }
       })
       .catch((err) => console.error("Error updating saved events:", err));
-  };
-
-
-  // Filter recommended events based on user preferences - simplified version
-  const filterRecommendedEvents = (allEvents, user) => {
-    if (!user || !allEvents || allEvents.length === 0) return; // If user has no preferences, no possible events
-    const userInterests = user.interests || [];
-    const userMajors = user.majors || [];
-    const userOrgs = user.orgs || [];
-
-    // Filter events that match user preferences
-    const recommended = allEvents.filter(event => {
-      // Check if any category matches user interests or majors
-      const hasMatchingCategory = event.categories &&
-        event.categories.some(category =>
-          userInterests.includes(category) || userMajors.includes(category)
-        );
-
-      // Check if org matches any of user's orgs
-      const hasMatchingOrg = userOrgs.length > 0 &&
-        event.org && userOrgs.includes(event.org.toString());
-
-      return hasMatchingCategory || hasMatchingOrg;
-    });
-
-    // If no matches found, use all events as fallback
-    setRecommendedEvents(recommended.length > 0 ? recommended : allEvents);
   };
 
   const handleLogout = () => {

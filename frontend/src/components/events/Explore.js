@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { authService } from "../../services/authService";
 import EventCard from "./EventCard";
 import "../../styles/events/Explore.css";
+import Header from "../Header.js";
 
 function Explore() {
   const [events, setEvents] = useState([]);
@@ -122,6 +123,7 @@ function Explore() {
 
   return (
     <div className="events-page">
+      <Header/>
       <h1>Events</h1>
       <div className="filters">
 				<div className={`dropdown ${academicOpen ? 'expanded' : ''}`}>

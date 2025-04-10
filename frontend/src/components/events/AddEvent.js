@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import PopUp from "./PopUp";
 import { authService } from "../../services/authService";
+import Header from "../Header.js";
 import "../../styles/events/AddEvent.css";
 
 function AddEvent() {
@@ -94,6 +95,7 @@ function AddEvent() {
 
   return (
     <div className="add-event-container">
+    <Header/>
       <div className="form-container">
         {/* Title Section */}
         <div className="title-section">

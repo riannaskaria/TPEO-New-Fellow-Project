@@ -10,9 +10,11 @@ const Profile = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState("account");
   const [formData, setFormData] = useState({});
   const [isEditable, setIsEditable] = useState(false);
+  const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
 
+  // Interest categories
   const academicCategories = [
     "Business", "Liberal Arts", "Natural Sciences", "Engineering", "Communications",
     "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
@@ -51,41 +53,81 @@ const Profile = ({ onLogout }) => {
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      setFormData({ ...currentUser });
-      if (currentUser.interests) {
-        const { academic = [], social = [], career = [] } = currentUser.interests;
+
+      setFormData({
+        username: currentUser.username || "",
+        email: currentUser.email || "",
+        password: "",
+        major: currentUser.majors && currentUser.majors.length > 0 ? currentUser.majors[0] : "",
+        year: currentUser.year || ""
+      });
+
+      if (currentUser.interests && currentUser.interests.length > 0) {
+        const academic = [];
+        const social = [];
+        const career = [];
+
+        currentUser.interests.forEach(interest => {
+          if (academicCategories.includes(interest)) {
+            academic.push(interest);
+          } else if (socialCategories.includes(interest)) {
+            social.push(interest);
+          } else if (careerCategories.includes(interest)) {
+            career.push(interest);
+          }
+        });
+
         setAcademicInterests(academic);
         setSocialInterests(social);
         setCareerInterests(career);
       }
+    } else {
+      navigate("/login");
     }
-  }, []);
+  }, [navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleUpdate = () => {
-    const updatedUser = {
-      ...formData,
-      interests: {
-        academic: academicInterests,
-        social: socialInterests,
-        career: careerInterests,
-      },
-    };
-    console.log("Updated data:", updatedUser);
-    // Update logic here (e.g., API call)
-  };
-
   const handleEdit = () => setIsEditable(true);
-  const handleSave = () => {
-    setIsEditable(false);
-    handleUpdate();
+
+  const handleSave = async () => {
+    try {
+      setIsSaving(true);
+
+      const updateData = {
+        username: formData.username,
+        email: formData.email,
+        majors: [formData.major],
+        year: parseInt(formData.year)
+      };
+
+      if (formData.password && formData.password.trim() !== "") {
+        updateData.password = formData.password;
+      }
+
+      try {
+        const updatedUser = await authService.updateProfile(updateData);
+        setUser(updatedUser);
+      } catch (apiError) {
+        console.error("API update failed, falling back to local update:", apiError);
+        const updatedUser = { ...user, ...updateData };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUser(updatedUser);
+      }
+
+      setIsEditable(false);
+    } catch (err) {
+      console.error("Error updating profile:", err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleInterestToggle = (type, interest) => {
+    if (!isEditingPreferences) return;
     const toggle = (current, setFunc) => {
       if (current.includes(interest)) {
         setFunc(current.filter((i) => i !== interest));
@@ -97,6 +139,62 @@ const Profile = ({ onLogout }) => {
     if (type === "academic") toggle(academicInterests, setAcademicInterests);
     else if (type === "social") toggle(socialInterests, setSocialInterests);
     else if (type === "career") toggle(careerInterests, setCareerInterests);
+  };
+
+  const handleUpdatePreferences = async () => {
+    try {
+      setIsSaving(true);
+
+      const allInterests = [
+        ...academicInterests,
+        ...socialInterests,
+        ...careerInterests
+      ];
+
+      try {
+        const updatedUser = await authService.updatePreferences(allInterests);
+        setUser(updatedUser);
+        setIsEditingPreferences(false);
+
+        const academic = [];
+        const social = [];
+        const career = [];
+
+        updatedUser.interests.forEach(interest => {
+          if (academicCategories.includes(interest)) academic.push(interest);
+          else if (socialCategories.includes(interest)) social.push(interest);
+          else if (careerCategories.includes(interest)) career.push(interest);
+        });
+
+        setAcademicInterests(academic);
+        setSocialInterests(social);
+        setCareerInterests(career);
+      } catch (apiError) {
+        console.error("API update failed, falling back to local update:", apiError);
+
+        const updatedUser = { ...user, interests: allInterests };
+        localStorage.setItem("user", JSON.stringify(updatedUser));
+        setUser(updatedUser);
+        setIsEditingPreferences(false);
+        const academic = [];
+        const social = [];
+        const career = [];
+
+        allInterests.forEach(interest => {
+          if (academicCategories.includes(interest)) academic.push(interest);
+          else if (socialCategories.includes(interest)) social.push(interest);
+          else if (careerCategories.includes(interest)) career.push(interest);
+        });
+
+        setAcademicInterests(academic);
+        setSocialInterests(social);
+        setCareerInterests(career);
+      }
+    } catch (err) {
+      console.error("Error updating preferences:", err);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!user) {
@@ -112,6 +210,7 @@ const Profile = ({ onLogout }) => {
       <Header user={user} handleLogout={onLogout} />
       <div className="profile-content">
         <h2>Settings</h2>
+
         <div className="profile-tabs">
           <button
             className={activeTab === "account" ? "active" : ""}
@@ -193,6 +292,7 @@ const Profile = ({ onLogout }) => {
                   value={formData.password || ""}
                   onChange={handleChange}
                   disabled={!isEditable}
+                  placeholder={isEditable ? "Enter new password" : "••••••••"}
                   style={{
                     backgroundColor: isEditable ? "var(--light-orange)" : "white",
                   }}
@@ -203,7 +303,9 @@ const Profile = ({ onLogout }) => {
             {!isEditable ? (
               <button onClick={handleEdit}>Edit</button>
             ) : (
-              <button onClick={handleSave}>Save</button>
+              <button onClick={handleSave} disabled={isSaving}>
+                {isSaving ? "Saving..." : "Save"}
+              </button>
             )}
           </div>
         ) : (
@@ -256,13 +358,42 @@ const Profile = ({ onLogout }) => {
                 ))}
               </div>
 
-              <button
-                className="preferences-save-button"
-                onClick={handleUpdate}
-                disabled={isSaving}
-              >
-                {isSaving ? "Saving..." : "Save Preferences"}
-              </button>
+              <h3 className="preferences-subtitle">Organizations</h3>
+              <div className="organization-search">
+                <input
+                  type="text"
+                  placeholder="Search for organizations..."
+                  className="org-search-input"
+                />
+              </div>
+
+              <div className="user-organizations">
+                {user.orgs && user.orgs.length > 0 ? (
+                  user.orgs.map((org, index) => (
+                    <div key={index} className="organization-item">
+                      <span>{typeof org === 'object' ? org.name : org}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p>No organizations joined yet</p>
+                )}
+              </div>
+
+              <div className="preferences-header">
+                    {!isEditingPreferences ? (
+                    <button
+                    className="preferences-save-button"
+                    onClick={() => setIsEditingPreferences(true)}>Edit Preferences</button>
+                    ) : (
+                   <button
+                      className="preferences-save-button"
+                       onClick={handleUpdatePreferences}
+                       disabled={isSaving}
+                  >
+                  {isSaving ? "Saving..." : "Save Preferences"}
+                  </button>
+                  )}
+              </div>
             </div>
           </div>
         )}
