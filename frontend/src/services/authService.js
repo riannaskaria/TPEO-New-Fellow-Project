@@ -81,65 +81,6 @@ export const authService = {
     return response;
   },
 
-  // Update user profile - CORRECTED TO MATCH BACKEND
-  updateProfile: async (userData) => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || !currentUser._id) {
-        throw new Error("User ID not available");
-      }
 
-      const response = await authService.fetchWithAuth(`${API_URL}/users/${currentUser._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      });
 
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update profile");
-      }
-
-      // Update the stored user data
-      const updatedUser = data.data; // Note: API returns { success: true, data: updatedUser }
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      throw error;
-    }
-  },
-
-  // Update user preferences (interests) - CORRECTED TO MATCH BACKEND
-  updatePreferences: async (interests) => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || !currentUser._id) {
-        throw new Error("User ID not available");
-      }
-
-      // ✅ SAME route as updateProfile
-      const response = await authService.fetchWithAuth(`${API_URL}/users/${currentUser._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ interests }) // ✅ Just send the interests field
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update preferences");
-      }
-
-      const updatedUser = data.data;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating preferences:", error);
-      throw error;
-    }
-  }
 };

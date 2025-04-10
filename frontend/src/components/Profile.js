@@ -5,6 +5,8 @@ import Header from "./Header";
 import "../styles/global.css";
 import "../styles/Profile.css";
 
+
+
 const Profile = ({ onLogout }) => {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("account");
@@ -13,6 +15,7 @@ const Profile = ({ onLogout }) => {
   const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
+  const API_URL = "http://localhost:3001";
 
   // Interest categories
   const academicCategories = [
@@ -48,6 +51,8 @@ const Profile = ({ onLogout }) => {
   const [academicInterests, setAcademicInterests] = useState([]);
   const [socialInterests, setSocialInterests] = useState([]);
   const [careerInterests, setCareerInterests] = useState([]);
+
+
 
   useEffect(() => {
     const currentUser = authService.getCurrentUser();
@@ -93,6 +98,66 @@ const Profile = ({ onLogout }) => {
 
   const handleEdit = () => setIsEditable(true);
 
+  const updateProfile = (userData) => {
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser || !currentUser._id) {
+        throw new Error("User ID not available");
+      }
+
+      const response = authService.fetchWithAuth(`${API_URL}/users/${currentUser._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(userData)
+      });
+
+      const data = response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || "Failed to update profile");
+      }
+
+      // Update the stored user data
+      const updatedUser = data.data; // Note: API returns { success: true, data: updatedUser }
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      throw error;
+    }
+  }
+
+  const updatePreferences = (interests) => {
+    try {
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser || !currentUser._id) {
+        throw new Error("User ID not available");
+      }
+
+      // ✅ SAME route as updateProfile
+      const response = authService.fetchWithAuth(`${API_URL}/users/${currentUser._id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ interests }) // ✅ Just send the interests field
+      });
+
+      const data = response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || data.message || "Failed to update preferences");
+      }
+
+      const updatedUser = data.data;
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (error) {
+      console.error("Error updating preferences:", error);
+      throw error;
+    }
+  }
+
   const handleSave = async () => {
     try {
       setIsSaving(true);
@@ -126,6 +191,8 @@ const Profile = ({ onLogout }) => {
     }
   };
 
+
+
   const handleInterestToggle = (type, interest) => {
     if (!isEditingPreferences) return;
     const toggle = (current, setFunc) => {
@@ -152,7 +219,7 @@ const Profile = ({ onLogout }) => {
       ];
 
       try {
-        const updatedUser = await authService.updatePreferences(allInterests);
+        const updatedUser = updatePreferences(allInterests);
         setUser(updatedUser);
         setIsEditingPreferences(false);
 
