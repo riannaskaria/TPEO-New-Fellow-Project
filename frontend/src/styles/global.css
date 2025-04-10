@@ -14,15 +14,18 @@
   /* font size */
 	--add-event-title: bold 32px "Roboto", sans-serif;
   --page-heading: bold 24px "Roboto", sans-serif;
+  --page-subheading: bold 20px "Roboto", sans-serif;
   --event-title: normal 16px "Roboto", sans-serif;
   --add-event-field: normal 16px "Roboto", sans-serif;
+  --header-button: normal 16px "Roboto", sans-serif;
   --description: normal 12px "Roboto", sans-serif;
   --button: bold 16px "Roboto", sans-serif;
   --add-event-tags: normal 16px "Roboto", sans-serif;
   --event-tags: normal 12px "Roboto", sans-serif;
-  --log-in-labels: 16px "Roboto", sans-serif;
+  --log-in-labels: normal 16px "Roboto", sans-serif;
 	--sign-up-tags: normal 20px "Roboto", sans-serif;
 	--profile-tabs: bold 15px "Roboto", sans-serif;
+	--header-dropdown: normal 16px "Roboto", sans-serif;
 	--page-title-size: normal 100px 'Jomhuria';
 	--log-in-input: 20px "Roboto", sans-serif;
 

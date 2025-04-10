@@ -1,5 +1,6 @@
 import React, { useState, useLayoutEffect, useRef } from "react";
 import "../../styles/events/EventCard.css";
+import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
 function EventCard({ event, currentUser, onToggleSave }) {
   const [isSaved, setIsSaved] = useState(false);
@@ -148,32 +149,6 @@ function getOrdinal(n) {
 }
 
 function getTagColorClass(tag) {
-  const academicTags = [
-    "Business",
-    "Liberal Arts",
-    "Natural Sciences",
-    "Engineering",
-    "Communications",
-    "Geosciences",
-    "Informatics",
-    "Education",
-    "Architecture",
-    "Civic Leadership",
-    "Fine Arts",
-    "Nursing",
-    "Pharmacy",
-    "Public Affairs",
-    "Social Work",
-  ];
-  const socialTags = ["Arts", "Entertainment", "Athletics", "Food"];
-  const careerTags = [
-    "Networking",
-    "Career Fairs",
-    "Info Sessions",
-    "Employer Events",
-    "Career Guidance",
-  ];
-
   if (academicTags.includes(tag)) return "academic";
   if (socialTags.includes(tag)) return "social";
   if (careerTags.includes(tag)) return "career";
