@@ -1,5 +1,5 @@
 // src/components/Header.js
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import '../styles/Header.css';
 
@@ -57,18 +57,6 @@ function Header({ user, handleLogout }) {
       navigate("/explore", { state: { searchTerm } });
     }
   };
-
-  // Close the profile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target)) {
-        setShowProfileMenu(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
 
   return (
     <header className="header">
