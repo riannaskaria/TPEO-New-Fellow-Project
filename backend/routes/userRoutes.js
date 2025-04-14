@@ -1,6 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 require('dotenv').config();
 
 const { ObjectId } = require('mongodb');
@@ -8,9 +10,40 @@ const authenticateToken = require("../auth");
 
 const User = require('../models/user');
 
+const { getGridFsBucket } = require("../mongodb");
+
 const router = express.Router();
 
 const JWT_SECRET = process.env.JWT_SECRET;
+
+// Get all users
+router.get('/', authenticateToken, async (req, res) => {
+	try{
+		// Find all users
+		const users = await User.find({});
+
+		// No users
+		if (!users) {
+			return res.status(404).json({
+				success: false,
+				message: 'No users found'
+			});
+		}
+
+		res.status(200).json({
+			success: true,
+			data: users
+		});
+	}
+	catch(err){
+		console.error('Error fetching users:', err);
+		res.status(500).json({
+			success: false,
+			message: 'Error fetching users',
+			error: err.message
+		});
+	}
+});
 
 // Get user by ID
 router.get('/:id', authenticateToken, async (req, res) => {
@@ -52,74 +85,108 @@ router.get('/:id', authenticateToken, async (req, res) => {
 });
 
 // Register a new user
-router.post('/', async (req, res) => {
-	try{
-		const { username, email, password, majors, year, savedEvents, orgs, friends, friendRequests, interests } = req.body;
+router.post('/', upload.single('profilePicture'), async (req, res) => {
+  try {
+    const {
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
+      majors,
+      year,
+      savedEvents,
+      orgs,
+      friends,
+      friendRequests,
+      interests
+    } = req.body;
 
-		// Validate that email ends with @utexas.edu
-		const emailRegex = /^[a-zA-Z0-9._%+-]+@utexas\.edu$/;
-		if (!emailRegex.test(email)) {
-			return res.status(400).json({
-				success: false,
-				error: "Invalid email: Must be a UT Austin email (@utexas.edu).",
-			});
-		}
+    // Validate that email ends with @utexas.edu
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@utexas\.edu$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid email: Must be a UT Austin email (@utexas.edu).",
+      });
+    }
 
-		// Check if the user already exists
-		const existingUser = await User.findOne({ email });
-		if (existingUser) {
-			return res.status(400).json({
-				success: false,
-				error: "Error registering user: email already taken",
-			});
-		}
+    // Check if the user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        error: "Error registering user: email already taken",
+      });
+    }
 
-		// Hash the password
-		const salt = await bcrypt.genSalt(10);
-		const hashedPassword = await bcrypt.hash(password, salt);
+    // Hash the password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
-		// Create new user
-		const newUser = new User({
-			username,
-			email,
-			password: hashedPassword,
-			majors,
-			year,
-			savedEvents,
-			orgs,
-			friends,
-			friendRequests,
-			interests
-		});
+    // Upload the profile picture to GridFS if a file was provided
+    let profilePictureId = null;
+    if (req.file) {
+      const bucket = getGridFsBucket();
 
-		// Post the user
-		const savedUser = await newUser.save();
+			const uploadStream = bucket.openUploadStream(req.file.originalname, {
+        contentType: req.file.mimetype,
+      });
 
-		res.status(201).json({
-			success: true,
-			message: 'User created successfully',
-			event: savedUser
+			uploadStream.end(req.file.buffer);
 
-		});
-	}
-	catch(err){
-		console.error('Error creating user:', err);
+      await new Promise((resolve, reject) => {
+        uploadStream.on('finish', resolve);
+        uploadStream.on('error', reject);
+      });
 
-		// Invalid format
-		if (err.name === 'ValidationError') {
-			return res.status(400).json({
-				success: false,
-				message: 'Validation error',
-				error: err.message
-			});
-		  }
+      profilePictureId = uploadStream.id;
+    }
 
-		res.status(400).json({
-			success: false,
-			message: 'Error creating user',
-			error: err.message
-		});
-	}
+    // Create a new user with the provided details and the uploaded profile picture id
+    const newUser = new User({
+      firstName,
+      lastName,
+      username,
+      email,
+      password: hashedPassword,
+      majors,
+      year,
+      savedEvents,
+      orgs,
+      friends,
+      friendRequests,
+      interests,
+      profilePicture: profilePictureId
+    });
+
+    // Save the new user to the database
+    const savedUser = await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'User created successfully',
+      user: savedUser
+    });
+  } 
+	catch (err) {
+    console.error('Error creating user:', err);
+
+    // Handle Mongoose validation errors
+    if (err.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation error',
+        error: err.message
+      });
+    }
+
+    res.status(400).json({
+      success: false,
+      message: 'Error creating user',
+      error: err.message
+    });
+  }
 });
 
 // Login user
@@ -176,68 +243,110 @@ router.post("/login", async (req, res) => {
 });
 
 // Update user by ID
-router.put('/:id', async (req, res) => {
-	try{
-		const { id } = req.params;
-		const newUserData = req.body;
+router.put('/:id', upload.single('profilePicture'), async (req, res) => {
+  try {
+    const { id } = req.params;
 
-		// Validate ID
-		if(!ObjectId.isValid(id)){
-			return res.status(400).json({
-				success: false,
-				message: 'Invalid user ID format'
-			});
-		}
+    // Validate the user ID format
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid user ID format'
+      });
+    }
 
-		// Update user data
-		const updatedUser = await User.findByIdAndUpdate(
-			id,
-			newUserData,
-			{ new: true, runValidators: true, strict: "throw" }
-		);
+    // Prepare user data update from request body
+    const newUserData = { ...req.body };
 
-		// No user
-		if (!updatedUser) {
-			return res.status(404).json({
-				success: false,
-				message: `No user found with ID: ${id}`
-			});
-		}
+    // If a new profile picture is provided, handle the image upload
+    if (req.file) {
+      const bucket = getGridFsBucket();
 
-		res.status(200).json({
-			success: true,
-			data: updatedUser
-		});
-	}
-	catch(err){
-		console.error('Error updating event:', err);
+      // Retrieve the existing user to check for an existing image
+      const existingUser = await User.findById(id);
+      if (existingUser && existingUser.profilePicture) {
+        // Delete the current profile picture from GridFS
+        try {
+          await bucket.delete(existingUser.profilePicture);
+        } catch (deleteErr) {
+          console.error('Error deleting existing profile picture:', deleteErr);
+          // You might choose to continue or handle the error differently based on your requirements.
+        }
+      }
+
+      // Upload the new profile picture to GridFS
+      const uploadStream = bucket.openUploadStream(req.file.originalname, {
+        contentType: req.file.mimetype,
+      });
+      uploadStream.end(req.file.buffer);
+
+      // Wait for the upload to finish
+      await new Promise((resolve, reject) => {
+        uploadStream.on('finish', resolve);
+        uploadStream.on('error', reject);
+      });
+
+      // Set the new profile picture id in the update data
+      newUserData.profilePicture = uploadStream.id;
+    }
+
+    // Update the user document in the database
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      newUserData,
+      { new: true, runValidators: true, strict: "throw" }
+    );
+    
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: `No user found with ID: ${id}`
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedUser
+    });
+  } catch (err) {
+    console.error('Error updating user:', err);
     res.status(400).json({
-			success: false,
-			message: 'Error updating event', error: err.message
-		});
-	}
+      success: false,
+      message: 'Error updating user',
+      error: err.message
+    });
+  }
 });
 
-router.delete('/delete', async (req, res) => {
+// GET image by imageId
+router.get('/image/:id', async (req, res) => {
 	try {
-	  const { email } = req.body;
+		const { id } = req.params;
+		if (!ObjectId.isValid(id)) {
+			return res.status(400).json({ success: false, message: 'Invalid image id format' });
+		}
 
-	  // Validate email
-	  if (!email) {
-		return res.status(400).json({ success: false, message: 'Email is required' });
-	  }
+		const bucket = getGridFsBucket();
+		const downloadStream = bucket.openDownloadStream(new ObjectId(id));
 
-	  const user = await User.findOneAndDelete({ email });
-	  if (!user) {
-		return res.status(404).json({ success: false, message: 'User not found' });
-	  }
+		res.set('Content-Type', 'application/octet-stream');
 
-	  res.status(200).json({ success: true, message: 'User deleted successfully' });
+		downloadStream.on('data', (chunk) => {
+			res.write(chunk);
+		});
+
+		downloadStream.on('error', (err) => {
+			console.error(err);
+			res.status(404).json({ success: false, message: 'Image not found' });
+		});
+
+		downloadStream.on('end', () => {
+			res.end();
+		});
 	} catch (err) {
-	  console.error('Error deleting user:', err);
-	  res.status(500).json({ success: false, message: 'Error deleting user', error: err.message });
+		console.error(err);
+		res.status(500).json({ success: false, message: 'Error retrieving image', error: err.message });
 	}
-  });
-
+});
 
 module.exports = router;

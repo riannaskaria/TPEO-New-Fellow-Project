@@ -1,13 +1,15 @@
-// src/components/Header.js
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import '../styles/Header.css';
+import "../styles/Header.css";
 
 function Header({ user, handleLogout }) {
   const navigate = useNavigate();
   const [hoveredButton, setHoveredButton] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // Update this value to match your API URL if needed.
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   // Toggle the profile dropdown menu when clicking the profile picture.
   const toggleProfileDropdown = () => {
@@ -51,12 +53,20 @@ function Header({ user, handleLogout }) {
     return `/assets/${isActive ? iconMapping[buttonName].active : iconMapping[buttonName].inactive}`;
   };
 
-  // Handle search input key down - navigate on Enter key
+  // Handle search input key down - navigate on Enter key.
   const handleSearchKeyDown = (e) => {
     if (e.key === "Enter") {
       navigate("/explore", { state: { searchTerm } });
     }
   };
+
+  // Determine the profile image source.
+  // If user.profilePicture exists, construct the URL from the GET request,
+  // otherwise, use the fallback asset.
+  const profileImageSrc =
+    user && user.profilePicture
+      ? `${API_URL}/users/image/${user.profilePicture}`
+      : "/assets/profile.svg";
 
   return (
     <header className="header">
@@ -79,7 +89,6 @@ function Header({ user, handleLogout }) {
       {/* Right: Navigation Buttons + Profile Picture with Dropdown */}
       <div className="header-right">
         <nav className="nav-links">
-          {/* Discover button: no active class by default */}
           <button
             className="nav-button"
             onClick={() => navigate("/explore")}
@@ -112,7 +121,7 @@ function Header({ user, handleLogout }) {
         </nav>
         <div className="profile-section">
           <img
-            src={user?.profilePic || "/assets/profile.svg"}
+            src={profileImageSrc}
             alt="Profile"
             className="profile-pic"
             onClick={toggleProfileDropdown}
