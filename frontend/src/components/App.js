@@ -28,6 +28,7 @@ function App() {
 
     checkAuth();
   }, []);
+	
   // Create a logout function to be passed to Dashboard
   const handleLogout = () => {
     authService.logout();

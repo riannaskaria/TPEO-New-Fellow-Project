@@ -7,11 +7,11 @@
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000; /* Increased to appear above the header */
 }
 
 /* Modal content box */
@@ -26,7 +26,7 @@
 
 /* Make the tags modal wider */
 .modal-content-tags {
-  width: 600px;  /* Only tags modal is wider */
+  width: 600px;
 }
 
 /* Common spacing for text/inputs in modal */
@@ -112,26 +112,28 @@
 }
 
 .tag-button span {
-  margin-right: 4px; /* Adjust the value to increase or decrease spacing */
+  margin-right: 4px;
 }
 
-/* When hovering over tag buttons */
+/* Hover state for tag buttons */
 .tag-button:hover {
   background-color: #f9f9f9;
 }
 
-/* Color the selected tag buttons */
+/* Selected tag button styles */
 .tag-button.selected.academic {
   background-color: var(--tag-green);
 }
+
 .tag-button.selected.social {
   background-color: var(--tag-orange);
 }
+
 .tag-button.selected.career {
   background-color: var(--tag-blue);
 }
 
-/* Tag remove icon: appears only for selected tags and is placed on the right */
+/* Tag remove icon */
 .tag-remove-icon {
   width: 1em;
   height: 1em;

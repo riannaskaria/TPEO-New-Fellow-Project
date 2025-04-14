@@ -34,7 +34,7 @@ const Saved = ({ onLogout }) => {
 
       // Fetch all the saved events
       const eventPromises = user.savedEvents.map(eventId =>
-        authService.fetchWithAuth(`http://localhost:3001/events/${eventId}`)
+        authService.fetchWithAuth(`http://localhost:5000/events/${eventId}`)
           .then(res => res.json())
           .then(data => data.data)
           .catch(err => {
@@ -146,7 +146,7 @@ const Saved = ({ onLogout }) => {
       console.log("Fetching similar events for:", events);
 
       // Fetch all events to get potential similar ones
-      const response = await authService.fetchWithAuth('http://localhost:3001/events');
+      const response = await authService.fetchWithAuth('http://localhost:5000/events');
       const allEvents = await response.json();
 
       if (!allEvents.data) return;
@@ -178,7 +178,7 @@ const Saved = ({ onLogout }) => {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
