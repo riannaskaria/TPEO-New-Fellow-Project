@@ -1,469 +1,660 @@
-import React, { useState, useEffect } from "react";
+// Profile.js
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import Header from "./Header";
 import "../styles/global.css";
 import "../styles/Profile.css";
-
-
+import { academicTags, socialTags, careerTags } from "../constants/categories";
 
 const Profile = ({ onLogout }) => {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("account");
   const [formData, setFormData] = useState({});
   const [isEditable, setIsEditable] = useState(false);
-  const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const navigate = useNavigate();
-  const API_URL = "http://localhost:5000";
-
-  // Interest categories
-  const academicCategories = [
-    "Business", "Liberal Arts", "Natural Sciences", "Engineering", "Communications",
-    "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
-    "Fine Arts", "Nursing", "Pharmacy", "Public Affairs", "Social Work"
-  ];
-  const socialCategories = [
-    "Cultural",
-    "Religious",
-    "Athletics",
-    "Visual Arts",
-    "Film and Media",
-    "Music",
-    "Volunteering",
-    "Comedy",
-    "Food",
-    "Politics",
-    "Wellness",
-    "Entertainment"
-  ];
-  const careerCategories = [
-    "Networking",
-    "Career Fairs",
-    "Company Info Sessions",
-    "Employer Events",
-    "Guidance",
-    "Alumni Events",
-    "Workshops",
-    "Mock Interviews"
-  ];
-
+  const [isEditingPreferences, setIsEditingPreferences] = useState(false);
+  const [newProfilePic, setNewProfilePic] = useState(null);
+  const [profilePicPreview, setProfilePicPreview] = useState(null);
   const [academicInterests, setAcademicInterests] = useState([]);
   const [socialInterests, setSocialInterests] = useState([]);
   const [careerInterests, setCareerInterests] = useState([]);
 
+  // Organizations state
+  const [orgOptions, setOrgOptions] = useState([]);
+  const [orgSearch, setOrgSearch] = useState("");
+  const [selectedOrgs, setSelectedOrgs] = useState([]); // array of org IDs
+  const [selectedOrgObjs, setSelectedOrgObjs] = useState([]); // array of org objects { _id, name }
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const fileInputRef = useRef(null);
+  const orgDropdownRef = useRef(null);
+  const orgInputRef = useRef(null);
+  const navigate = useNavigate();
+  const API_URL = "http://localhost:5000";
 
-  useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
+  // Fetch latest user data from backend on mount and when preferences are saved
+  const fetchUser = async (userId) => {
+    try {
+      const res = await authService.fetchWithAuth(`${API_URL}/users/${userId}`);
+      const json = await res.json();
+      if (json.success) {
+        setUser(json.data);
 
-      setFormData({
-        username: currentUser.username || "",
-        email: currentUser.email || "",
-        password: "",
-        major: currentUser.majors && currentUser.majors.length > 0 ? currentUser.majors[0] : "",
-        year: currentUser.year || ""
-      });
-
-      if (currentUser.interests && currentUser.interests.length > 0) {
-        const academic = [];
-        const social = [];
-        const career = [];
-
-        currentUser.interests.forEach(interest => {
-          if (academicCategories.includes(interest)) {
-            academic.push(interest);
-          } else if (socialCategories.includes(interest)) {
-            social.push(interest);
-          } else if (careerCategories.includes(interest)) {
-            career.push(interest);
+        // Set formData
+        let majorsValue = "";
+        if (json.data.majors) {
+          if (Array.isArray(json.data.majors)) majorsValue = json.data.majors.join(", ");
+          else {
+            try {
+              const parsed = JSON.parse(json.data.majors);
+              majorsValue = Array.isArray(parsed) ? parsed.join(", ") : json.data.majors;
+            } catch {
+              majorsValue = json.data.majors;
+            }
           }
+        }
+        setFormData({
+          firstName: json.data.firstName || "",
+          lastName: json.data.lastName || "",
+          username: json.data.username || "",
+          email: json.data.email || "",
+          password: "",
+          confirmPassword: "",
+          majors: majorsValue,
+          year: json.data.year || ""
         });
 
-        setAcademicInterests(academic);
-        setSocialInterests(social);
-        setCareerInterests(career);
+        // Set interests
+        if (Array.isArray(json.data.interests)) {
+          const a = [], s = [], c = [];
+          json.data.interests.forEach(i => {
+            if (academicTags.includes(i)) a.push(i);
+            else if (socialTags.includes(i)) s.push(i);
+            else if (careerTags.includes(i)) c.push(i);
+          });
+          setAcademicInterests(a);
+          setSocialInterests(s);
+          setCareerInterests(c);
+        } else {
+          setAcademicInterests([]);
+          setSocialInterests([]);
+          setCareerInterests([]);
+        }
+
+        // Set orgs (IDs)
+        if (Array.isArray(json.data.orgs)) {
+          setSelectedOrgs([...json.data.orgs]);
+        } else {
+          setSelectedOrgs([]);
+        }
       }
-    } else {
+    } catch (err) {
+      console.error("Error fetching user:", err);
       navigate("/login");
     }
-  }, [navigate]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
   };
 
-  const handleEdit = () => setIsEditable(true);
-
-  const updateProfile = (userData) => {
+  // Fetch all org options (for dropdown)
+  const fetchOrgOptions = async () => {
     try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || !currentUser._id) {
-        throw new Error("User ID not available");
-      }
-
-      const response = authService.fetchWithAuth(`${API_URL}/users/${currentUser._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(userData)
-      });
-
-      const data = response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update profile");
-      }
-
-      // Update the stored user data
-      const updatedUser = data.data; // Note: API returns { success: true, data: updatedUser }
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      throw error;
+      const res = await authService.fetchWithAuth(`${API_URL}/orgs`);
+      const json = await res.json();
+      if (json.success) setOrgOptions(json.data);
+    } catch (e) {
+      console.error("Error loading orgs:", e);
     }
-  }
+  };
 
-  const updatePreferences = (interests) => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || !currentUser._id) {
-        throw new Error("User ID not available");
-      }
-
-      // ✅ SAME route as updateProfile
-      const response = authService.fetchWithAuth(`${API_URL}/users/${currentUser._id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ interests }) // ✅ Just send the interests field
-      });
-
-      const data = response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update preferences");
-      }
-
-      const updatedUser = data.data;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating preferences:", error);
-      throw error;
+  // Fetch org objects for selected org IDs
+  const fetchSelectedOrgObjs = async (orgIds) => {
+    if (!orgIds || orgIds.length === 0) {
+      setSelectedOrgObjs([]);
+      return;
     }
-  }
-
-  const handleSave = async () => {
     try {
-      setIsSaving(true);
+      // Fetch all orgs in parallel
+      const orgFetches = orgIds.map(id =>
+        authService.fetchWithAuth(`${API_URL}/orgs/${id}`)
+          .then(res => res.json())
+          .then(json => (json.success ? json.data : null))
+          .catch(() => null)
+      );
+      const orgs = await Promise.all(orgFetches);
+      setSelectedOrgObjs(orgs.filter(Boolean));
+    } catch (err) {
+      setSelectedOrgObjs([]);
+    }
+  };
 
-      const updateData = {
+  // Fetch user and orgs on mount
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+    fetchUser(currentUser._id);
+    // eslint-disable-next-line
+  }, [navigate]);
+
+  // Fetch org options when preferences tab is active
+  useEffect(() => {
+    if (activeTab === "preferences") {
+      fetchOrgOptions();
+    }
+  }, [activeTab]);
+
+  // Fetch org objects for tags whenever selectedOrgs changes
+  useEffect(() => {
+    if (selectedOrgs && selectedOrgs.length > 0) {
+      fetchSelectedOrgObjs(selectedOrgs);
+    } else {
+      setSelectedOrgObjs([]);
+    }
+  }, [selectedOrgs]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleClickOutside = (event) => {
+      if (
+        orgDropdownRef.current &&
+        !orgDropdownRef.current.contains(event.target) &&
+        orgInputRef.current &&
+        !orgInputRef.current.contains(event.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownOpen]);
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(f => ({ ...f, [name]: value }));
+  };
+
+  const handleEdit = () => {
+    setIsEditable(true);
+    setIsEditingPreferences(true);
+  };
+
+  const handleProfilePicChange = e => {
+    if (e.target.files?.[0]) {
+      setNewProfilePic(e.target.files[0]);
+      setProfilePicPreview(URL.createObjectURL(e.target.files[0]));
+      setIsEditable(true);
+    }
+  };
+
+  const handleUploadClick = () => fileInputRef.current?.click();
+
+  const handleSaveAccount = async () => {
+    setIsSaving(true);
+    try {
+      if (formData.password !== formData.confirmPassword) {
+        alert("Passwords do not match");
+        setIsSaving(false);
+        return;
+      }
+      const majorsParsed = formData.majors
+        .split(",")
+        .map(m => m.trim())
+        .filter(Boolean);
+
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
         username: formData.username,
         email: formData.email,
-        majors: [formData.major],
-        year: parseInt(formData.year)
+        majors: majorsParsed,
+        year: parseInt(formData.year, 10)
       };
+      if (formData.password) payload.password = formData.password;
 
-      if (formData.password && formData.password.trim() !== "") {
-        updateData.password = formData.password;
+      let response;
+      if (newProfilePic) {
+        const fd = new FormData();
+        Object.entries(payload).forEach(([k, v]) => {
+          if (k === "majors") v.forEach(m => fd.append("majors", m));
+          else fd.append(k, v);
+        });
+        fd.append("profilePicture", newProfilePic);
+        response = await authService.fetchWithAuth(
+          `${API_URL}/users/${user._id}`,
+          { method: "PUT", body: fd }
+        );
+      } else {
+        response = await authService.fetchWithAuth(
+          `${API_URL}/users/${user._id}`,
+          {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+          }
+        );
       }
 
-      try {
-        const updatedUser = await authService.updateProfile(updateData);
-        setUser(updatedUser);
-      } catch (apiError) {
-        console.error("API update failed, falling back to local update:", apiError);
-        const updatedUser = { ...user, ...updateData };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
-      }
-
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.message || "Update failed");
+      setUser(json.data);
       setIsEditable(false);
     } catch (err) {
-      console.error("Error updating profile:", err);
+      console.error(err);
     } finally {
       setIsSaving(false);
     }
   };
-
-
 
   const handleInterestToggle = (type, interest) => {
     if (!isEditingPreferences) return;
-    const toggle = (current, setFunc) => {
-      if (current.includes(interest)) {
-        setFunc(current.filter((i) => i !== interest));
-      } else {
-        setFunc([...current, interest]);
-      }
-    };
-
+    const toggle = (arr, setFn) =>
+      arr.includes(interest) ? setFn(arr.filter(i => i !== interest)) : setFn([...arr, interest]);
     if (type === "academic") toggle(academicInterests, setAcademicInterests);
-    else if (type === "social") toggle(socialInterests, setSocialInterests);
-    else if (type === "career") toggle(careerInterests, setCareerInterests);
+    if (type === "social") toggle(socialInterests, setSocialInterests);
+    if (type === "career") toggle(careerInterests, setCareerInterests);
   };
 
-  const handleUpdatePreferences = async () => {
+  const handleOrgSearchChange = e => {
+    setOrgSearch(e.target.value);
+    setDropdownOpen(true);
+  };
+
+  const handleOrgSelect = org => {
+    if (!isEditingPreferences) return;
+    if (!selectedOrgs.includes(org._id)) {
+      setSelectedOrgs(s => [...s, org._id]);
+    }
+    setOrgSearch("");
+    setDropdownOpen(false);
+  };
+
+  const handleOrgRemove = id => {
+    if (!isEditingPreferences) return;
+    setSelectedOrgs(s => s.filter(o => o !== id));
+  };
+
+  const handleSavePreferences = async () => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
-
-      const allInterests = [
-        ...academicInterests,
-        ...socialInterests,
-        ...careerInterests
-      ];
-
-      try {
-        const updatedUser = updatePreferences(allInterests);
-        setUser(updatedUser);
-        setIsEditingPreferences(false);
-
-        const academic = [];
-        const social = [];
-        const career = [];
-
-        updatedUser.interests.forEach(interest => {
-          if (academicCategories.includes(interest)) academic.push(interest);
-          else if (socialCategories.includes(interest)) social.push(interest);
-          else if (careerCategories.includes(interest)) career.push(interest);
-        });
-
-        setAcademicInterests(academic);
-        setSocialInterests(social);
-        setCareerInterests(career);
-      } catch (apiError) {
-        console.error("API update failed, falling back to local update:", apiError);
-
-        const updatedUser = { ...user, interests: allInterests };
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        setUser(updatedUser);
-        setIsEditingPreferences(false);
-        const academic = [];
-        const social = [];
-        const career = [];
-
-        allInterests.forEach(interest => {
-          if (academicCategories.includes(interest)) academic.push(interest);
-          else if (socialCategories.includes(interest)) social.push(interest);
-          else if (careerCategories.includes(interest)) career.push(interest);
-        });
-
-        setAcademicInterests(academic);
-        setSocialInterests(social);
-        setCareerInterests(career);
-      }
+      const interests = [...academicInterests, ...socialInterests, ...careerInterests];
+      const payload = { interests, orgs: selectedOrgs };
+      const res = await authService.fetchWithAuth(
+        `${API_URL}/users/${user._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }
+      );
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Save failed");
+      // Fetch latest user data from backend to update interests/orgs
+      await fetchUser(user._id);
+      setIsEditingPreferences(false);
     } catch (err) {
-      console.error("Error updating preferences:", err);
+      console.error(err);
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (!user) {
-    return (
-      <div className="profile-container">
-        <p>Loading profile...</p>
-      </div>
-    );
-  }
+  if (!user) return <div className="profile-container"><p>Loading profile...</p></div>;
 
   return (
     <div className="profile-page">
       <Header user={user} handleLogout={onLogout} />
       <div className="profile-content">
-        <h2>Settings</h2>
 
-        <div className="profile-tabs">
-          <button
-            className={activeTab === "account" ? "active" : ""}
-            onClick={() => setActiveTab("account")}
-          >
-            Account
-          </button>
-          <button
-            className={activeTab === "preferences" ? "active" : ""}
-            onClick={() => setActiveTab("preferences")}
-          >
-            Preferences
-          </button>
+        {/* Settings Header + Tabs */}
+        <div className="settings-header">
+          <h2>Settings</h2>
+          <div className="tabs-wrapper">
+            <div className="profile-tabs">
+              <button
+                className={activeTab === "account" ? "active" : ""}
+                onClick={() => setActiveTab("account")}
+              >
+                Account
+              </button>
+              <button
+                className={activeTab === "preferences" ? "active" : ""}
+                onClick={() => setActiveTab("preferences")}
+              >
+                Preferences
+              </button>
+            </div>
+          </div>
         </div>
 
+        {/* ACCOUNT TAB */}
         {activeTab === "account" ? (
           <div className="account-tab">
-            <div className="row">
-              <div className="field">
-                <label>Email</label>
+            <div className="profile-header">
+              <div className="profile-picture-container">
+                <div className="profile-picture-wrapper">
+                  {newProfilePic || profilePicPreview ? (
+                    <img src={profilePicPreview} alt="Preview" className="profile-picture" />
+                  ) : user.profilePicture ? (
+                    <img
+                      src={`${API_URL}/users/image/${user.profilePicture}`}
+                      alt="Profile"
+                      className="profile-picture"
+                    />
+                  ) : (
+                    <div className="empty-profile-picture">
+                      <span className="placeholder-text">profile picture</span>
+                    </div>
+                  )}
+                </div>
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email || ""}
-                  onChange={handleChange}
-                  disabled={!isEditable}
-                  style={{
-                    backgroundColor: isEditable ? "var(--light-orange)" : "white",
-                  }}
+                  type="file"
+                  style={{ display: "none" }}
+                  ref={fileInputRef}
+                  accept="image/*"
+                  onChange={handleProfilePicChange}
                 />
+                <button className="upload-photo-btn" onClick={handleUploadClick}>
+                  +
+                </button>
               </div>
-              <div className="field">
-                <label>Major</label>
-                <input
-                  type="text"
-                  name="major"
-                  value={formData.major || ""}
-                  onChange={handleChange}
-                  disabled={!isEditable}
-                  style={{
-                    backgroundColor: isEditable ? "var(--light-orange)" : "white",
-                  }}
-                />
-              </div>
-              <div className="field">
-                <label>Year</label>
-                <input
-                  type="text"
-                  name="year"
-                  value={formData.year || ""}
-                  onChange={handleChange}
-                  disabled={!isEditable}
-                  style={{
-                    backgroundColor: isEditable ? "var(--light-orange)" : "white",
-                  }}
-                />
+              <div className="profile-info">
+                <h3 className="profile-name">
+                  {user.firstName} {user.lastName}
+                </h3>
+                <span className="profile-bullet">•</span>
+                <p className="profile-friends">
+                  {user.friends ? user.friends.length : 0} Friends
+                </p>
               </div>
             </div>
 
-            <div className="row">
-              <div className="field">
-                <label>Username</label>
-                <input
-                  type="text"
-                  name="username"
-                  value={formData.username || ""}
-                  onChange={handleChange}
-                  disabled={!isEditable}
-                  style={{
-                    backgroundColor: isEditable ? "var(--light-orange)" : "white",
-                  }}
-                />
+            <h3 className="account-preferences-heading">Account Preferences</h3>
+            <div className="account-preferences">
+              <div className="row">
+                <div className="field">
+                  <label>First Name</label>
+                  <input
+                    type="text"
+                    name="firstName"
+                    value={formData.firstName}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                  />
+                </div>
+                <div className="field">
+                  <label>Last Name</label>
+                  <input
+                    type="text"
+                    name="lastName"
+                    value={formData.lastName}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                  />
+                </div>
+                <div className="field">
+                  <label>Email</label>
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                  />
+                </div>
               </div>
-              <div className="field">
-                <label>Password</label>
-                <input
-                  type="password"
-                  name="password"
-                  value={formData.password || ""}
-                  onChange={handleChange}
-                  disabled={!isEditable}
-                  placeholder={isEditable ? "Enter new password" : "••••••••"}
-                  style={{
-                    backgroundColor: isEditable ? "var(--light-orange)" : "white",
-                  }}
-                />
-              </div>
-            </div>
 
-            {!isEditable ? (
-              <button onClick={handleEdit}>Edit</button>
-            ) : (
-              <button onClick={handleSave} disabled={isSaving}>
-                {isSaving ? "Saving..." : "Save"}
-              </button>
-            )}
+              <div className="row">
+                <div className="field">
+                  <label>Majors</label>
+                  <input
+                    type="text"
+                    name="majors"
+                    value={formData.majors}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                    placeholder="Enter majors separated by commas"
+                  />
+                </div>
+                <div className="field">
+                  <label>Year</label>
+                  <input
+                    type="text"
+                    name="year"
+                    value={formData.year}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                  />
+                </div>
+              </div>
+              <div className="row">
+                <div className="field">
+                  <label>Username</label>
+                  <input
+                    type="text"
+                    name="username"
+                    value={formData.username}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                  />
+                </div>
+                <div className="field">
+                  <label>Password</label>
+                  <input
+                    type="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                    placeholder={isEditable ? "Enter new password" : "••••••••"}
+                  />
+                </div>
+                <div className="field">
+                  <label>Confirm Password</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={formData.confirmPassword}
+                    onChange={handleChange}
+                    disabled={!isEditable}
+                    placeholder={isEditable ? "Confirm new password" : "••••••••"}
+                  />
+                </div>
+              </div>
+
+              {!isEditable ? (
+                <button className="account-edit-button" onClick={handleEdit}>
+                  Edit
+                </button>
+              ) : (
+                <button
+                  className="account-save-button"
+                  onClick={handleSaveAccount}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save"}
+                </button>
+              )}
+            </div>
           </div>
         ) : (
+
+        /* PREFERENCES TAB */
+        <div className="preferences-tab">
           <div className="preferences-container">
-            <div className="preferences-box">
-              <h2 className="preferences-title">Update Your Preferences</h2>
 
-              <h3 className="preferences-subtitle">Academic Interests</h3>
-              <div className="preferences-interests-container">
-                {academicCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    className={`preferences-interest-button academic ${
-                      academicInterests.includes(interest) ? "selected" : ""
-                    }`}
-                    onClick={() => handleInterestToggle("academic", interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
+            <h3 className="preferences-subtitle">Academic Interests</h3>
+            <div className="preferences-interests-container">
+              {academicTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`preferences-interest-button academic ${academicInterests.includes(tag) ? "selected" : ""}`}
+                  onClick={() => handleInterestToggle("academic", tag)}
+                  type="button"
+                >
+                  {tag}
+                  {academicInterests.includes(tag) && isEditingPreferences && (
+                    <img
+                      src="assets/cancel.svg"
+                      alt="Remove"
+                      className="tag-remove-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleInterestToggle("academic", tag);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
 
-              <h3 className="preferences-subtitle">Social Interests</h3>
-              <div className="preferences-interests-container">
-                {socialCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    className={`preferences-interest-button social ${
-                      socialInterests.includes(interest) ? "selected" : ""
-                    }`}
-                    onClick={() => handleInterestToggle("social", interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
+            <h3 className="preferences-subtitle">Social Interests</h3>
+            <div className="preferences-interests-container">
+              {socialTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`preferences-interest-button social ${socialInterests.includes(tag) ? "selected" : ""}`}
+                  onClick={() => handleInterestToggle("social", tag)}
+                  type="button"
+                >
+                  {tag}
+                  {socialInterests.includes(tag) && isEditingPreferences && (
+                    <img
+                      src="assets/cancel.svg"
+                      alt="Remove"
+                      className="tag-remove-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleInterestToggle("social", tag);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
 
-              <h3 className="preferences-subtitle">Career Interests</h3>
-              <div className="preferences-interests-container">
-                {careerCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    className={`preferences-interest-button career ${
-                      careerInterests.includes(interest) ? "selected" : ""
-                    }`}
-                    onClick={() => handleInterestToggle("career", interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
+            <h3 className="preferences-subtitle">Career Interests</h3>
+            <div className="preferences-interests-container">
+              {careerTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`preferences-interest-button career ${careerInterests.includes(tag) ? "selected" : ""}`}
+                  onClick={() => handleInterestToggle("career", tag)}
+                  type="button"
+                >
+                  {tag}
+                  {careerInterests.includes(tag) && isEditingPreferences && (
+                    <img
+                      src="assets/cancel.svg"
+                      alt="Remove"
+                      className="tag-remove-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleInterestToggle("career", tag);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
 
-              <h3 className="preferences-subtitle">Organizations</h3>
-              <div className="organization-search">
+            <h3 className="preferences-subtitle">Organizations</h3>
+            <div className="organizations-section" style={{ position: "relative" }}>
+              <label className="org-label">Add Organization</label>
+              <div className="org-search-bar-container">
+                <img src="/assets/search.svg" alt="Search Icon" className="org-search-icon" />
                 <input
                   type="text"
-                  placeholder="Search for organizations..."
-                  className="org-search-input"
+                  className="org-search-bar"
+                  placeholder="Search organizations..."
+                  value={orgSearch}
+                  onChange={handleOrgSearchChange}
+                  onFocus={() => setDropdownOpen(true)}
+                  disabled={!isEditingPreferences}
+                  ref={orgInputRef}
+                  autoComplete="off"
+                  style={{ marginBottom: 0 }}
                 />
-              </div>
-
-              <div className="user-organizations">
-                {user.orgs && user.orgs.length > 0 ? (
-                  user.orgs.map((org, index) => (
-                    <div key={index} className="organization-item">
-                      <span>{typeof org === 'object' ? org.name : org}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p>No organizations joined yet</p>
+                {dropdownOpen && (
+                  <div
+                    className="org-dropdown"
+                    ref={orgDropdownRef}
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: 0 // Ensures dropdown is flush with the input
+                    }}
+                  >
+                    {orgOptions
+                      .filter(o =>
+                        (!orgSearch || o.name.toLowerCase().includes(orgSearch.toLowerCase())) &&
+                        !selectedOrgs.includes(o._id)
+                      )
+                      .map(o => (
+                        <div
+                          key={o._id}
+                          className="org-option"
+                          onClick={() => handleOrgSelect(o)}
+                        >
+                          {o.name}
+                        </div>
+                      ))}
+                    {orgOptions.filter(o =>
+                      (!orgSearch || o.name.toLowerCase().includes(orgSearch.toLowerCase())) &&
+                      !selectedOrgs.includes(o._id)
+                    ).length === 0 && (
+                      <div className="org-option org-option-disabled">
+                        No organizations found
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
-              <div className="preferences-header">
-                    {!isEditingPreferences ? (
-                    <button
-                    className="preferences-save-button"
-                    onClick={() => setIsEditingPreferences(true)}>Edit Preferences</button>
-                    ) : (
-                   <button
-                      className="preferences-save-button"
-                       onClick={handleUpdatePreferences}
-                       disabled={isSaving}
+              <div className="selected-orgs">
+                {selectedOrgObjs.map(o => (
+                  <button
+                    key={o._id}
+                    className="preferences-interest-button org selected"
+                    onClick={() => isEditingPreferences && handleOrgRemove(o._id)}
+                    disabled={!isEditingPreferences}
+                    type="button"
                   >
-                  {isSaving ? "Saving..." : "Save Preferences"}
+                    {o.name}
+                    {isEditingPreferences && (
+                      <img src="assets/cancel.svg" alt="Remove" className="tag-remove-icon" />
+                    )}
                   </button>
-                  )}
+                ))}
               </div>
             </div>
+
+            <div className="preferences-header">
+              {!isEditingPreferences ? (
+                <button
+                  className="preferences-save-button"
+                  onClick={() => setIsEditingPreferences(true)}
+                >
+                  Edit Preferences
+                </button>
+              ) : (
+                <button
+                  className="preferences-save-button"
+                  onClick={handleSavePreferences}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save Preferences"}
+                </button>
+              )}
+            </div>
           </div>
+        </div>
         )}
+
       </div>
     </div>
   );

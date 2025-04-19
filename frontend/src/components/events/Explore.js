@@ -7,11 +7,11 @@ import Header from "../Header";
 import "../../styles/events/Explore.css";
 import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
-function Explore() {
+function Explore( {onLogout} ) {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-
+  
   // Dropdown filters: each is an array of selected tags
   const [selectedAcademic, setSelectedAcademic] = useState([]);
   const [selectedSocial, setSelectedSocial] = useState([]);
@@ -24,32 +24,33 @@ function Explore() {
 
   const navigate = useNavigate();
   const location = useLocation();
-  // Obtain the search term passed from Header (if any)
   const searchTerm = location.state?.searchTerm || "";
 
-  // Simple logout handler (adjust if needed)
+  // Global click handler to collapse any open dropdown when clicking outside
+  useEffect(() => {
+    const handleDocumentClick = (event) => {
+      // If the click is not on an element that is within an element with class "dropdown"
+      if (!event.target.closest('.dropdown')) {
+        setAcademicOpen(false);
+        setSocialOpen(false);
+        setCareerOpen(false);
+      }
+    };
+
+    // Use the capture phase to ensure our listener fires before React's synthetic events.
+    document.addEventListener("click", handleDocumentClick, true);
+    return () => {
+      document.removeEventListener("click", handleDocumentClick, true);
+    };
+  }, []);
+
   const handleLogout = () => {
-    if (authService.logout) {
-      authService.logout();
+    if (onLogout) {
+      onLogout();
     }
-    setCurrentUser(null);
-    navigate("/login");
   };
 
   useEffect(() => {
-    // Get the selected category from localStorage
-    const selectedCategory = JSON.parse(localStorage.getItem('selectedCategory'));
-    if (selectedCategory) {
-      const { name, type } = selectedCategory;
-      // Update state to filter events by the selected category
-      if (type === 'academic') {
-        setSelectedAcademic([name]);
-      } else if (type === 'social') {
-        setSelectedSocial([name]);
-      } else if (type === 'career') {
-        setSelectedCareer([name]);
-      }
-    }
     authService.fetchWithAuth("http://localhost:5000/events")
       .then((res) => res.json())
       .then((data) => {
@@ -77,16 +78,13 @@ function Explore() {
     setFilteredEvents(events.filter(filterByCategories));
   }, [events, selectedAcademic, selectedSocial, selectedCareer]);
 
-  // Additional filtering based on search query.
-  // Matching logic: for each event, split its title and description by whitespace, 
-  // and compare with each word in the query; also check if any query word exactly matches any tag.
+  // Search filtering logic
   const matchesSearch = (event, query) => {
     if (!query.trim()) return true;
     const queryWords = query.toLowerCase().split(/\s+/);
     const titleWords = (event.title || "").toLowerCase().split(/\s+/);
     const descriptionWords = (event.description || "").toLowerCase().split(/\s+/);
     const tagWords = event.categories ? event.categories.map(tag => tag.toLowerCase()) : [];
-    // Return true if any query word is found in title, description, or tags.
     return queryWords.some(qw =>
       titleWords.includes(qw) ||
       descriptionWords.includes(qw) ||
@@ -94,12 +92,11 @@ function Explore() {
     );
   };
 
-  // Further filter events based on search term (if provided)
   const searchFilteredEvents = searchTerm
     ? filteredEvents.filter(event => matchesSearch(event, searchTerm))
     : filteredEvents;
 
-  // Split the events into upcoming and past based on current time.
+  // Split events into upcoming and past
   const now = new Date();
   const upcomingEvents = searchFilteredEvents
     .filter(event => new Date(event.startTime) > now)
@@ -108,7 +105,7 @@ function Explore() {
     .filter(event => new Date(event.startTime) <= now)
     .sort((a, b) => new Date(b.startTime) - new Date(a.startTime));
 
-  // Save toggle handler - updates the current user's savedEvents via a PUT request.
+  // Toggle save handler for events
   const handleToggleSave = (eventId, newSavedState) => {
     const updatedSavedEvents = newSavedState
       ? [...(currentUser.savedEvents || []), eventId]

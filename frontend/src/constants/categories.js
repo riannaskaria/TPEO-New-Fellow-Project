@@ -11,6 +11,6 @@ export const socialTags = [
 ];
 
 export const careerTags = [
-  "Networking", "Career Fairs", "Info Sessions", "Employer Events",
+  "Networking", "Career Fairs", "Company Info Sessions", "Employer Events",
   "Guidance", "Alumni Events", "Workshops", "Mock Interviews"
 ];

@@ -1,4 +1,5 @@
 import React, { useState, useLayoutEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/events/EventCard.css";
 import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
@@ -6,6 +7,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
   const [isSaved, setIsSaved] = useState(false);
   const tagsContainerRef = useRef(null);
   const [visibleCount, setVisibleCount] = useState(event.categories.length);
+  const navigate = useNavigate();
 
   // Check if event is saved
   React.useEffect(() => {
@@ -34,13 +36,13 @@ function EventCard({ event, currentUser, onToggleSave }) {
 
 		let totalWidth = 0;
 		let count = 0;
-		const gap = 6; // <-- Change this if your CSS gap is different
+		const gap = 5; // <-- Change this if your CSS gap is different
 
 		// Loop over sorted tags
 		for (let i = 0; i < sortedCategories.length; i++) {
 			dummy.innerText = sortedCategories[i];
 			// The extraWidth value (16) should equal the sum of horizontal paddings (and borders if any)
-			const extraWidth = 5; // <-- Adjust this value to match your .tag-badge computed padding
+			const extraWidth = 1; // <-- Adjust this value to match your .tag-badge computed padding
 			const tagWidth = dummy.offsetWidth + extraWidth;
 			if (i > 0) totalWidth += gap;
 			if (totalWidth + tagWidth > containerWidth) break;
@@ -66,14 +68,20 @@ function EventCard({ event, currentUser, onToggleSave }) {
     : null;
 
   // Save toggle
-  const handleSaveClick = () => {
+  const handleSaveClick = (e) => {
+    e.stopPropagation();
     const newSavedState = !isSaved;
     setIsSaved(newSavedState);
     onToggleSave(event._id, newSavedState);
   };
 
+  // Handle card click to navigate to ViewEvent
+  const handleCardClick = () => {
+    navigate("/view-event", { state: { event } });
+  };
+
   return (
-    <div className="event-card">
+    <div className="event-card" onClick={handleCardClick} style={{ cursor: "pointer" }}>
       <div className="event-card-header">
         <h3 className="event-title">{event.title}</h3>
         <button className="save-btn" onClick={handleSaveClick}>

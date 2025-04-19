@@ -168,7 +168,7 @@ router.post('/', upload.single('profilePicture'), async (req, res) => {
       message: 'User created successfully',
       user: savedUser
     });
-  }
+  } 
 	catch (err) {
     console.error('Error creating user:', err);
 
