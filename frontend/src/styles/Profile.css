@@ -1,8 +1,9 @@
-/* Page Wrapper */
+/* Profile.css */
+
 .profile-page {
   background-color: var(--white);
   min-height: 100vh;
-  margin-top: 10vh; /* Top padding */
+  margin-top: 10vh;
 }
 
 /* Profile Content */
@@ -11,41 +12,44 @@
 }
 
 .account-preferences-heading {
-	font: var(--page-subheading);
-	color: var(--text-black);
-	margin-top: 40px;
-  margin-bottom: 20px;    /* Adjust bottom margin */
+  font: var(--page-subheading);
+  color: var(--text-black);
+  margin-top: 40px;
+  margin-bottom: 20px;
 }
 
-/* Row styling for account preferences */
+/* Rows */
 .account-preferences .row {
   display: flex;
-  justify-content: flex-start;
   align-items: center;
-  gap: 10px; /* Small gap between fields */
+  gap: 24px;
   margin-bottom: 25px;
 }
 
 .account-preferences .field {
-  width: 250px;      /* Fixed width for each field */
+  width: 250px;
   display: flex;
   flex-direction: column;
 }
 
+.account-preferences .row:nth-child(2) .field:first-child {
+  width: 350px;
+}
+
 .account-preferences .field label {
-	font: var(--profile-field);
-  margin-bottom: 6px;
+  font: var(--profile-field);
   color: var(--text-black);
+  margin-bottom: 6px;
 }
 
 .account-preferences .field input,
 .account-preferences .field textarea {
-  padding: 10px 12px;
+  padding: 8px 10px;
   font: var(--profile-field);
   border: var(--border-box);
   border-radius: 8px;
-  color: var(--text-black);
   background-color: var(--light-grey);
+  color: var(--text-black);
   transition: border-color 0.2s ease-in-out;
 }
 
@@ -55,7 +59,7 @@
   outline: none;
 }
 
-/* Empty profile picture placeholder styling */
+/* Empty profile picture */
 .empty-profile-picture {
   width: 100%;
   height: 100%;
@@ -72,26 +76,22 @@
   color: #fff;
 }
 
-/* Upload button styling */
-/* Adjust the properties below to change the size and position of the orange + icon */
+/* Upload button */
 .upload-photo-btn {
   position: absolute;
-  bottom: -2px;  /* Adjust negative value to raise/lower the icon */
-  right: 15px;   /* Adjust negative value to shift the icon left/right */
-  z-index: 10;   /* Ensure it appears on top */
+  bottom: -2px;
+  right: 15px;
   background-color: var(--dark-orange);
   color: var(--white);
   border: none;
   border-radius: 50%;
-  width: 20px;   /* Increase/decrease to change icon size */
-  height: 20px;  /* Increase/decrease to change icon size */
-  font-size: 16px;  /* Adjust to scale the plus sign */
+  width: 20px;
+  height: 20px;
+  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  /* Optionally, adjust transform if you want further fine-tuning:
-     transform: translate(50%, 50%); */
 }
 
 /* Settings Header */
@@ -99,7 +99,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 }
 
 .settings-header h2 {
@@ -108,28 +108,34 @@
 }
 
 /* Tabs */
-.profile-tabs {
-  display: flex;
-  gap: 12px;
+.tabs-wrapper {
+  background-color: var(--light-orange);
+  padding: 4px;
+  border-radius: 8px;
+  display: inline-block;
 }
 
-.profile-tabs button {
-  padding: 10px 20px;
+.tabs-wrapper .profile-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.tabs-wrapper button {
+  padding: 8px 16px;
   font: var(--profile-tabs);
-  background-color: var(--white);
+  background: transparent;
   color: var(--text-black);
-  border: var(--border-box);
+  border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.2s ease-in-out;
+  transition: background-color 0.2s, color 0.2s;
+}
+.tabs-wrapper button.active {
+  background-color: var(--white);
+  color: var(--dark-orange);
 }
 
-.profile-tabs button.active {
-  background-color: var(--dark-orange);
-  color: var(--white);
-}
-
-/* Profile Header, Picture & Info */
+/* Profile Header */
 .profile-header {
   display: flex;
   align-items: center;
@@ -143,11 +149,9 @@
   margin-right: 20px;
 }
 
-/* The wrapper clips the image or placeholder to a circle */
 .profile-picture-wrapper {
   width: 100%;
   height: 100%;
-  position: relative;
   border-radius: 50%;
   overflow: hidden;
   background-color: #ccc;
@@ -160,44 +164,41 @@
 }
 
 .profile-info {
-  display: flex;        /* Put them in a row */
-  align-items: center;  /* Vertically center them all */
-  gap: 16px;             /* Space between elements */
-  margin-left: 24px;    /* Optional: spacing from the profile picture */
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-left: 24px;
 }
 
-/* Style for the user’s name */
 .profile-info .profile-name {
-	font: var(--profile-name);
+  font: var(--profile-name);
   color: var(--text-black);
   margin: 0;
 }
 
-/* The bullet styling */
 .profile-info .profile-bullet {
-	font: var(--profile-bullet);
-  line-height: 1;
+  font: var(--profile-bullet);
   color: var(--text-black);
 }
 
-/* Style for the friend count text */
 .profile-info .profile-friends {
-	font: var(--profile-friends);
-  margin: 0;
+  font: var(--profile-friends);
   color: var(--dark-orange);
+  margin: 0;
 }
 
-/* Account Edit/Save Buttons */
+/* Edit/Save Buttons */
 .account-edit-button,
 .account-save-button {
-  padding: 10px 20px;
+  display: block;
+  padding: 8px 20px;
   background-color: var(--dark-orange);
   color: var(--white);
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 14px;
-  margin-top: 10px;
+  margin: 50px auto 0;
+  font: var(--button);
 }
 
 .account-edit-button:hover,
@@ -205,56 +206,174 @@
   background-color: var(--medium-orange);
 }
 
-/* Preferences Tab Styling */
+/* Preferences */
 .preferences-container {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-}
-
-.preferences-title {
-  font: var(--page-heading);
-  color: var(--text-black);
-  margin-bottom: 20px;
+  overflow: visible; /* ensure dropdown not clipped */
 }
 
 .preferences-subtitle {
-  font: var(--sub-heading);
+  font: var(--page-subheading);
   color: var(--text-black);
-  margin-bottom: 20px;
+  margin-bottom: 30px;
 }
 
+/* Tags */
 .preferences-interests-container {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 16px;
   margin-bottom: 30px;
 }
 
 .preferences-interest-button {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #E0E0E0;
-  cursor: pointer;
-  transition: 0.3s;
+  padding: 6px 10px;
   background-color: var(--white);
-  font: var(--sign-up-tags);
+  border: var(--border-box);
+  border-radius: 8px;
+  cursor: pointer;
+  font: var(--profile-tags);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background-color 0.2s, color 0.2s;
 }
 
-.preferences-interest-button.selected {
-  background-color: var(--dark-orange);
-  color: var(--white);
+.preferences-interest-button.academic.selected {
+  background-color: var(--tag-green);
+  color: var(--text-black);
 }
 
+.preferences-interest-button.social.selected {
+  background-color: var(--tag-orange);
+  color: var(--text-black);
+}
+
+.preferences-interest-button.career.selected {
+  background-color: var(--tag-blue);
+  color: var(--text-black);
+}
+
+.preferences-interest-button.org.selected {
+  background-color: var(--light-orange);
+  color: var(--text-black);
+}
+
+.tag-remove-icon {
+  width: 12px;
+  height: 12px;
+}
+
+/* Organizations Section */
+.organizations-section {
+  position: relative;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.org-label {
+  font: var(--profile-field);
+  color: var(--text-black);
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* New search bar style for orgs (matches header) */
+.org-search-bar-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 400px;
+  margin-bottom: 0;
+}
+
+/* --- CHANGED: Vertically center text and placeholder in org-search-bar --- */
+.org-search-bar {
+  width: 100%;
+  height: 40px;
+  padding: 5px 0 5px 40px;
+  font: var(--profile-org-search-field);
+  border: var(--border-box);
+  border-radius: 8px;
+  background-color: var(--white);
+  outline: none;
+  color: var(--text-black);
+  transition: border-color 0.2s;
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.org-search-bar::placeholder {
+  color: var(--text-grey);
+  opacity: 1;
+  /* Vertically center placeholder (for most browsers) */
+  line-height: 40px;
+}
+
+.org-search-bar:focus {
+  border-color: var(--dark-orange);
+}
+
+.org-search-icon {
+  position: absolute;
+  left: 12px;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+}
+
+.org-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%; /* changed from fixed width to 100% to match parent width */
+  max-height: 200px;
+  overflow-y: auto;
+  background: var(--white);
+  border: var(--border-box);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  z-index: 999;
+}
+
+.org-option {
+  padding: 8px 10px;
+  cursor: pointer;
+}
+
+.org-option:hover {
+  background-color: var(--light-orange);
+}
+
+.org-option.org-option-disabled {
+  color: #aaa;
+  cursor: not-allowed;
+}
+
+.selected-orgs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* Save Preferences Button */
+.preferences-header {
+  width: 100%;
+  text-align: center;
+}
 .preferences-save-button {
   background-color: var(--dark-orange);
   color: var(--white);
   border: none;
-  border-radius: 6px;
-  padding: 12px 24px;
+  border-radius: 8px;
+  padding: 8px 20px;
   cursor: pointer;
-  font-size: 16px;
-  align-self: flex-end;
+  font: var(--button);
+  margin: 20px auto 0;
 }
 
 .preferences-save-button:hover {
@@ -262,7 +381,7 @@
 }
 
 .preferences-save-button:disabled {
-  background-color: var(--medium-orange);
+  background-color: var(--light-orange);
   opacity: 0.6;
   cursor: not-allowed;
 }

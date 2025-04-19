@@ -33,6 +33,8 @@
 	--profile-bullet: bold 16px "Roboto", sans-serif;
 	--profile-friends: bold 16px "Roboto", sans-serif;
   --profile-field: normal 16px "Roboto", sans-serif;
+	--profile-tags: normal 16px "Roboto", sans-serif;
+	--profile-org-search-field: normal 16px "Roboto", sans-serif;
 
 	/* border */
   --border-box: 1px solid #D9D9D9;

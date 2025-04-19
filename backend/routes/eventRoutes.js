@@ -120,7 +120,7 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 });
 
 // GET image by imageId
-router.get('/image/:id', async (req, res) => {
+router.get('/image/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {

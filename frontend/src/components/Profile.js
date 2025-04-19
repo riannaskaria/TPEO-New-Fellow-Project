@@ -1,9 +1,11 @@
+// Profile.js
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import Header from "./Header";
 import "../styles/global.css";
 import "../styles/Profile.css";
+import { academicTags, socialTags, careerTags } from "../constants/categories";
 
 const Profile = ({ onLogout }) => {
   const [user, setUser] = useState(null);
@@ -14,383 +16,328 @@ const Profile = ({ onLogout }) => {
   const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [newProfilePic, setNewProfilePic] = useState(null);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
-  const fileInputRef = useRef(null);
-  const navigate = useNavigate();
-  const API_URL = "http://localhost:5000";
-
-  // Interest categories
-  const academicCategories = [
-    "Business",
-    "Liberal Arts",
-    "Natural Sciences",
-    "Engineering",
-    "Communications",
-    "Geosciences",
-    "Informatics",
-    "Education",
-    "Architecture",
-    "Civic Leadership",
-    "Fine Arts",
-    "Nursing",
-    "Pharmacy",
-    "Public Affairs",
-    "Social Work"
-  ];
-  const socialCategories = [
-    "Cultural",
-    "Religious",
-    "Athletics",
-    "Visual Arts",
-    "Film and Media",
-    "Music",
-    "Volunteering",
-    "Comedy",
-    "Food",
-    "Politics",
-    "Wellness",
-    "Entertainment"
-  ];
-  const careerCategories = [
-    "Networking",
-    "Career Fairs",
-    "Company Info Sessions",
-    "Employer Events",
-    "Guidance",
-    "Alumni Events",
-    "Workshops",
-    "Mock Interviews"
-  ];
 
   const [academicInterests, setAcademicInterests] = useState([]);
   const [socialInterests, setSocialInterests] = useState([]);
   const [careerInterests, setCareerInterests] = useState([]);
 
-  useEffect(() => {
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
+  // Organizations state
+  const [orgOptions, setOrgOptions] = useState([]);
+  const [orgSearch, setOrgSearch] = useState("");
+  const [selectedOrgs, setSelectedOrgs] = useState([]); // array of org IDs
+  const [selectedOrgObjs, setSelectedOrgObjs] = useState([]); // array of org objects { _id, name }
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-      // Convert the user's "majors" field to a comma-separated string for the input.
-      let majorsValue = "";
-      if (currentUser.majors) {
-        if (Array.isArray(currentUser.majors)) {
-          majorsValue = currentUser.majors.join(", ");
-        } else if (typeof currentUser.majors === "string") {
-          try {
-            const parsed = JSON.parse(currentUser.majors);
-            majorsValue = Array.isArray(parsed) ? parsed.join(", ") : currentUser.majors;
-          } catch (error) {
-            majorsValue = currentUser.majors;
+  const fileInputRef = useRef(null);
+  const orgDropdownRef = useRef(null);
+  const orgInputRef = useRef(null);
+  const navigate = useNavigate();
+  const API_URL = "http://localhost:5000";
+
+  // Fetch latest user data from backend on mount and when preferences are saved
+  const fetchUser = async (userId) => {
+    try {
+      const res = await authService.fetchWithAuth(`${API_URL}/users/${userId}`);
+      const json = await res.json();
+      if (json.success) {
+        setUser(json.data);
+
+        // Set formData
+        let majorsValue = "";
+        if (json.data.majors) {
+          if (Array.isArray(json.data.majors)) majorsValue = json.data.majors.join(", ");
+          else {
+            try {
+              const parsed = JSON.parse(json.data.majors);
+              majorsValue = Array.isArray(parsed) ? parsed.join(", ") : json.data.majors;
+            } catch {
+              majorsValue = json.data.majors;
+            }
           }
         }
-      }
-
-      setFormData({
-        firstName: currentUser.firstName || "",
-        lastName: currentUser.lastName || "",
-        username: currentUser.username || "",
-        email: currentUser.email || "",
-        password: "",
-        confirmPassword: "",
-        majors: majorsValue,
-        year: currentUser.year || ""
-      });
-
-      // Split interests by category
-      if (Array.isArray(currentUser.interests) && currentUser.interests.length > 0) {
-        const academic = [];
-        const social = [];
-        const career = [];
-        currentUser.interests.forEach((interest) => {
-          if (academicCategories.includes(interest)) academic.push(interest);
-          else if (socialCategories.includes(interest)) social.push(interest);
-          else if (careerCategories.includes(interest)) career.push(interest);
+        setFormData({
+          firstName: json.data.firstName || "",
+          lastName: json.data.lastName || "",
+          username: json.data.username || "",
+          email: json.data.email || "",
+          password: "",
+          confirmPassword: "",
+          majors: majorsValue,
+          year: json.data.year || ""
         });
-        setAcademicInterests(academic);
-        setSocialInterests(social);
-        setCareerInterests(career);
+
+        // Set interests
+        if (Array.isArray(json.data.interests)) {
+          const a = [], s = [], c = [];
+          json.data.interests.forEach(i => {
+            if (academicTags.includes(i)) a.push(i);
+            else if (socialTags.includes(i)) s.push(i);
+            else if (careerTags.includes(i)) c.push(i);
+          });
+          setAcademicInterests(a);
+          setSocialInterests(s);
+          setCareerInterests(c);
+        } else {
+          setAcademicInterests([]);
+          setSocialInterests([]);
+          setCareerInterests([]);
+        }
+
+        // Set orgs (IDs)
+        if (Array.isArray(json.data.orgs)) {
+          setSelectedOrgs([...json.data.orgs]);
+        } else {
+          setSelectedOrgs([]);
+        }
       }
-    } else {
+    } catch (err) {
+      console.error("Error fetching user:", err);
       navigate("/login");
     }
-  }, [navigate]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEdit = () => setIsEditable(true);
+  // Fetch all org options (for dropdown)
+  const fetchOrgOptions = async () => {
+    try {
+      const res = await authService.fetchWithAuth(`${API_URL}/orgs`);
+      const json = await res.json();
+      if (json.success) setOrgOptions(json.data);
+    } catch (e) {
+      console.error("Error loading orgs:", e);
+    }
+  };
 
-  const handleProfilePicChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setNewProfilePic(file);
-      setProfilePicPreview(URL.createObjectURL(file));
+  // Fetch org objects for selected org IDs
+  const fetchSelectedOrgObjs = async (orgIds) => {
+    if (!orgIds || orgIds.length === 0) {
+      setSelectedOrgObjs([]);
+      return;
+    }
+    try {
+      // Fetch all orgs in parallel
+      const orgFetches = orgIds.map(id =>
+        authService.fetchWithAuth(`${API_URL}/orgs/${id}`)
+          .then(res => res.json())
+          .then(json => (json.success ? json.data : null))
+          .catch(() => null)
+      );
+      const orgs = await Promise.all(orgFetches);
+      setSelectedOrgObjs(orgs.filter(Boolean));
+    } catch (err) {
+      setSelectedOrgObjs([]);
+    }
+  };
+
+  // Fetch user and orgs on mount
+  useEffect(() => {
+    const currentUser = authService.getCurrentUser();
+    if (!currentUser) {
+      navigate("/login");
+      return;
+    }
+    fetchUser(currentUser._id);
+    // eslint-disable-next-line
+  }, [navigate]);
+
+  // Fetch org options when preferences tab is active
+  useEffect(() => {
+    if (activeTab === "preferences") {
+      fetchOrgOptions();
+    }
+  }, [activeTab]);
+
+  // Fetch org objects for tags whenever selectedOrgs changes
+  useEffect(() => {
+    if (selectedOrgs && selectedOrgs.length > 0) {
+      fetchSelectedOrgObjs(selectedOrgs);
+    } else {
+      setSelectedOrgObjs([]);
+    }
+  }, [selectedOrgs]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    if (!dropdownOpen) return;
+    const handleClickOutside = (event) => {
+      if (
+        orgDropdownRef.current &&
+        !orgDropdownRef.current.contains(event.target) &&
+        orgInputRef.current &&
+        !orgInputRef.current.contains(event.target)
+      ) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [dropdownOpen]);
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(f => ({ ...f, [name]: value }));
+  };
+
+  const handleEdit = () => {
+    setIsEditable(true);
+    setIsEditingPreferences(true);
+  };
+
+  const handleProfilePicChange = e => {
+    if (e.target.files?.[0]) {
+      setNewProfilePic(e.target.files[0]);
+      setProfilePicPreview(URL.createObjectURL(e.target.files[0]));
       setIsEditable(true);
     }
   };
 
-  const handleUploadClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
+  const handleUploadClick = () => fileInputRef.current?.click();
 
-  // Convert comma-delimited majors to an array, then update the profile
-  const handleSave = async () => {
+  const handleSaveAccount = async () => {
+    setIsSaving(true);
     try {
-      setIsSaving(true);
       if (formData.password !== formData.confirmPassword) {
         alert("Passwords do not match");
         setIsSaving(false);
         return;
       }
-      const parsedMajors = formData.majors
+      const majorsParsed = formData.majors
         .split(",")
-        .map((m) => m.trim())
+        .map(m => m.trim())
         .filter(Boolean);
 
-      const updateData = {
+      const payload = {
         firstName: formData.firstName,
         lastName: formData.lastName,
         username: formData.username,
         email: formData.email,
-        majors: parsedMajors,
-        year: parseInt(formData.year)
+        majors: majorsParsed,
+        year: parseInt(formData.year, 10)
       };
-      if (formData.password && formData.password.trim() !== "") {
-        updateData.password = formData.password;
-      }
-
-      const updatedUser = await updateProfile(updateData);
-
-      setUser(updatedUser);
-
-      // Convert updatedUser.majors back to a comma-separated string for display
-      let majorsValue = "";
-      if (updatedUser.majors) {
-        if (Array.isArray(updatedUser.majors)) {
-          majorsValue = updatedUser.majors.join(", ");
-        } else if (typeof updatedUser.majors === "string") {
-          try {
-            const parsed = JSON.parse(updatedUser.majors);
-            majorsValue = Array.isArray(parsed) ? parsed.join(", ") : updatedUser.majors;
-          } catch (error) {
-            // If it looks like a bracketed JSON array, parse it manually
-            const trimmed = updatedUser.majors.trim();
-            if (trimmed.startsWith("[") && trimmed.endsWith("]")) {
-              const withoutBrackets = trimmed.substring(1, trimmed.length - 1);
-              const parts = withoutBrackets.split(",").map((s) =>
-                s.replace(/(^")|("$)/g, "").trim()
-              ).filter(Boolean);
-              majorsValue = parts.join(", ");
-            } else {
-              majorsValue = updatedUser.majors;
-            }
-          }
-        }
-      }
-
-      // Update local state after saving
-      setFormData({
-        firstName: updatedUser.firstName || "",
-        lastName: updatedUser.lastName || "",
-        username: updatedUser.username || "",
-        email: updatedUser.email || "",
-        password: "",
-        confirmPassword: "",
-        majors: majorsValue,
-        year: updatedUser.year || ""
-      });
-
-      // Reset image state
-      setNewProfilePic(null);
-      setProfilePicPreview(null);
-      setIsEditable(false);
-    } catch (err) {
-      console.error("Error updating profile:", err);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // If uploading a file, pass each major individually (instead of JSON-stringifying them all)
-  // so that the backend sees multiple form fields named "majors".
-  // This ensures you get an array of strings instead of a single string element.
-  const updateProfile = async (updateData) => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || !currentUser._id) {
-        throw new Error("User ID not available");
-      }
+      if (formData.password) payload.password = formData.password;
 
       let response;
       if (newProfilePic) {
-        const formDataPayload = new FormData();
-        formDataPayload.append("firstName", updateData.firstName);
-        formDataPayload.append("lastName", updateData.lastName);
-        formDataPayload.append("username", updateData.username);
-        formDataPayload.append("email", updateData.email);
-
-        // Instead of a single 'majors' field,
-        // append each major in the array under the same field name "majors"
-        // so the backend sees multiple fields => an array of strings
-        updateData.majors.forEach((major) => {
-          formDataPayload.append("majors", major);
+        const fd = new FormData();
+        Object.entries(payload).forEach(([k, v]) => {
+          if (k === "majors") v.forEach(m => fd.append("majors", m));
+          else fd.append(k, v);
         });
-
-        formDataPayload.append("year", updateData.year);
-        if (updateData.password && updateData.password.trim() !== "") {
-          formDataPayload.append("password", updateData.password);
-        }
-        formDataPayload.append("profilePicture", newProfilePic);
-
+        fd.append("profilePicture", newProfilePic);
         response = await authService.fetchWithAuth(
-          `${API_URL}/users/${currentUser._id}`,
-          {
-            method: "PUT",
-            body: formDataPayload
-          }
+          `${API_URL}/users/${user._id}`,
+          { method: "PUT", body: fd }
         );
       } else {
-        // No file upload => JSON approach
         response = await authService.fetchWithAuth(
-          `${API_URL}/users/${currentUser._id}`,
+          `${API_URL}/users/${user._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(updateData)
+            body: JSON.stringify(payload)
           }
         );
       }
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update profile");
-      }
-      const updatedUser = data.data;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      throw error;
-    }
-  };
-
-  const updatePreferences = async (interests) => {
-    try {
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || !currentUser._id) {
-        throw new Error("User ID not available");
-      }
-      const response = await authService.fetchWithAuth(
-        `${API_URL}/users/${currentUser._id}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ interests })
-        }
-      );
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update preferences");
-      }
-      const updatedUser = data.data;
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-      return updatedUser;
-    } catch (error) {
-      console.error("Error updating preferences:", error);
-      throw error;
+      const json = await response.json();
+      if (!response.ok) throw new Error(json.message || "Update failed");
+      setUser(json.data);
+      setIsEditable(false);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleInterestToggle = (type, interest) => {
     if (!isEditingPreferences) return;
-    const toggle = (current, setFunc) => {
-      if (current.includes(interest)) {
-        setFunc(current.filter((i) => i !== interest));
-      } else {
-        setFunc([...current, interest]);
-      }
-    };
+    const toggle = (arr, setFn) =>
+      arr.includes(interest) ? setFn(arr.filter(i => i !== interest)) : setFn([...arr, interest]);
     if (type === "academic") toggle(academicInterests, setAcademicInterests);
-    else if (type === "social") toggle(socialInterests, setSocialInterests);
-    else if (type === "career") toggle(careerInterests, setCareerInterests);
+    if (type === "social") toggle(socialInterests, setSocialInterests);
+    if (type === "career") toggle(careerInterests, setCareerInterests);
   };
 
-  const handleUpdatePreferences = async () => {
-    try {
-      setIsSaving(true);
-      const allInterests = [
-        ...academicInterests,
-        ...socialInterests,
-        ...careerInterests
-      ];
-      const updatedUser = await updatePreferences(allInterests);
-      setUser(updatedUser);
-      setIsEditingPreferences(false);
+  const handleOrgSearchChange = e => {
+    setOrgSearch(e.target.value);
+    setDropdownOpen(true);
+  };
 
-      // Re-extract categories
-      const academic = [];
-      const social = [];
-      const career = [];
-      updatedUser.interests.forEach((interest) => {
-        if (academicCategories.includes(interest)) academic.push(interest);
-        else if (socialCategories.includes(interest)) social.push(interest);
-        else if (careerCategories.includes(interest)) career.push(interest);
-      });
-      setAcademicInterests(academic);
-      setSocialInterests(social);
-      setCareerInterests(career);
+  const handleOrgSelect = org => {
+    if (!isEditingPreferences) return;
+    if (!selectedOrgs.includes(org._id)) {
+      setSelectedOrgs(s => [...s, org._id]);
+    }
+    setOrgSearch("");
+    setDropdownOpen(false);
+  };
+
+  const handleOrgRemove = id => {
+    if (!isEditingPreferences) return;
+    setSelectedOrgs(s => s.filter(o => o !== id));
+  };
+
+  const handleSavePreferences = async () => {
+    setIsSaving(true);
+    try {
+      const interests = [...academicInterests, ...socialInterests, ...careerInterests];
+      const payload = { interests, orgs: selectedOrgs };
+      const res = await authService.fetchWithAuth(
+        `${API_URL}/users/${user._id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }
+      );
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.message || "Save failed");
+      // Fetch latest user data from backend to update interests/orgs
+      await fetchUser(user._id);
+      setIsEditingPreferences(false);
     } catch (err) {
-      console.error("Error updating preferences:", err);
+      console.error(err);
     } finally {
       setIsSaving(false);
     }
   };
 
-  if (!user) {
-    return (
-      <div className="profile-container">
-        <p>Loading profile...</p>
-      </div>
-    );
-  }
+  if (!user) return <div className="profile-container"><p>Loading profile...</p></div>;
 
   return (
     <div className="profile-page">
       <Header user={user} handleLogout={onLogout} />
       <div className="profile-content">
+
+        {/* Settings Header + Tabs */}
         <div className="settings-header">
           <h2>Settings</h2>
-          <div className="profile-tabs">
-            <button
-              className={activeTab === "account" ? "active" : ""}
-              onClick={() => setActiveTab("account")}
-            >
-              Account
-            </button>
-            <button
-              className={activeTab === "preferences" ? "active" : ""}
-              onClick={() => setActiveTab("preferences")}
-            >
-              Preferences
-            </button>
+          <div className="tabs-wrapper">
+            <div className="profile-tabs">
+              <button
+                className={activeTab === "account" ? "active" : ""}
+                onClick={() => setActiveTab("account")}
+              >
+                Account
+              </button>
+              <button
+                className={activeTab === "preferences" ? "active" : ""}
+                onClick={() => setActiveTab("preferences")}
+              >
+                Preferences
+              </button>
+            </div>
           </div>
         </div>
 
+        {/* ACCOUNT TAB */}
         {activeTab === "account" ? (
           <div className="account-tab">
             <div className="profile-header">
               <div className="profile-picture-container">
                 <div className="profile-picture-wrapper">
                   {newProfilePic || profilePicPreview ? (
-                    <img
-                      src={profilePicPreview}
-                      alt="New Profile Preview"
-                      className="profile-picture"
-                    />
+                    <img src={profilePicPreview} alt="Preview" className="profile-picture" />
                   ) : user.profilePicture ? (
                     <img
                       src={`${API_URL}/users/image/${user.profilePicture}`}
@@ -424,6 +371,7 @@ const Profile = ({ onLogout }) => {
                 </p>
               </div>
             </div>
+
             <h3 className="account-preferences-heading">Account Preferences</h3>
             <div className="account-preferences">
               <div className="row">
@@ -432,7 +380,7 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="text"
                     name="firstName"
-                    value={formData.firstName || ""}
+                    value={formData.firstName}
                     onChange={handleChange}
                     disabled={!isEditable}
                   />
@@ -442,7 +390,7 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="text"
                     name="lastName"
-                    value={formData.lastName || ""}
+                    value={formData.lastName}
                     onChange={handleChange}
                     disabled={!isEditable}
                   />
@@ -452,7 +400,7 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="email"
                     name="email"
-                    value={formData.email || ""}
+                    value={formData.email}
                     onChange={handleChange}
                     disabled={!isEditable}
                   />
@@ -465,7 +413,7 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="text"
                     name="majors"
-                    value={formData.majors || ""}
+                    value={formData.majors}
                     onChange={handleChange}
                     disabled={!isEditable}
                     placeholder="Enter majors separated by commas"
@@ -476,20 +424,19 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="text"
                     name="year"
-                    value={formData.year || ""}
+                    value={formData.year}
                     onChange={handleChange}
                     disabled={!isEditable}
                   />
                 </div>
               </div>
-
               <div className="row">
                 <div className="field">
                   <label>Username</label>
                   <input
                     type="text"
                     name="username"
-                    value={formData.username || ""}
+                    value={formData.username}
                     onChange={handleChange}
                     disabled={!isEditable}
                   />
@@ -499,7 +446,7 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="password"
                     name="password"
-                    value={formData.password || ""}
+                    value={formData.password}
                     onChange={handleChange}
                     disabled={!isEditable}
                     placeholder={isEditable ? "Enter new password" : "••••••••"}
@@ -510,7 +457,7 @@ const Profile = ({ onLogout }) => {
                   <input
                     type="password"
                     name="confirmPassword"
-                    value={formData.confirmPassword || ""}
+                    value={formData.confirmPassword}
                     onChange={handleChange}
                     disabled={!isEditable}
                     placeholder={isEditable ? "Confirm new password" : "••••••••"}
@@ -525,7 +472,7 @@ const Profile = ({ onLogout }) => {
               ) : (
                 <button
                   className="account-save-button"
-                  onClick={handleSave}
+                  onClick={handleSaveAccount}
                   disabled={isSaving}
                 >
                   {isSaving ? "Saving..." : "Save"}
@@ -534,75 +481,181 @@ const Profile = ({ onLogout }) => {
             </div>
           </div>
         ) : (
-          <div className="preferences-tab">
-            <div className="preferences-container">
-              <h2 className="preferences-title">Update Your Preferences</h2>
-              <h3 className="preferences-subtitle">Academic Interests</h3>
-              <div className="preferences-interests-container">
-                {academicCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    className={`preferences-interest-button academic ${
-                      academicInterests.includes(interest) ? "selected" : ""
-                    }`}
-                    onClick={() => handleInterestToggle("academic", interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
 
-              <h3 className="preferences-subtitle">Social Interests</h3>
-              <div className="preferences-interests-container">
-                {socialCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    className={`preferences-interest-button social ${
-                      socialInterests.includes(interest) ? "selected" : ""
-                    }`}
-                    onClick={() => handleInterestToggle("social", interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
+        /* PREFERENCES TAB */
+        <div className="preferences-tab">
+          <div className="preferences-container">
 
-              <h3 className="preferences-subtitle">Career Interests</h3>
-              <div className="preferences-interests-container">
-                {careerCategories.map((interest) => (
-                  <button
-                    key={interest}
-                    className={`preferences-interest-button career ${
-                      careerInterests.includes(interest) ? "selected" : ""
-                    }`}
-                    onClick={() => handleInterestToggle("career", interest)}
-                  >
-                    {interest}
-                  </button>
-                ))}
-              </div>
+            <h3 className="preferences-subtitle">Academic Interests</h3>
+            <div className="preferences-interests-container">
+              {academicTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`preferences-interest-button academic ${academicInterests.includes(tag) ? "selected" : ""}`}
+                  onClick={() => handleInterestToggle("academic", tag)}
+                  type="button"
+                >
+                  {tag}
+                  {academicInterests.includes(tag) && isEditingPreferences && (
+                    <img
+                      src="assets/cancel.svg"
+                      alt="Remove"
+                      className="tag-remove-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleInterestToggle("academic", tag);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
 
-              <div className="preferences-header">
-                {!isEditingPreferences ? (
-                  <button
-                    className="preferences-save-button"
-                    onClick={() => setIsEditingPreferences(true)}
+            <h3 className="preferences-subtitle">Social Interests</h3>
+            <div className="preferences-interests-container">
+              {socialTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`preferences-interest-button social ${socialInterests.includes(tag) ? "selected" : ""}`}
+                  onClick={() => handleInterestToggle("social", tag)}
+                  type="button"
+                >
+                  {tag}
+                  {socialInterests.includes(tag) && isEditingPreferences && (
+                    <img
+                      src="assets/cancel.svg"
+                      alt="Remove"
+                      className="tag-remove-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleInterestToggle("social", tag);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <h3 className="preferences-subtitle">Career Interests</h3>
+            <div className="preferences-interests-container">
+              {careerTags.map(tag => (
+                <button
+                  key={tag}
+                  className={`preferences-interest-button career ${careerInterests.includes(tag) ? "selected" : ""}`}
+                  onClick={() => handleInterestToggle("career", tag)}
+                  type="button"
+                >
+                  {tag}
+                  {careerInterests.includes(tag) && isEditingPreferences && (
+                    <img
+                      src="assets/cancel.svg"
+                      alt="Remove"
+                      className="tag-remove-icon"
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleInterestToggle("career", tag);
+                      }}
+                    />
+                  )}
+                </button>
+              ))}
+            </div>
+
+            <h3 className="preferences-subtitle">Organizations</h3>
+            <div className="organizations-section" style={{ position: "relative" }}>
+              <label className="org-label">Add Organization</label>
+              <div className="org-search-bar-container">
+                <img src="/assets/search.svg" alt="Search Icon" className="org-search-icon" />
+                <input
+                  type="text"
+                  className="org-search-bar"
+                  placeholder="Search organizations..."
+                  value={orgSearch}
+                  onChange={handleOrgSearchChange}
+                  onFocus={() => setDropdownOpen(true)}
+                  disabled={!isEditingPreferences}
+                  ref={orgInputRef}
+                  autoComplete="off"
+                  style={{ marginBottom: 0 }}
+                />
+                {dropdownOpen && (
+                  <div
+                    className="org-dropdown"
+                    ref={orgDropdownRef}
+                    style={{
+                      position: "absolute",
+                      top: "100%",
+                      left: 0,
+                      zIndex: 1000,
+                      marginTop: 0 // Ensures dropdown is flush with the input
+                    }}
                   >
-                    Edit Preferences
-                  </button>
-                ) : (
-                  <button
-                    className="preferences-save-button"
-                    onClick={handleUpdatePreferences}
-                    disabled={isSaving}
-                  >
-                    {isSaving ? "Saving..." : "Save Preferences"}
-                  </button>
+                    {orgOptions
+                      .filter(o =>
+                        (!orgSearch || o.name.toLowerCase().includes(orgSearch.toLowerCase())) &&
+                        !selectedOrgs.includes(o._id)
+                      )
+                      .map(o => (
+                        <div
+                          key={o._id}
+                          className="org-option"
+                          onClick={() => handleOrgSelect(o)}
+                        >
+                          {o.name}
+                        </div>
+                      ))}
+                    {orgOptions.filter(o =>
+                      (!orgSearch || o.name.toLowerCase().includes(orgSearch.toLowerCase())) &&
+                      !selectedOrgs.includes(o._id)
+                    ).length === 0 && (
+                      <div className="org-option org-option-disabled">
+                        No organizations found
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
+
+              <div className="selected-orgs">
+                {selectedOrgObjs.map(o => (
+                  <button
+                    key={o._id}
+                    className="preferences-interest-button org selected"
+                    onClick={() => isEditingPreferences && handleOrgRemove(o._id)}
+                    disabled={!isEditingPreferences}
+                    type="button"
+                  >
+                    {o.name}
+                    {isEditingPreferences && (
+                      <img src="assets/cancel.svg" alt="Remove" className="tag-remove-icon" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="preferences-header">
+              {!isEditingPreferences ? (
+                <button
+                  className="preferences-save-button"
+                  onClick={() => setIsEditingPreferences(true)}
+                >
+                  Edit Preferences
+                </button>
+              ) : (
+                <button
+                  className="preferences-save-button"
+                  onClick={handleSavePreferences}
+                  disabled={isSaving}
+                >
+                  {isSaving ? "Saving..." : "Save Preferences"}
+                </button>
+              )}
             </div>
           </div>
+        </div>
         )}
+
       </div>
     </div>
   );

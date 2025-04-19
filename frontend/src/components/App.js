@@ -9,6 +9,7 @@ import { authService } from "../services/authService";
 import '../styles/global.css';
 import AddEvent from "./events/AddEvent";
 import Explore from "./events/Explore";
+import ViewEvent from "./events/ViewEvent";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -87,6 +88,12 @@ function App() {
           <Route path="/myposts" element={
             isAuthenticated ?
               <Saved onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+					<Route path="/view-event" element={
+            isAuthenticated ?
+              <ViewEvent onLogout={handleLogout} /> :
               <Navigate to="/login" />
           } />
         </Routes>
