@@ -64,14 +64,11 @@
   gap: 10px;
   padding: 12px;
   background-color: var(--white);
-  border-color: var(--bor);
   border-radius: 8px;
+  border: var(--border-box);
   width: auto;
-  border-width: var(--border-width);
   min-width: 210px;
   flex-shrink: 0;
-  box-shadow: none; /* Ensure no shadow is applied */
-  outline: none; /* Remove any outline (focus border) */
 }
 
 .category-button:focus {
@@ -113,3 +110,12 @@
 .categories-list::-webkit-scrollbar {
   display: none;
 }
+
+.dashboard-login-title {
+  margin-top: 10%;
+  font: var(--page-title-size);
+  color: var(--dark-orange);
+  margin-bottom: 20px;
+  text-align: center;
+}
+

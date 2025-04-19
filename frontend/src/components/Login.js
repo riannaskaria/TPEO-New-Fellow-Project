@@ -31,8 +31,8 @@ function Login({ setIsAuthenticated }) {
   };
 
   return (
-    <div className="auth-container">
-      <img src="/assets/logo.svg" alt="Logo" className="logo-login" />
+    <div className="login-background">
+    <img src="/assets/logo.svg" alt="Logo" className="logo-login" />
       <div className="box">
         <h1 className="login-title">LOG IN</h1>
         <form className="form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
@@ -76,9 +76,11 @@ function Login({ setIsAuthenticated }) {
         >
           don't have an account? sign up
         </button>
+        </div>
+        <div className = "bee-container">
         <img src="/assets/bee-line.svg" alt="bee line" className="bee-line-graphic" />
         <img src="/assets/bee.svg" alt="bee line" className="bee-graphic" />
-      </div>
+        </div>
     </div>
   );
 }
