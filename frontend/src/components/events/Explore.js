@@ -50,7 +50,7 @@ function Explore() {
         setSelectedCareer([name]);
       }
     }
-    authService.fetchWithAuth("http://localhost:3001/events")
+    authService.fetchWithAuth("http://localhost:5000/events")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -114,7 +114,7 @@ function Explore() {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })

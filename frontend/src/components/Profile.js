@@ -15,7 +15,7 @@ const Profile = ({ onLogout }) => {
   const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const navigate = useNavigate();
-  const API_URL = "http://localhost:3001";
+  const API_URL = "http://localhost:5000";
 
   // Interest categories
   const academicCategories = [

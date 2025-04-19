@@ -35,7 +35,7 @@ const Dashboard = ({ onLogout }) => {
 
       const fetchEvents = async () => {
         try {
-          const response = await authService.fetchWithAuth('http://localhost:3001/events');
+          const response = await authService.fetchWithAuth('http://localhost:5000/events');
           if (response.ok) {
             const data = await response.json();
             const allEvents = data.data;
@@ -89,7 +89,7 @@ const Dashboard = ({ onLogout }) => {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
