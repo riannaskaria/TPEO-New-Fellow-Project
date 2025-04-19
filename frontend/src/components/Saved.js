@@ -285,7 +285,6 @@ const Saved = ({ onLogout }) => {
   return (
     <div className="saved-page">
       <Header user={user} handleLogout={handleLogout} />
-
       <div className="saved-content">
         <h1 className="page-title">Saved</h1>
 
@@ -319,7 +318,7 @@ const Saved = ({ onLogout }) => {
             ) : (
               <div className="no-saved-events">
                 <p>You haven't saved any events yet.</p>
-                <a href="/discover" className="discover-link">Discover events</a>
+                <a href="/explore" className="discover-link">Discover events</a>
               </div>
             )}
           </div>

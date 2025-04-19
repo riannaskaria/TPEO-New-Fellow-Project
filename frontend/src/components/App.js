@@ -4,6 +4,9 @@ import Register from "./Register";
 import Profile from "./Profile";
 import Saved from "./Saved";
 import Dashboard from "./Dashboard";
+import AddFriends from "./AddFriends";
+import Friends from "./Friends";
+import MyPosts from "./MyPosts";
 import { useState, useEffect } from "react";
 import { authService } from "../services/authService";
 import '../styles/global.css';
@@ -83,9 +86,21 @@ function App() {
               <Navigate to="/login" />
           } />
 
+          <Route path="/friends" element={
+            isAuthenticated ?
+              <Friends onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+          <Route path="/add-friends" element={
+            isAuthenticated ?
+              <AddFriends onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
           <Route path="/myposts" element={
             isAuthenticated ?
-              <Saved onLogout={handleLogout} /> :
+              <MyPosts onLogout={handleLogout} /> :
               <Navigate to="/login" />
           } />
         </Routes>
