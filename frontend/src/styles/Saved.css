@@ -5,7 +5,8 @@
 
   .saved-content {
     margin-left: 7%;
-    padding: 20px;
+    padding:100px;
+    margin-top: 10%;
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -13,7 +14,6 @@
   .page-title {
     font-size: 24px;
     font-weight: 600;
-    margin-left: 2%;
     margin-bottom: 24px;
     color: #333;
   }
@@ -51,7 +51,6 @@
   /* Timeline styling */
   .timeline-container {
     position: relative;
-    padding-left: 20px;
   }
 
   .timeline-section {
@@ -210,4 +209,36 @@
         flex: 1; /* Take full width when stacked */
         margin-bottom: 20px;
     }
+}
+
+.toggle-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.toggle-buttons {
+  background-color: var(--light-orange);
+  border-radius: 8px;
+  padding: 4px;
+  display: flex;
+}
+
+.toggle-btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: rgb(26, 22, 22);
+  font: var(--toggle-button);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+}
+
+.toggle-btn.active-toggle {
+  background: white;
+  font-weight: 600;
+  color: #FFA500;
+  border: var(--border-box);
 }

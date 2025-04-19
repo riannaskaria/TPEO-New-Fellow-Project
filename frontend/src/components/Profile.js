@@ -16,7 +16,6 @@ const Profile = ({ onLogout }) => {
   const [isEditingPreferences, setIsEditingPreferences] = useState(false);
   const [newProfilePic, setNewProfilePic] = useState(null);
   const [profilePicPreview, setProfilePicPreview] = useState(null);
-
   const [academicInterests, setAcademicInterests] = useState([]);
   const [socialInterests, setSocialInterests] = useState([]);
   const [careerInterests, setCareerInterests] = useState([]);

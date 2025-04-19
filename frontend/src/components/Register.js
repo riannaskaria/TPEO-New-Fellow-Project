@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
 import "../styles/global.css";
-import "../styles/Register.css"; // Ensure the correct path
+import "../styles/Register.css";
 
 function Register() {
   const navigate = useNavigate();
@@ -11,9 +11,12 @@ function Register() {
   const [loading, setLoading] = useState(false);
 
   // User fields
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // New confirm password field
   const [majors, setMajors] = useState("");
   const [year, setYear] = useState("");
   const [academicInterests, setAcademicInterests] = useState([]);
@@ -71,9 +74,18 @@ function Register() {
     setLoading(true);
 
     try {
+      // Check if passwords match at step 1
+      if (currentStep === 1 && password !== confirmPassword) {
+        setError("Passwords do not match");
+        setLoading(false);
+        return;
+      }
+
       if (currentStep === 4) {
         // Final step: Submit registration
         const userData = {
+          firstName,
+          lastName,
           username,
           email,
           password,
@@ -106,7 +118,6 @@ function Register() {
   return (
     <div className="register-container">
       <div className="register-box">
-
         {/* Progress Bar */}
         <div className="register-progress-steps">
           {steps.map((step, index) => (
@@ -142,14 +153,26 @@ function Register() {
           {currentStep === 1 && (
             <>
               <h2 className="register-title">Personal Information</h2>
+              {/* Row 1: First Name, Last Name, Email */}
               <div className="register-input-row">
                 <div className="input-field-group">
                   <input
                     type="text"
-                    placeholder="Username"
+                    placeholder="First Name"
                     className="register-input"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
+                <div className="input-field-group">
+                  <input
+                    type="text"
+                    placeholder="Last Name"
+                    className="register-input"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                     required
                     disabled={loading}
                   />
@@ -166,7 +189,20 @@ function Register() {
                   />
                 </div>
               </div>
+
+              {/* Row 2: Username, Password, Confirm Password */}
               <div className="register-input-row">
+                <div className="input-field-group">
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    className="register-input"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
                 <div className="input-field-group">
                   <input
                     type="password"
@@ -180,18 +216,20 @@ function Register() {
                 </div>
                 <div className="input-field-group">
                   <input
-                    type="text"
-                    placeholder="Majors (comma separated)"
+                    type="password"
+                    placeholder="Confirm Password"
                     className="register-input"
-                    value={majors}
-                    onChange={(e) => setMajors(e.target.value)}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                     disabled={loading}
                   />
                 </div>
               </div>
+
+              {/* Row 3: Year, Majors */}
               <div className="register-input-row">
-                <div className="input-field-group" style={{ width: '100%' }}>
+                <div className="input-field-group">
                   <input
                     type="number"
                     placeholder="Year"
@@ -202,21 +240,30 @@ function Register() {
                     disabled={loading}
                   />
                 </div>
+                <div className="input-field-group" style={{ flex: 2 }}>
+                  <input
+                    type="text"
+                    placeholder="Majors (comma separated)"
+                    className="register-input"
+                    value={majors}
+                    onChange={(e) => setMajors(e.target.value)}
+                    required
+                    disabled={loading}
+                  />
+                </div>
               </div>
 
               <div className="register-nav-buttons">
-                <button  className="register-toggle-login-button left-align" onClick={handleLoginRedirect} disabled={loading}>
+                <button className="redirect-login-button" onClick={handleLoginRedirect} disabled={loading}>
                   Already have an account?
                 </button>
-                <div className="next-button-container">
-                  <button
-                    className="next-button"
-                    onClick={handleSubmit}
-                    disabled={loading || !username || !email || !majors || !year || !password}
-                  >
-                    {loading ? "Processing..." : "Next"}
-                  </button>
-                </div>
+                <button
+                  className="next-button"
+                  onClick={handleSubmit}
+                  disabled={loading || !username || !email || !majors || !year || !password || !confirmPassword}
+                >
+                  {loading ? "Processing..." : "Next"}
+                </button>
               </div>
             </>
           )}
@@ -252,10 +299,10 @@ function Register() {
                 })}
               </div>
               <div className="register-nav-buttons">
-                <button className="back-button" onClick={() => setCurrentStep(currentStep - 1)} disabled={loading}>
+                <button className="reg-back-button" onClick={() => setCurrentStep(currentStep - 1)} disabled={loading}>
                   Back
                 </button>
-                <div className="next-button-container">
+                <div style={{ display: 'flex', gap: '16px' }}>
                   <button className="skip-button" onClick={() => setCurrentStep(currentStep + 1)}>
                     Skip
                   </button>

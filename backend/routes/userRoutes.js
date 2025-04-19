@@ -296,7 +296,7 @@ router.put('/:id', upload.single('profilePicture'), async (req, res) => {
       newUserData,
       { new: true, runValidators: true, strict: "throw" }
     );
-    
+
     if (!updatedUser) {
       return res.status(404).json({
         success: false,

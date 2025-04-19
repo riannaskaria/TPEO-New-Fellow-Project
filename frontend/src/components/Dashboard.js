@@ -33,7 +33,6 @@ const Dashboard = ({ onLogout }) => {
     if (currentUser) {
       setUser(currentUser);
 
-      // Fetch all events
       const fetchEvents = async () => {
         try {
           const response = await authService.fetchWithAuth('http://localhost:5000/events');
@@ -48,11 +47,14 @@ const Dashboard = ({ onLogout }) => {
 
             setEvents(sortedEvents);
 
-            // Set trending events (if needed to be filtered can add later)
-            setTrendingEvents(sortedEvents);
+            // Filter only upcoming events for trending
+            const upcomingEvents = sortedEvents.filter(event =>
+              new Date(event.startTime) > new Date()
+            );
+            setTrendingEvents(upcomingEvents);
 
             // Filter recommended events based on user preferences
-            setRecommendedEvents(getRecommendedEvents(sortedEvents, currentUser));
+            setRecommendedEvents(getRecommendedEvents(upcomingEvents, currentUser));
 
             // Update categories with event counts
             updateCategoryCounts(sortedEvents);
@@ -139,7 +141,7 @@ const Dashboard = ({ onLogout }) => {
       <div className="orange-container">
         {/* Header Section */}
         <Header user={user} handleLogout={handleLogout} />
-        <h1 className="login-title">WHAT'S THE BUZZ?</h1>
+        <h1 className="dashboard-login-title">WHAT'S THE BUZZ?</h1>
         {/* Main Content */}
         <div className="main-content">
           {/* Trending Events Section */}

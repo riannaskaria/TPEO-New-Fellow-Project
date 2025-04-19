@@ -23,11 +23,13 @@
   --add-event-tags: normal 16px "Roboto", sans-serif;
   --event-tags: normal 12px "Roboto", sans-serif;
   --log-in-labels: normal 16px "Roboto", sans-serif;
+  --friend-cards: normal 14px "Roboto", sans-serif;
 	--sign-up-tags: normal 20px "Roboto", sans-serif;
 	--profile-tabs: bold 15px "Roboto", sans-serif;
 	--header-dropdown: normal 16px "Roboto", sans-serif;
 	--page-title-size: normal 100px 'Jomhuria';
 	--log-in-input: 20px "Roboto", sans-serif;
+  --toggle-button: normal 18px "Roboto", sans-serif;;
 
 	--profile-name: bold 20px "Roboto", sans-serif;
 	--profile-bullet: bold 16px "Roboto", sans-serif;
