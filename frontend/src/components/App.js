@@ -13,6 +13,7 @@ import '../styles/global.css';
 import AddEvent from "./events/AddEvent";
 import Explore from "./events/Explore";
 import ViewEvent from "./events/ViewEvent";
+import ViewFriend from "./ViewFriend";
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -109,6 +110,12 @@ function App() {
 					<Route path="/view-event" element={
             isAuthenticated ?
               <ViewEvent onLogout={handleLogout} /> :
+              <Navigate to="/login" />
+          } />
+
+					<Route path="/view-friend" element={
+            isAuthenticated ?
+              <ViewFriend onLogout={handleLogout} /> :
               <Navigate to="/login" />
           } />
         </Routes>

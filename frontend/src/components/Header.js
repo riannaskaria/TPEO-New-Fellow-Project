@@ -91,7 +91,7 @@ function Header({ user, handleLogout }) {
         <nav className="nav-links">
           <button
             className="nav-button"
-            onClick={() => navigate("/explore")}
+            onClick={() => navigate("/dashboard")}
             onMouseEnter={() => setHoveredButton("discover")}
             onMouseLeave={() => setHoveredButton(null)}
           >

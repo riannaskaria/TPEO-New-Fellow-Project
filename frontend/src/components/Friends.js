@@ -286,26 +286,31 @@ const Friends = () => {
             </div>
 
             <div className="friends-list">
-              {friends.length > 0 ? (
-                <div className="friend-grid">
-                  {friends.map(friend => (
-                    <div key={friend._id} className="friend-card">
-                      <div className="friend-info">
-                        <img
-                          src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/default-profile.png"}
-                          alt={`${friend.firstName} ${friend.lastName}`}
-                          className="friend-avatar"
-                        />
-                        <div className="friend-details">
-                          <h3>{friend.firstName} {friend.lastName}</h3>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="no-friends">You don't have any friends yet. Add some new friends!</p>
-              )}
+						{friends.length > 0 ? (
+							<div className="friend-grid">
+								{friends.map(friend => (
+									<div
+										key={friend._id}
+										className="friend-card"
+										onClick={() => navigate("/view-friend", { state: { user: friend } })}
+										style={{ cursor: "pointer" }}
+									>
+										<div className="friend-info">
+											<img
+												src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/default-profile.png"}
+												alt={`${friend.firstName} ${friend.lastName}`}
+												className="friend-avatar"
+											/>
+											<div className="friend-details">
+												<h3>{friend.firstName} {friend.lastName}</h3>
+											</div>
+										</div>
+									</div>
+								))}
+							</div>
+						) : (
+							<p className="no-friends">You don't have any friends yet. Add some new friends!</p>
+						)}
             </div>
           </>
         )}
