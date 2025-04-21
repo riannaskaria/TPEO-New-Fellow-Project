@@ -6,7 +6,7 @@ import Header from "../Header";
 import "../../styles/events/AddEvent.css";
 import { academicTags, socialTags, careerTags } from "../../constants/categories";
 
-function AddEvent() {
+function AddEvent({onLogout}) {
   const [eventData, setEventData] = useState({
     title: "",
     date: "",
@@ -85,11 +85,9 @@ function AddEvent() {
   };
 
   const handleLogout = () => {
-    if (authService.logout) {
-      authService.logout();
+    if (onLogout) {
+      onLogout();
     }
-    setCurrentUser(null);
-    navigate("/login");
   };
 
   return (
