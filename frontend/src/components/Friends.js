@@ -205,6 +205,52 @@ const Friends = ({onLogout}) => {
     }
   };
 
+  // Remove friend handler
+  const handleRemoveFriend = async (friendId) => {
+    try {
+      // Remove friendId from currentUser's friends
+      const updatedCurrentUserFriends = (currentUser.friends || []).filter(id => id !== friendId);
+
+      // Update current user in DB
+      const updateCurrentUserRes = await authService.fetchWithAuth(
+        `http://localhost:5000/users/${currentUser._id}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ friends: updatedCurrentUserFriends })
+        }
+      );
+      if (!updateCurrentUserRes.ok) throw new Error('Failed to update current user');
+
+      // Remove currentUser from friend's friends
+      const friendRes = await authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`);
+      if (!friendRes.ok) throw new Error('Failed to fetch friend user');
+      const friendData = await friendRes.json();
+      const friendUser = friendData.data;
+      const updatedFriendFriends = (friendUser.friends || []).filter(id => id !== currentUser._id);
+
+      // Update friend user in DB
+      const updateFriendRes = await authService.fetchWithAuth(
+        `http://localhost:5000/users/${friendId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ friends: updatedFriendFriends })
+        }
+      );
+      if (!updateFriendRes.ok) throw new Error('Failed to update friend user');
+
+      // Update local state and localStorage
+      const updatedCurrentUserData = await updateCurrentUserRes.json();
+      setCurrentUser(updatedCurrentUserData.data);
+      localStorage.setItem('user', JSON.stringify(updatedCurrentUserData.data));
+      setFriends(prev => prev.filter(f => f._id !== friendId));
+    } catch (error) {
+      console.error('Error removing friend:', error);
+      setError('Failed to remove friend. Please try again.');
+    }
+  };
+
   const handleTabChange = (tab) => setActiveTab(tab);
   const handleLogout = () => {
     if (onLogout) {
@@ -265,14 +311,14 @@ const Friends = ({onLogout}) => {
                 <div key={user._id} className="request-card">
                   <div className="user-info">
                     <img
-                      src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
+                      src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/profile.svg"}
                       alt={`${user.firstName} ${user.lastName}`}
                       className="user-avatar"
                     />
                     <div className="user-details">
-											<div className="friend-cards">{user.firstName} {user.lastName}</div>
-											<div className="friends-count">• {user.friends?.length || 0} Friends</div>
-										</div>
+                      <div className="friend-cards">{user.firstName} {user.lastName}</div>
+                      <div className="friends-count">• {user.friends?.length || 0} Friends</div>
+                    </div>
                   </div>
                   <div className="request-actions">
                     <button
@@ -303,12 +349,14 @@ const Friends = ({onLogout}) => {
                   <div
                     key={friend._id}
                     className="friend-card"
-                    onClick={() => navigate("/view-friend", { state: { user: friend } })}
-                    style={{ cursor: "pointer" }}
                   >
-                    <div className="friend-info">
+                    <div
+                      className="friend-info"
+                      onClick={() => navigate("/view-friend", { state: { user: friend } })}
+                      style={{ cursor: "pointer" }}
+                    >
                       <img
-                        src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/default-profile.png"}
+                        src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/profile.svg"}
                         alt={`${friend.firstName} ${friend.lastName}`}
                         className="friend-avatar"
                       />
@@ -316,6 +364,13 @@ const Friends = ({onLogout}) => {
                         <h3>{friend.firstName} {friend.lastName}</h3>
                       </div>
                     </div>
+                    <button
+                      className="remove-friend-btn"
+                      onClick={() => handleRemoveFriend(friend._id)}
+                      title="Remove Friend"
+                    >
+                      <img src="/assets/remove-friend.svg" alt="Remove Friend" className="remove-friend-icon" />
+                    </button>
                   </div>
                 ))}
               </div>

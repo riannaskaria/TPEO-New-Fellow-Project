@@ -4,7 +4,7 @@ import Header from "./Header.js";
 import { authService } from '../services/authService';
 import '../styles/AddFriends.css';
 
-const AddFriends = () => {
+const AddFriends = ({onLogout}) => {
   const [users, setUsers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentUser, setCurrentUser] = useState(null);
@@ -125,8 +125,9 @@ const AddFriends = () => {
   };
 
   const handleLogout = () => {
-    authService.logout();
-    navigate('/login');
+    if (onLogout) {
+      onLogout();
+    }
   };
 
   const handleBackToFriends = () => {
@@ -166,7 +167,7 @@ const AddFriends = () => {
                       <div key={user._id} className="user-card">
                         <div className="user-info">
                           <img
-                            src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
+                            src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/profile.svg"}
                             alt={`${user.firstName} ${user.lastName}`}
                             className="user-avatar"
                           />
@@ -209,7 +210,7 @@ const AddFriends = () => {
                     <div key={user._id} className="suggested-user">
                       <div className="user-info">
                         <img
-                          src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
+                          src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/profile.svg"}
                           alt={`${user.firstName} ${user.lastName}`}
                           className="user-avatar"
                         />
