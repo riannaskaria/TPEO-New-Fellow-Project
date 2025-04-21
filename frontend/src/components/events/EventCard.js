@@ -16,7 +16,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
     if (currentUser && currentUser.savedEvents) {
       setIsSaved(currentUser.savedEvents.includes(event._id));
     }
-  }, [currentUser, event._id]);
+  }, [currentUser, event._id]); 
 
   // Fetch friends who saved this event
   useEffect(() => {
