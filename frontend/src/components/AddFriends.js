@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from "./Header.js";
 import { authService } from '../services/authService';
-import '../styles/Friends.css';
+import '../styles/AddFriends.css';
 
 const AddFriends = () => {
   const [users, setUsers] = useState([]);

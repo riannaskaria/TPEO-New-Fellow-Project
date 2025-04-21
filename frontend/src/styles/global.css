@@ -8,6 +8,7 @@
   --tag-orange: #FEE3B7;
   --tag-blue: #CEDDE6;
 	--more-tags-orange: #f7ba81;
+	--friend-request-accept: #f7ba81;
   --text-black: #332D28;
   --light-grey: #F2F2F2;
 
@@ -29,7 +30,7 @@
 	--header-dropdown: normal 16px "Roboto", sans-serif;
 	--page-title-size: normal 100px 'Jomhuria';
 	--log-in-input: 20px "Roboto", sans-serif;
-  --toggle-button: normal 18px "Roboto", sans-serif;;
+  --toggle-button: normal 16px "Roboto", sans-serif;;
 
 	--profile-name: bold 20px "Roboto", sans-serif;
 	--profile-bullet: bold 16px "Roboto", sans-serif;
@@ -43,7 +44,11 @@
 
 	--view-event-details: bold 16px "Roboto", sans-serif;
 
+	--friend-count: bold 14px "Roboto", sans-serif;
+	--friend-request-title: normal 16px "Roboto", sans-serif;
+
 	/* border */
   --border-box: 1px solid #D9D9D9;
   --save-event-border: 1px solid #F07605;
+  --ignore-friend-border: 2px solid #f7ba81;
 }

@@ -4,9 +4,8 @@ import Header from "./Header.js";
 import { authService } from '../services/authService';
 import EventCard from './events/EventCard';
 import '../styles/Friends.css';
-import '../styles/addFriends.css';
 
-const Friends = () => {
+const Friends = ({onLogout}) => {
   const [friends, setFriends] = useState([]);
   const [friendRequestsData, setFriendRequestsData] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
@@ -78,7 +77,6 @@ const Friends = () => {
       .catch((err) => console.error("Error updating saved events:", err));
   };
 
-
   const fetchFriendEvents = async () => {
     if (!currentUser || !currentUser.friends?.length) {
       setFriendEvents([]);
@@ -104,7 +102,7 @@ const Friends = () => {
             const eventData = await eventResponse.json();
             const event = eventData.data;
 
-            allFriendEvents.push(event); // Only store event, not friend info
+            allFriendEvents.push(event);
           }
         }
       }
@@ -208,113 +206,126 @@ const Friends = () => {
   };
 
   const handleTabChange = (tab) => setActiveTab(tab);
-  const handleLogout = () => { authService.logout(); navigate('/login'); };
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
   const handleAddNewFriends = () => navigate('/add-friends');
 
   return (
     <div className="friends-page">
       <Header user={currentUser} handleLogout={handleLogout} />
-      <div className="friends-container">
-        <h1 className="friends-login-title">Friends</h1>
-        <p className="friends-count">
-          {activeTab === 'friends' ? `${friends.length} Friends` : 'Friend Events'}
-        </p>
-        <div className="friends-header">
+      <div className="friends-main-container">
+        {/* Header section: Friends + count left, toggle buttons right */}
+        <div className="friends-header-row">
+          <div className="friends-header-left">
+            <h1 className="friends-login-title">Friends</h1>
+            <p className="friends-count">
+              {activeTab === 'friends' ? `${friends.length} Friends` : 'Friend Events'}
+            </p>
+          </div>
+          <div className="friends-header-right">
+            <div className="friends-toggle-buttons">
+              <button
+                className={`friends-toggle-btn ${activeTab === 'friends' ? 'active-toggle' : ''}`}
+                onClick={() => handleTabChange('friends')}
+              >
+                View Friends
+              </button>
+              <button
+                className={`friends-toggle-btn ${activeTab === 'events' ? 'active-toggle' : ''}`}
+                onClick={() => handleTabChange('events')}
+              >
+                Friend Events
+              </button>
+            </div>
+          </div>
+        </div>
 
-  <div className="right-panel">
-    <div className="friends-toggle-buttons">
-      <button
-        className={`friends-toggle-btn ${activeTab === 'friends' ? 'active-toggle' : ''}`}
-        onClick={() => handleTabChange('friends')}
-      >
-        View Friends
-      </button>
-      <button
-        className={`friends-toggle-btn ${activeTab === 'events' ? 'active-toggle' : ''}`}
-        onClick={() => handleTabChange('events')}
-      >
-        Friend Events
-      </button>
-    </div>
-
-    {activeTab === 'friends' && (
-  <button className="add-friends-button" onClick={handleAddNewFriends}>
-    <span>+</span> Add New Friends
-  </button>
-)}
-</div>
-</div>
-
+        {/* Add Friend Button Row */}
+        {activeTab === 'friends' && (
+          <div className="add-friend-row">
+            <button className="add-friends-button" onClick={handleAddNewFriends}>
+              <span>+</span> Add New Friends
+            </button>
+          </div>
+        )}
 
         {error && (
           <div className="error">{error}</div>
         )}
 
+        {/* Friend Requests Section */}
         {activeTab === 'friends' && (
-          <>
-            <div className="friend-requests-section">
-              <h2>Invitations ({friendRequestsData.length})</h2>
-              <div className="friend-requests-list">
-                {friendRequestsData.map(user => (
-                  <div key={user._id} className="request-card">
-                    <div className="user-info">
+          <div className="friend-requests-section">
+            <h2>Invitations ({friendRequestsData.length})</h2>
+            <div className="friend-requests-list">
+              {friendRequestsData.map(user => (
+                <div key={user._id} className="request-card">
+                  <div className="user-info">
+                    <img
+                      src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
+                      alt={`${user.firstName} ${user.lastName}`}
+                      className="user-avatar"
+                    />
+                    <div className="user-details">
+											<div className="friend-cards">{user.firstName} {user.lastName}</div>
+											<div className="friends-count">• {user.friends?.length || 0} Friends</div>
+										</div>
+                  </div>
+                  <div className="request-actions">
+                    <button
+                      className="ignore-button"
+                      onClick={() => declineFriendRequest(user._id)}
+                    >
+                      Ignore
+                    </button>
+                    <button
+                      className="accept-button"
+                      onClick={() => acceptFriendRequest(user._id)}
+                    >
+                      Accept
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Friend Cards Grid */}
+        {activeTab === 'friends' && (
+          <div className="friends-list">
+            {friends.length > 0 ? (
+              <div className="friend-grid">
+                {friends.map(friend => (
+                  <div
+                    key={friend._id}
+                    className="friend-card"
+                    onClick={() => navigate("/view-friend", { state: { user: friend } })}
+                    style={{ cursor: "pointer" }}
+                  >
+                    <div className="friend-info">
                       <img
-                        src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
-                        alt={`${user.firstName} ${user.lastName}`}
-                        className="user-avatar"
+                        src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/default-profile.png"}
+                        alt={`${friend.firstName} ${friend.lastName}`}
+                        className="friend-avatar"
                       />
-                      <div className="friend-cards">{user.firstName} {user.lastName}</div>
-                      <div className="friends-count">• {user.friends?.length || 0} Friends</div>
-                    </div>
-                    <div className="request-actions">
-                      <button
-                        className="ignore-button"
-                        onClick={() => declineFriendRequest(user._id)}
-                      >
-                        Ignore
-                      </button>
-                      <button
-                        className="accept-button"
-                        onClick={() => acceptFriendRequest(user._id)}
-                      >
-                        Accept
-                      </button>
+                      <div className="friend-details">
+                        <h3>{friend.firstName} {friend.lastName}</h3>
+                      </div>
                     </div>
                   </div>
                 ))}
               </div>
-            </div>
-
-            <div className="friends-list">
-						{friends.length > 0 ? (
-							<div className="friend-grid">
-								{friends.map(friend => (
-									<div
-										key={friend._id}
-										className="friend-card"
-										onClick={() => navigate("/view-friend", { state: { user: friend } })}
-										style={{ cursor: "pointer" }}
-									>
-										<div className="friend-info">
-											<img
-												src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/default-profile.png"}
-												alt={`${friend.firstName} ${friend.lastName}`}
-												className="friend-avatar"
-											/>
-											<div className="friend-details">
-												<h3>{friend.firstName} {friend.lastName}</h3>
-											</div>
-										</div>
-									</div>
-								))}
-							</div>
-						) : (
-							<p className="no-friends">You don't have any friends yet. Add some new friends!</p>
-						)}
-            </div>
-          </>
+            ) : (
+              <p className="no-friends">You don't have any friends yet. Add some new friends!</p>
+            )}
+          </div>
         )}
 
+        {/* Friend Events Grid */}
         {activeTab === 'events' && (
           <div className="friend-events-section">
             <div className="events-list">
