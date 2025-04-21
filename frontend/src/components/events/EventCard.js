@@ -29,7 +29,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
       let count = 0;
       // Fetch all friends in parallel
       const friendPromises = currentUser.friends.map(friendId =>
-        authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`)
+        authService.fetchWithAuth(`tpeo-new-fellow-project.vercel.app/users/${friendId}`)
           .then(res => res.ok ? res.json() : null)
           .then(data => data && data.data && Array.isArray(data.data.savedEvents)
             ? data.data.savedEvents.map(eid => eid.toString())
@@ -94,7 +94,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
 
   // Build image URL
   const imageUrl = event.imageId
-    ? `http://localhost:5000/events/image/${event.imageId}`
+    ? `tpeo-new-fellow-project.vercel.app/events/image/${event.imageId}`
     : null;
 
   // Save toggle

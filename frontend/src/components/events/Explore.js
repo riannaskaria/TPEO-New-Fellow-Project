@@ -75,7 +75,7 @@ function Explore({ onLogout }) {
   };
 
   useEffect(() => {
-    authService.fetchWithAuth("http://localhost:5000/events")
+    authService.fetchWithAuth("tpeo-new-fellow-project.vercel.app/events")
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
@@ -135,7 +135,7 @@ function Explore({ onLogout }) {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`tpeo-new-fellow-project.vercel.app/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
