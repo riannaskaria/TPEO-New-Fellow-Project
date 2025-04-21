@@ -38,6 +38,9 @@
 	--profile-tags: normal 16px "Roboto", sans-serif;
 	--profile-org-search-field: normal 16px "Roboto", sans-serif;
 
+	--trending-events-arrow: bold 16px "Roboto", sans-serif;
+	--dashboard-category: normal 20px "Roboto", sans-serif;
+
 	/* border */
   --border-box: 1px solid #D9D9D9;
 }

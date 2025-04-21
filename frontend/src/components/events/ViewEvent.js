@@ -54,6 +54,27 @@ function ViewEvent({ onLogout }) {
     }
   };
 
+  // NEW: Delete event handler
+  const handleDeleteClick = async () => {
+    if (!event || !event._id) return;
+    if (!window.confirm("Are you sure you want to delete this event? This cannot be undone.")) return;
+    try {
+      const res = await authService.fetchWithAuth(
+        `http://localhost:5000/events/${event._id}`,
+        { method: "DELETE" }
+      );
+      const data = await res.json();
+      if (data.success) {
+        // Navigate back to previous page
+        navigate(-1);
+      } else {
+        alert("Failed to delete event: " + (data.message || "Unknown error"));
+      }
+    } catch (err) {
+      alert("Failed to delete event: " + err.message);
+    }
+  };
+
   // Helpers
   function formatDateTime(dateObj) {
     const dayName = dateObj.toLocaleDateString("en-US", { weekday: "long" });
@@ -92,19 +113,24 @@ function ViewEvent({ onLogout }) {
       <Header user={currentUser} handleLogout={handleLogout} />
       <div className="view-event-container">
         <div className="view-event-content">
-          {/* Top: Title & Save */}
+          {/* Top: Title & Save & Delete */}
           <div className="view-event-title-row">
             <h1 className="view-event-title">{event.title}</h1>
-            <button className="view-save-btn" onClick={handleSaveClick}>
-              {isSaved ? (
-                <img src="/assets/explore/save_solid.svg" alt="Saved" />
-              ) : (
-                <img src="/assets/explore/save_outlined.svg" alt="Save" />
-              )}
-              <span className="save-btn-label">
-                {isSaved ? "Saved" : "Save Event"}
-              </span>
-            </button>
+            <div className="view-event-action-buttons">
+              <button className="view-save-btn" onClick={handleSaveClick}>
+                {isSaved ? (
+                  <img src="/assets/explore/save_solid.svg" alt="Saved" />
+                ) : (
+                  <img src="/assets/explore/save_outlined.svg" alt="Save" />
+                )}
+                <span className="save-btn-label">
+                  {isSaved ? "Saved" : "Save Event"}
+                </span>
+              </button>
+              <button className="view-delete-btn" onClick={handleDeleteClick}>
+                <span className="delete-btn-label">Delete</span>
+              </button>
+            </div>
           </div>
 
           {/* Main Content: Left (Image) & Right (Details) */}

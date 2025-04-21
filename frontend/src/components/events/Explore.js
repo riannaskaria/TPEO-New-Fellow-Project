@@ -1,43 +1,67 @@
-// src/components/Explore.js
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { authService } from "../../services/authService";
 import EventCard from "./EventCard";
 import Header from "../Header";
 import "../../styles/events/Explore.css";
 import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
-function Explore( {onLogout} ) {
+function Explore({ onLogout }) {
   const [events, setEvents] = useState([]);
   const [filteredEvents, setFilteredEvents] = useState([]);
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
-  
+
   // Dropdown filters: each is an array of selected tags
   const [selectedAcademic, setSelectedAcademic] = useState([]);
   const [selectedSocial, setSelectedSocial] = useState([]);
   const [selectedCareer, setSelectedCareer] = useState([]);
-  
+
   // Dropdown open states
   const [academicOpen, setAcademicOpen] = useState(false);
   const [socialOpen, setSocialOpen] = useState(false);
   const [careerOpen, setCareerOpen] = useState(false);
 
-  const navigate = useNavigate();
+  const [categoryHeading, setCategoryHeading] = useState(null);
+
   const location = useLocation();
   const searchTerm = location.state?.searchTerm || "";
+
+  // On mount: check for selectedCategories in location.state
+  useEffect(() => {
+    const selectedCategories = location.state?.selectedCategories;
+    if (selectedCategories && Array.isArray(selectedCategories) && selectedCategories.length > 0) {
+      // Set filters and heading based on incoming categories
+      let academic = [];
+      let social = [];
+      let career = [];
+      selectedCategories.forEach(cat => {
+        if (cat.type === 'academic') academic.push(cat.name);
+        if (cat.type === 'social') social.push(cat.name);
+        if (cat.type === 'career') career.push(cat.name);
+      });
+      setSelectedAcademic(academic);
+      setSelectedSocial(social);
+      setSelectedCareer(career);
+      setCategoryHeading(
+        selectedCategories.length === 1
+          ? `${selectedCategories[0].name} Events`
+          : "Events"
+      );
+    } else {
+      setCategoryHeading(null);
+    }
+    // eslint-disable-next-line
+  }, [location.state]);
 
   // Global click handler to collapse any open dropdown when clicking outside
   useEffect(() => {
     const handleDocumentClick = (event) => {
-      // If the click is not on an element that is within an element with class "dropdown"
       if (!event.target.closest('.dropdown')) {
         setAcademicOpen(false);
         setSocialOpen(false);
         setCareerOpen(false);
       }
     };
-
-    // Use the capture phase to ensure our listener fires before React's synthetic events.
     document.addEventListener("click", handleDocumentClick, true);
     return () => {
       document.removeEventListener("click", handleDocumentClick, true);
@@ -132,9 +156,11 @@ function Explore( {onLogout} ) {
       <Header user={currentUser} handleLogout={handleLogout} />
       <div className="events-page">
         <h1>
-          {searchTerm
-            ? `${searchFilteredEvents.length} results found with "${searchTerm}"`
-            : "Events"}
+          {categoryHeading
+            ? categoryHeading
+            : searchTerm
+              ? `${searchFilteredEvents.length} results found with "${searchTerm}"`
+              : "Events"}
         </h1>
         <div className="filters">
           <div className={`dropdown ${academicOpen ? 'expanded' : ''}`}>

@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { authService } from "../services/authService";
 import "../styles/Header.css";
 
 function Header({ user, handleLogout }) {
@@ -7,9 +8,34 @@ function Header({ user, handleLogout }) {
   const [hoveredButton, setHoveredButton] = useState(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentUser, setCurrentUser] = useState(user);
 
   // Update this value to match your API URL if needed.
   const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
+
+  // On mount, fetch latest user info by ID and update localStorage
+  useEffect(() => {
+    const fetchUser = async () => {
+      // Use either prop user or localStorage user as initial
+      const storedUser = user || authService.getCurrentUser();
+      if (!storedUser || !storedUser._id) return;
+      try {
+        const response = await authService.fetchWithAuth(`${API_URL}/users/${storedUser._id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setCurrentUser(data.data);
+            localStorage.setItem("user", JSON.stringify(data.data));
+          }
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+    fetchUser();
+    // Only run on mount or if user._id changes
+    // eslint-disable-next-line
+  }, [user?._id]);
 
   // Toggle the profile dropdown menu when clicking the profile picture.
   const toggleProfileDropdown = () => {
@@ -64,15 +90,21 @@ function Header({ user, handleLogout }) {
   // If user.profilePicture exists, construct the URL from the GET request,
   // otherwise, use the fallback asset.
   const profileImageSrc =
-    user && user.profilePicture
-      ? `${API_URL}/users/image/${user.profilePicture}`
+    currentUser && currentUser.profilePicture
+      ? `${API_URL}/users/image/${currentUser.profilePicture}`
       : "/assets/profile.svg";
 
   return (
     <header className="header">
       {/* Left: Logo and Search Bar */}
       <div className="header-left">
-        <img src="/assets/logo.svg" alt="Buzz Logo" className="logo" />
+        <button
+          className="logo-btn"
+          onClick={() => navigate("/dashboard")}
+          style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer" }}
+        >
+          <img src="/assets/logo.svg" alt="Buzz Logo" className="logo" />
+        </button>
         <div className="search-bar-container">
           <img src="/assets/search.svg" alt="Search Icon" className="search-icon" />
           <input
@@ -91,7 +123,7 @@ function Header({ user, handleLogout }) {
         <nav className="nav-links">
           <button
             className="nav-button"
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/explore")}
             onMouseEnter={() => setHoveredButton("discover")}
             onMouseLeave={() => setHoveredButton(null)}
           >

@@ -1,20 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import '../styles/Dashboard.css';
 import Header from "./Header.js";
 import { useNavigate } from 'react-router-dom';
-import { authService } from '../services/authService'; // Import auth service
+import { authService } from '../services/authService';
 import EventCard from './events/EventCard';
 import { getRecommendedEvents } from '../utils/getRecommendedEvents';
+import { academicTags, socialTags, careerTags } from '../constants/categories';
 
+const SCROLL_AMOUNT = 900; // px per click, adjust as needed
 
 const Dashboard = ({ onLogout }) => {
   // State for user info
   const [user, setUser] = useState(null);
-  const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([
     { name: 'Athletics', icon: 'athletics.svg' },
     { name: 'Career Fairs', icon: 'career-fairs.svg' },
-    { name: 'Arts', icon: 'arts.svg' },
+    { name: 'Visual Arts', icon: 'arts.svg' },
     { name: 'Wellness', icon: 'wellness.svg' },
     { name: 'Food', icon: 'food.svg' },
     { name: 'Guidance', icon: 'guidance.svg' },
@@ -27,46 +28,71 @@ const Dashboard = ({ onLogout }) => {
 
   const navigate = useNavigate();
 
+  // Trending events scroll refs and state
+  const trendingListRef = useRef(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  // Category scroll refs and state
+  const categoryListRef = useRef(null);
+  const [canCatScrollLeft, setCanCatScrollLeft] = useState(false);
+  const [canCatScrollRight, setCanCatScrollRight] = useState(false);
+
+  // Fetch and refresh user data by ID on mount
   useEffect(() => {
-    // Check if user is logged in
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-
-      const fetchEvents = async () => {
-        try {
-          const response = await authService.fetchWithAuth('http://localhost:5000/events');
-          if (response.ok) {
-            const data = await response.json();
-            const allEvents = data.data;
-
-            // Sort all events by start date (closest first)
-            const sortedEvents = [...allEvents].sort((a, b) =>
-              new Date(a.startTime) - new Date(b.startTime)
-            );
-
-            setEvents(sortedEvents);
-
-            // Filter only upcoming events for trending
-            const upcomingEvents = sortedEvents.filter(event =>
-              new Date(event.startTime) > new Date()
-            );
-            setTrendingEvents(upcomingEvents);
-
-            // Filter recommended events based on user preferences
-            setRecommendedEvents(getRecommendedEvents(upcomingEvents, currentUser));
-
-            // Update categories with event counts
-            updateCategoryCounts(sortedEvents);
+    const fetchCurrentUser = async () => {
+      const storedUser = authService.getCurrentUser();
+      if (!storedUser || !storedUser._id) return;
+      try {
+        const response = await authService.fetchWithAuth(`http://localhost:5000/users/${storedUser._id}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.data) {
+            setCurrentUser(data.data);
+            setUser(data.data);
+            localStorage.setItem('user', JSON.stringify(data.data));
           }
-        } catch (error) {
-          console.error('Failed to fetch events:', error);
         }
-      };
-
-      fetchEvents();
-    }
+      } catch (error) {
+        console.error('Failed to fetch current user:', error);
+      }
+    };
+    fetchCurrentUser();
   }, []);
+
+  // Fetch events after currentUser is up-to-date
+  useEffect(() => {
+    if (!currentUser) return;
+    const fetchEvents = async () => {
+      try {
+        const response = await authService.fetchWithAuth('http://localhost:5000/events');
+        if (response.ok) {
+          const data = await response.json();
+          const allEvents = data.data;
+
+          // Sort all events by start date (closest first)
+          const sortedEvents = [...allEvents].sort((a, b) =>
+            new Date(a.startTime) - new Date(b.startTime)
+          );
+
+          // Filter only upcoming events for trending
+          const upcomingEvents = sortedEvents.filter(event =>
+            new Date(event.startTime) > new Date()
+          );
+          setTrendingEvents(upcomingEvents);
+
+          // Filter recommended events based on user preferences
+          setRecommendedEvents(getRecommendedEvents(upcomingEvents, currentUser));
+
+          // Update categories with event counts
+          updateCategoryCounts(sortedEvents);
+        }
+      } catch (error) {
+        console.error('Failed to fetch events:', error);
+      }
+    };
+    fetchEvents();
+  }, [currentUser]);
 
   // Calculate event counts for each category
   const updateCategoryCounts = (allEvents) => {
@@ -113,27 +139,68 @@ const Dashboard = ({ onLogout }) => {
 
   // Handle category selection - redirect to Explore page with category filter
   const handleCategorySelect = (categoryName) => {
-    // Determine category type (academic, social, or career)
-    const academicTags = [
-      "Business", "Liberal Arts", "Natural Sciences", "Engineering", "Communications",
-      "Geosciences", "Informatics", "Education", "Architecture", "Civic Leadership",
-      "Fine Arts", "Nursing", "Pharmacy", "Public Affairs", "Social Work"
-    ];
+    let type = null;
+    if (academicTags.includes(categoryName)) type = 'academic';
+    else if (socialTags.includes(categoryName)) type = 'social';
+    else if (careerTags.includes(categoryName)) type = 'career';
 
-    const socialTags = ["Arts", "Entertainment", "Athletics", "Food"];
+    navigate('/explore', {
+      state: {
+        selectedCategories: [{ name: categoryName, type }]
+      }
+    });
+  };
 
-    const careerTags = ["Career Fairs", "Networking", "Info Sessions", "Employer Events", "Career Guidance"];
+  // Monitor scroll position for trending events arrows
+  useEffect(() => {
+    const checkScroll = () => {
+      const el = trendingListRef.current;
+      if (!el) return;
+      setCanScrollLeft(el.scrollLeft > 0);
+      setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    };
+    checkScroll();
+    if (trendingListRef.current) {
+      trendingListRef.current.addEventListener('scroll', checkScroll);
+    }
+    return () => {
+      if (trendingListRef.current) {
+        trendingListRef.current.removeEventListener('scroll', checkScroll);
+      }
+    };
+  }, [trendingEvents]);
 
-    // Save selected category and its type in localStorage
-    localStorage.setItem('selectedCategory', JSON.stringify({
-      name: categoryName,
-      type: academicTags.includes(categoryName) ? 'academic' :
-            socialTags.includes(categoryName) ? 'social' :
-            careerTags.includes(categoryName) ? 'career' : null
-    }));
+  const scrollTrending = (direction) => {
+    const el = trendingListRef.current;
+    if (!el) return;
+    const scrollBy = direction === 'left' ? -SCROLL_AMOUNT : SCROLL_AMOUNT;
+    el.scrollBy({ left: scrollBy, behavior: 'smooth' });
+  };
 
-    // Navigate to the Explore page
-    navigate('/explore');
+  // Monitor scroll position for category arrows
+  useEffect(() => {
+    const checkCatScroll = () => {
+      const el = categoryListRef.current;
+      if (!el) return;
+      setCanCatScrollLeft(el.scrollLeft > 0);
+      setCanCatScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 1);
+    };
+    checkCatScroll();
+    if (categoryListRef.current) {
+      categoryListRef.current.addEventListener('scroll', checkCatScroll);
+    }
+    return () => {
+      if (categoryListRef.current) {
+        categoryListRef.current.removeEventListener('scroll', checkCatScroll);
+      }
+    };
+  }, [categories]);
+
+  const scrollCategories = (direction) => {
+    const el = categoryListRef.current;
+    if (!el) return;
+    const scrollBy = direction === 'left' ? -SCROLL_AMOUNT : SCROLL_AMOUNT;
+    el.scrollBy({ left: scrollBy, behavior: 'smooth' });
   };
 
   return (
@@ -147,13 +214,38 @@ const Dashboard = ({ onLogout }) => {
           {/* Trending Events Section */}
           <div className="trending-events-wrapper">
             <section className="trending-events">
-              <h2 className="page-heading">Trending Events</h2>
-              <div className="events-list">
+              <div className="trending-events-header">
+                <h2 className="page-heading">Trending Events</h2>
+                <div className="trending-arrows">
+                  <button
+                    className="trending-arrow"
+                    onClick={() => scrollTrending('left')}
+                    disabled={!canScrollLeft}
+                    aria-label="Scroll left"
+                  >
+                    &lt;
+                  </button>
+                  <button
+                    className="trending-arrow"
+                    onClick={() => scrollTrending('right')}
+                    disabled={!canScrollRight}
+                    aria-label="Scroll right"
+                  >
+                    &gt;
+                  </button>
+                </div>
+              </div>
+              <div className="events-list" ref={trendingListRef}>
                 {trendingEvents.length === 0 ? (
                   <p>No trending events available at the moment.</p>
                 ) : (
                   trendingEvents.map((event, index) => (
-                    <EventCard key={index} event={event} currentUser={user} onToggleSave={handleToggleSave}/>
+                    <EventCard
+                      key={index}
+                      event={event}
+                      currentUser={user}
+                      onToggleSave={handleToggleSave}
+                    />
                   ))
                 )}
               </div>
@@ -165,8 +257,28 @@ const Dashboard = ({ onLogout }) => {
       <div className="dashboard-container">
         <div className="main-content">
           {/* Browse by Category Section */}
-          <h2 className="page-heading">Browse by Category</h2>
-          <div className="categories-list">
+          <div className="trending-events-header" style={{ marginBottom: 0 }}>
+            <h2 className="page-heading">Browse by Category</h2>
+            <div className="trending-arrows">
+              <button
+                className="trending-arrow"
+                onClick={() => scrollCategories('left')}
+                disabled={!canCatScrollLeft}
+                aria-label="Scroll categories left"
+              >
+                &lt;
+              </button>
+              <button
+                className="trending-arrow"
+                onClick={() => scrollCategories('right')}
+                disabled={!canCatScrollRight}
+                aria-label="Scroll categories right"
+              >
+                &gt;
+              </button>
+            </div>
+          </div>
+          <div className="categories-list" ref={categoryListRef}>
             {categories.map((category, index) => (
               <button
                 key={index}
@@ -188,12 +300,17 @@ const Dashboard = ({ onLogout }) => {
 
           {/* Recommended Events Section */}
           <h2 className="page-heading">For You</h2>
-          <div className="events-list">
+          <div className="events-list for-you-list">
             {recommendedEvents.length === 0 ? (
               <p>No recommended events available at the moment.</p>
             ) : (
               recommendedEvents.map((event, index) => (
-                <EventCard key={index} event={event} currentUser={user} onToggleSave={handleToggleSave}/>
+                <EventCard
+                  key={index}
+                  event={event}
+                  currentUser={user}
+                  onToggleSave={handleToggleSave}
+                />
               ))
             )}
           </div>

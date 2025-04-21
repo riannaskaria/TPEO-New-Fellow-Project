@@ -120,7 +120,7 @@ router.get('/user/:userId', authenticateToken, async (req, res) => {
 });
 
 // GET image by imageId
-router.get('/image/:id', authenticateToken, async (req, res) => {
+router.get('/image/:id', async (req, res) => {
   try {
     const { id } = req.params;
     if (!ObjectId.isValid(id)) {
@@ -254,7 +254,7 @@ router.post('/', authenticateToken, upload.single('image'), async (req, res) => 
 });
 
 // Update event by ID
-router.put('/:id', async (req, res) => {
+router.put('/:id', authenticateToken, async (req, res) => {
 	try{
 		const { id } = req.params;
 		const newEventData = req.body;
@@ -298,40 +298,51 @@ router.put('/:id', async (req, res) => {
 
 // Delete event by ID
 router.delete('/:id', async (req, res) => {
-	try{
-		const { id } = req.params;
+  try {
+    const { id } = req.params;
 
-		// Validate ID
-		if(!ObjectId.isValid(id)){
-			return res.status(400).json({
-				success: false,
-				message: 'Invalid event ID format'
-			});
-		}
+    // Validate ID
+    if (!ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid event ID format'
+      });
+    }
 
-		// Delete event
-		const deletedEvent = await Event.findByIdAndDelete(id);
+    // Find and delete event
+    const deletedEvent = await Event.findByIdAndDelete(id);
 
-		// No event
-		if (!deletedEvent) {
-			return res.status(404).json({
-				success: false,
-				message: `No event found with ID: ${id}`
-			});
-		}
+    // No event
+    if (!deletedEvent) {
+      return res.status(404).json({
+        success: false,
+        message: `No event found with ID: ${id}`
+      });
+    }
 
-		res.status(200).json({
-			success: true,
-			data: deletedEvent
-		});
-	}
-	catch(err){
-		console.error('Error deleting event:', err);
+    // If event has an image, delete it from GridFS
+    if (deletedEvent.imageId) {
+      try {
+        const bucket = getGridFsBucket();
+        await bucket.delete(new ObjectId(deletedEvent.imageId));
+      } catch (imgErr) {
+        // Log but don't fail the whole request if image deletion fails
+        console.error('Error deleting event image from GridFS:', imgErr);
+      }
+    }
+
+    res.status(200).json({
+      success: true,
+      data: deletedEvent
+    });
+  } 
+	catch (err) {
+    console.error('Error deleting event:', err);
     res.status(400).json({
-			success: false,
-			message: 'Error deleting event', error: err.message
-		});
-	}
+      success: false,
+      message: 'Error deleting event', error: err.message
+    });
+  }
 });
 
 module.exports = router;

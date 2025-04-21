@@ -128,3 +128,11 @@
 .profile-dropdown button:hover {
   background-color: var(--light-grey);
 }
+
+.logo-btn {
+  background: none;
+  border: none;
+	margin-left: 24px;
+	margin-right: 24px;
+  cursor: pointer;
+}

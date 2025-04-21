@@ -3,7 +3,6 @@ export const getRecommendedEvents = (allEvents, user) => {
 
   const userInterests = user.interests || [];
   const userMajors = user.majors || [];
-  const userOrgs = user.orgs || [];
 
   const currentDate = new Date();
 
@@ -12,17 +11,17 @@ export const getRecommendedEvents = (allEvents, user) => {
     const eventStartTime = new Date(event.startTime);
     if (eventStartTime < currentDate) return false;
 
-    // Check if event matches user interests or organizations
+    // Check if event matches user interests or majors
     const hasMatchingCategory = event.categories &&
       event.categories.some(category =>
         userInterests.includes(category) || userMajors.includes(category)
       );
 
-    const hasMatchingOrg = userOrgs.length > 0 &&
-      event.org && userOrgs.includes(event.org.toString());
-
-    return hasMatchingCategory || hasMatchingOrg;
+    return hasMatchingCategory;
   });
 
-  return recommended.length > 0 ? recommended : allEvents.filter(event => new Date(event.startTime) >= currentDate);
+  // Fallback: if no matches, show all upcoming events
+  return recommended.length > 0
+    ? recommended
+    : allEvents.filter(event => new Date(event.startTime) >= currentDate);
 };

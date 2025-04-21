@@ -42,7 +42,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
 		for (let i = 0; i < sortedCategories.length; i++) {
 			dummy.innerText = sortedCategories[i];
 			// The extraWidth value (16) should equal the sum of horizontal paddings (and borders if any)
-			const extraWidth = 1; // <-- Adjust this value to match your .tag-badge computed padding
+			const extraWidth = 2; // <-- Adjust this value to match your .tag-badge computed padding
 			const tagWidth = dummy.offsetWidth + extraWidth;
 			if (i > 0) totalWidth += gap;
 			if (totalWidth + tagWidth > containerWidth) break;
