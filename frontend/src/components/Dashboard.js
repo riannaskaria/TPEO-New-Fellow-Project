@@ -44,7 +44,7 @@ const Dashboard = ({ onLogout }) => {
       const storedUser = authService.getCurrentUser();
       if (!storedUser || !storedUser._id) return;
       try {
-        const response = await authService.fetchWithAuth(`http://localhost:5000/users/${storedUser._id}`);
+        const response = await authService.fetchWithAuth(`http://localhost:3001/users/${storedUser._id}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
@@ -65,7 +65,7 @@ const Dashboard = ({ onLogout }) => {
     if (!currentUser) return;
     const fetchEvents = async () => {
       try {
-        const response = await authService.fetchWithAuth('http://localhost:5000/events');
+        const response = await authService.fetchWithAuth('http://localhost:3001/events');
         if (response.ok) {
           const data = await response.json();
           const allEvents = data.data;
@@ -115,7 +115,7 @@ const Dashboard = ({ onLogout }) => {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })

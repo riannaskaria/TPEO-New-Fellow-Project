@@ -24,7 +24,7 @@ const AddFriends = () => {
     // Fetch all users
     const fetchUsers = async () => {
       try {
-        const response = await authService.fetchWithAuth('http://localhost:5000/users');
+        const response = await authService.fetchWithAuth('http://localhost:3001/users');
         if (response.ok) {
           const data = await response.json();
           setUsers(data.data);
@@ -86,7 +86,7 @@ const AddFriends = () => {
   const sendFriendRequest = async (userId) => {
     try {
       // Get the target user
-      const userResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`);
+      const userResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${userId}`);
       if (!userResponse.ok) {
         throw new Error('Failed to fetch user data');
       }
@@ -100,7 +100,7 @@ const AddFriends = () => {
       }
 
       // Update the user object using the existing PUT route
-      const updateResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`, {
+      const updateResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friendRequests: updatedFriendRequests })
@@ -138,7 +138,7 @@ const AddFriends = () => {
       <Header user={currentUser} handleLogout={handleLogout} />
       <h1 className="friends-login-title">Add Friends</h1>
 
-      <div className="friends-container">
+      <div className="add-friends-container">
 
         {loading ? (
           <div className="loading">Loading users...</div>
@@ -166,7 +166,7 @@ const AddFriends = () => {
                       <div key={user._id} className="user-card">
                         <div className="user-info">
                           <img
-                            src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
+                            src={user.profilePicture ? `http://localhost:3001/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
                             alt={`${user.firstName} ${user.lastName}`}
                             className="user-avatar"
                           />
@@ -209,7 +209,7 @@ const AddFriends = () => {
                     <div key={user._id} className="suggested-user">
                       <div className="user-info">
                         <img
-                          src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
+                          src={user.profilePicture ? `http://localhost:3001/users/image/${user.profilePicture}` : "/assets/default-profile.png"}
                           alt={`${user.firstName} ${user.lastName}`}
                           className="user-avatar"
                         />

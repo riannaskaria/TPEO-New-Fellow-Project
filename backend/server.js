@@ -13,7 +13,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 // Get app instance
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Add this line
 
 // Configure middleware
@@ -31,7 +31,7 @@ app.use(express.urlencoded({extended: true}));
 const initializeApp = async () => {
 	// Connect to MongoDB before setting up routes
 	await connectDB();
-	
+
 	// Default route
 	app.get('/', (req, res) => {
 		res.send('Hello from the backend!');
@@ -42,7 +42,7 @@ const initializeApp = async () => {
 	app.use('/events', eventRoutes);
 	app.use('/orgs', orgRoutes);
 	app.use('/categories', categoryRoutes);
-  
+
 	// Start server
 	app.listen(PORT, () => {
 		console.log(`Server running on port ${PORT}`);
