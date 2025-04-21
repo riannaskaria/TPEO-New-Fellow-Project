@@ -52,8 +52,8 @@ function ViewFriend() {
 
   // Profile picture
   const profilePicUrl = friend.profilePicture
-    ? `http://localhost:3001/users/image/${friend.profilePicture}`
-    : "/assets/default-profile.png";
+    ? `http://localhost:5000/users/image/${friend.profilePicture}`
+    : "/assets/profile.svg";
 
   // Major/year string
   const major = friend.majors?.length ? friend.majors[0] : "";

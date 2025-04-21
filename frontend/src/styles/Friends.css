@@ -54,7 +54,6 @@
   background-color: var(--light-orange);
   border-radius: 8px;
   padding: 4px;
-  gap: 10px;
 }
 
 .friends-toggle-btn {
@@ -241,4 +240,30 @@
   margin-top: 0.2em;
   font: var(--friend-count);
   color: var(--dark-orange);
+}
+
+/* Remove Friend button in friend card */
+.remove-friend-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  margin-left: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: 32px;
+  transition: background 0.15s;
+  border-radius: 50%;
+}
+
+.remove-friend-btn:hover {
+  background: #ffeaea;
+}
+
+.remove-friend-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
 }
