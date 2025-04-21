@@ -9,8 +9,8 @@
   display: flex;
   flex-direction: column;
   height: 67vh;
-  aspect-ratio: 968 / 549;
-  margin: 20vh auto auto auto;
+  aspect-ratio: 1100 / 549;
+  margin: 16vh auto auto auto;
   background: var(--white);
   border-radius: 12px;
   box-shadow: var(--shadow);
@@ -22,16 +22,17 @@
 .view-event-title-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.75em;
+  align-items: center; /* Change from flex-start to center */
+  margin-bottom: 2em;
 }
 
 .view-event-title {
   font: var(--add-event-title);
-  color: var(--dark-orange);
+  color: var(--text-black);
   margin: 0;
   flex: 1;
   word-break: break-word;
+  /* Remove any top/bottom margins if present */
 }
 
 .view-save-btn {
@@ -39,18 +40,16 @@
   border: none;
   display: flex;
   align-items: center;
-  gap: 0.4em;
+  gap: 0.6em;
   cursor: pointer;
-  padding: 0.2em 0.7em 0.2em 0.7em;
+  padding: 0.4em 0.7em 0.4em 0.7em;
   border-radius: 8px;
-  transition: background 0.15s;
+	border: var(--save-event-border);
 }
-.view-save-btn:hover {
-  background: var(--light-grey);
-}
+
 .save-btn-label {
   font: var(--add-event-field);
-  color: var(--dark-orange);
+  color: var(--text-black);
 }
 
 /* Main content: left (image) and right (info) */
@@ -96,7 +95,7 @@
 .view-event-right {
   display: flex;
   flex-direction: column;
-  gap: 1.2em;
+  gap: 1.5em;
   justify-content: flex-start;
   align-items: flex-start;
 }
@@ -119,9 +118,9 @@
 }
 
 .view-event-subheading {
-  margin: 0 0 0.2em 0;
+  margin: 0 0 1em 0;
   font: var(--add-event-field);
-  color: var(--dark-orange);
+  color: var(--text-black);
   font-weight: 600;
 }
 
@@ -138,7 +137,6 @@
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-top: 1.5em;
 }
 
 .view-event-tag-badge {
@@ -168,6 +166,8 @@
   display: flex;
   align-items: center;
   gap: 1em;
+  /* Add this to ensure buttons don't shrink */
+  flex-shrink: 0;
 }
 
 .view-delete-btn {
@@ -177,16 +177,12 @@
   align-items: center;
   gap: 0.4em;
   cursor: pointer;
-  padding: 0.2em 0.7em 0.2em 0.7em;
+  padding: 0.4em 0.7em 0.4em 0.7em;
   border-radius: 8px;
-  transition: background 0.15s;
-}
-
-.view-delete-btn:hover {
-  background: #ffeaea;
+	background-color: var(--dark-orange);
 }
 
 .delete-btn-label {
   font: var(--add-event-field);
-  color: #d32f2f; /* red for delete */
+  color: var(--white); /* red for delete */
 }

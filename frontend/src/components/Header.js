@@ -101,7 +101,6 @@ function Header({ user, handleLogout }) {
         <button
           className="logo-btn"
           onClick={() => navigate("/dashboard")}
-          style={{ background: "none", border: "none", padding: 0, margin: 0, cursor: "pointer" }}
         >
           <img src="/assets/logo.svg" alt="Buzz Logo" className="logo" />
         </button>

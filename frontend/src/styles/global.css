@@ -41,6 +41,9 @@
 	--trending-events-arrow: bold 16px "Roboto", sans-serif;
 	--dashboard-category: normal 20px "Roboto", sans-serif;
 
+	--view-event-details: bold 16px "Roboto", sans-serif;
+
 	/* border */
   --border-box: 1px solid #D9D9D9;
+  --save-event-border: 1px solid #F07605;
 }

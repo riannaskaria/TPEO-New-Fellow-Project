@@ -14,14 +14,29 @@ const Saved = ({ onLogout }) => {
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
-    // Check if user is logged in
-    const currentUser = authService.getCurrentUser();
-    if (currentUser) {
-      setUser(currentUser);
-      fetchSavedEvents(currentUser);
-    } else {
+    // Fetch latest user by ID and update localStorage
+    const refreshUser = async () => {
+      const storedUser = authService.getCurrentUser();
+      if (storedUser && storedUser._id) {
+        try {
+          const res = await authService.fetchWithAuth(`http://localhost:5000/users/${storedUser._id}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && data.data) {
+              setUser(data.data);
+              setCurrentUser(data.data);
+              localStorage.setItem("user", JSON.stringify(data.data));
+              fetchSavedEvents(data.data);
+              return;
+            }
+          }
+        } catch (err) {
+          console.error("Error refreshing user:", err);
+        }
+      }
       setIsLoading(false);
-    }
+    };
+    refreshUser();
   }, []);
 
   const fetchSavedEvents = async (user) => {
@@ -66,7 +81,6 @@ const Saved = ({ onLogout }) => {
       setIsLoading(false);
     }
   };
-
 
   // Group events by today, tomorrow, and future dates
   const groupEventsByDay = (events) => {
@@ -122,33 +136,28 @@ const Saved = ({ onLogout }) => {
   };
 
   // Format weekday and time (e.g., "Monday, March 3rd • 3:00 PM")
-  // Format weekday and time (e.g., "Monday, March 3rd • 3:00 PM")
   const formatDateTime = (dateObj) => {
-  const day = dateObj.getDate();
-  const ordinal = getOrdinal(day);
-  const weekday = dateObj.toLocaleDateString("en-US", { weekday: "long" });
-  const month = dateObj.toLocaleDateString("en-US", { month: "long" });
-  const time = dateObj.toLocaleTimeString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+    const day = dateObj.getDate();
+    const ordinal = getOrdinal(day);
+    const weekday = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+    const month = dateObj.toLocaleDateString("en-US", { month: "long" });
+    const time = dateObj.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
 
-  const datePart = `${weekday}, ${month} ${day}${ordinal}`;
-  const timePart = time; // e.g., 3:00 PM
+    const datePart = `${weekday}, ${month} ${day}${ordinal}`;
+    const timePart = time; // e.g., 3:00 PM
 
-  return { datePart, timePart };
-};
-
+    return { datePart, timePart };
+  };
 
   // Fetch similar events based on user's interests
   const fetchSimilarEvents = async (events) => {
     try {
-      console.log("Fetching similar events for:", events);
-
       // Fetch all events to get potential similar ones
       const response = await authService.fetchWithAuth('http://localhost:5000/events');
       const allEvents = await response.json();
-
       if (!allEvents.data) return;
 
       // Filter out past events
@@ -157,7 +166,6 @@ const Saved = ({ onLogout }) => {
 
       // Use getRecommendedEvents to get recommended events based on the user's interests
       const recommended = getRecommendedEvents(upcomingEvents, currentUser);
-      console.log("Recommended events:", recommended);
 
       // Filter out events that are already saved by the current user
       const savedEventIds = new Set(currentUser.savedEvents);
@@ -165,12 +173,10 @@ const Saved = ({ onLogout }) => {
 
       // Get top 3 recommended events that are not saved
       setSimilarEvents(notSavedEvents.slice(0, 3));
-      console.log("Similar events fetched:", notSavedEvents.slice(0, 3));
     } catch (error) {
       console.error("Error fetching similar events:", error);
     }
   };
-
 
   // Handle toggling saved state of an event
   const handleToggleSave = (eventId, newSavedState) => {
@@ -274,7 +280,6 @@ const Saved = ({ onLogout }) => {
       );
     });
   };
-
 
   const handleLogout = () => {
     if (onLogout) {

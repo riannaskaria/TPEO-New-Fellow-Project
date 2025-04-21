@@ -118,14 +118,14 @@ function ViewEvent({ onLogout }) {
             <h1 className="view-event-title">{event.title}</h1>
             <div className="view-event-action-buttons">
               <button className="view-save-btn" onClick={handleSaveClick}>
-                {isSaved ? (
+                <span className="save-btn-label">
+                  {isSaved ? "Saved" : "Save Event"}
+                </span>
+								{isSaved ? (
                   <img src="/assets/explore/save_solid.svg" alt="Saved" />
                 ) : (
                   <img src="/assets/explore/save_outlined.svg" alt="Save" />
                 )}
-                <span className="save-btn-label">
-                  {isSaved ? "Saved" : "Save Event"}
-                </span>
               </button>
               <button className="view-delete-btn" onClick={handleDeleteClick}>
                 <span className="delete-btn-label">Delete</span>

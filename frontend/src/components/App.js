@@ -25,7 +25,8 @@ function App() {
       const token = localStorage.getItem("authToken");
       if (token) {
         setIsAuthenticated(true);
-      } else {
+      }
+			else {
         setIsAuthenticated(false);
       }
       setLoading(false);
