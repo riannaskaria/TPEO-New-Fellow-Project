@@ -1,4 +1,4 @@
-const API_URL = "tpeo-new-fellow-project.vercel.app";
+const API_URL = "http://localhost:5000";
 
 export const authService = {
   login: async (email, password) => {

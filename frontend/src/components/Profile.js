@@ -31,7 +31,7 @@ const Profile = ({ onLogout }) => {
   const orgDropdownRef = useRef(null);
   const orgInputRef = useRef(null);
   const navigate = useNavigate();
-  const API_URL = "tpeo-new-fellow-project.vercel.app";
+  const API_URL = "http://localhost:5000";
 
   // Fetch latest user data from backend on mount and when preferences are saved
   const fetchUser = async (userId) => {

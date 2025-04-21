@@ -20,7 +20,7 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
   // For organization modal, fetch organizations using authService.fetchWithAuth
   useEffect(() => {
     if (modalType === "organization") {
-      authService.fetchWithAuth("tpeo-new-fellow-project.vercel.app/orgs")
+      authService.fetchWithAuth("http://localhost:5000/orgs")
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {

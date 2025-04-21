@@ -19,7 +19,7 @@ const Saved = ({ onLogout }) => {
       const storedUser = authService.getCurrentUser();
       if (storedUser && storedUser._id) {
         try {
-          const res = await authService.fetchWithAuth(`tpeo-new-fellow-project.vercel.app/users/${storedUser._id}`);
+          const res = await authService.fetchWithAuth(`http://localhost:5000/users/${storedUser._id}`);
           if (res.ok) {
             const data = await res.json();
             if (data.success && data.data) {
@@ -49,7 +49,7 @@ const Saved = ({ onLogout }) => {
 
       // Fetch all the saved events
       const eventPromises = user.savedEvents.map(eventId =>
-        authService.fetchWithAuth(`tpeo-new-fellow-project.vercel.app/events/${eventId}`)
+        authService.fetchWithAuth(`http://localhost:5000/events/${eventId}`)
           .then(res => res.json())
           .then(data => data.data)
           .catch(err => {
@@ -156,7 +156,7 @@ const Saved = ({ onLogout }) => {
   const fetchSimilarEvents = async (events) => {
     try {
       // Fetch all events to get potential similar ones
-      const response = await authService.fetchWithAuth('tpeo-new-fellow-project.vercel.app/events');
+      const response = await authService.fetchWithAuth('http://localhost:5000/events');
       const allEvents = await response.json();
       if (!allEvents.data) return;
 
@@ -184,7 +184,7 @@ const Saved = ({ onLogout }) => {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`tpeo-new-fellow-project.vercel.app/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
