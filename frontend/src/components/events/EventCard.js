@@ -1,5 +1,6 @@
-import React, { useState, useLayoutEffect, useRef } from "react";
+import React, { useState, useLayoutEffect, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { authService } from "../../services/authService";
 import "../../styles/events/EventCard.css";
 import { academicTags, socialTags, careerTags } from '../../constants/categories';
 
@@ -7,6 +8,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
   const [isSaved, setIsSaved] = useState(false);
   const tagsContainerRef = useRef(null);
   const [visibleCount, setVisibleCount] = useState(event.categories.length);
+  const [friendsSavedCount, setFriendsSavedCount] = useState(0);
   const navigate = useNavigate();
 
   // Check if event is saved
@@ -14,6 +16,34 @@ function EventCard({ event, currentUser, onToggleSave }) {
     if (currentUser && currentUser.savedEvents) {
       setIsSaved(currentUser.savedEvents.includes(event._id));
     }
+  }, [currentUser, event._id]);
+
+  // Fetch friends who saved this event
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchFriendsSavedCount() {
+      if (!currentUser || !currentUser.friends || currentUser.friends.length === 0) {
+        setFriendsSavedCount(0);
+        return;
+      }
+      let count = 0;
+      // Fetch all friends in parallel
+      const friendPromises = currentUser.friends.map(friendId =>
+        authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`)
+          .then(res => res.ok ? res.json() : null)
+          .then(data => data && data.data && Array.isArray(data.data.savedEvents)
+            ? data.data.savedEvents.map(eid => eid.toString())
+            : [])
+          .catch(() => [])
+      );
+      const allFriendsSavedEvents = await Promise.all(friendPromises);
+      allFriendsSavedEvents.forEach(savedEventsArr => {
+        if (savedEventsArr.includes(event._id.toString())) count++;
+      });
+      if (isMounted) setFriendsSavedCount(count);
+    }
+    fetchFriendsSavedCount();
+    return () => { isMounted = false; };
   }, [currentUser, event._id]);
 
   // Format date/time
@@ -25,42 +55,42 @@ function EventCard({ event, currentUser, onToggleSave }) {
 
   // Use useLayoutEffect to measure tags after DOM updates but before paint
   useLayoutEffect(() => {
-		if (!tagsContainerRef.current) return;
-		const containerWidth = tagsContainerRef.current.offsetWidth;
-		const dummy = document.createElement("span");
-		dummy.style.visibility = "hidden";
-		dummy.style.position = "absolute";
-		dummy.style.whiteSpace = "nowrap";
-		dummy.style.font = getComputedStyle(tagsContainerRef.current).font;
-		document.body.appendChild(dummy);
+    if (!tagsContainerRef.current) return;
+    const containerWidth = tagsContainerRef.current.offsetWidth;
+    const dummy = document.createElement("span");
+    dummy.style.visibility = "hidden";
+    dummy.style.position = "absolute";
+    dummy.style.whiteSpace = "nowrap";
+    dummy.style.font = getComputedStyle(tagsContainerRef.current).font;
+    document.body.appendChild(dummy);
 
-		let totalWidth = 0;
-		let count = 0;
-		const gap = 5; // <-- Change this if your CSS gap is different
+    let totalWidth = 0;
+    let count = 0;
+    const gap = 5; // <-- Change this if your CSS gap is different
 
-		// Loop over sorted tags
-		for (let i = 0; i < sortedCategories.length; i++) {
-			dummy.innerText = sortedCategories[i];
-			// The extraWidth value (16) should equal the sum of horizontal paddings (and borders if any)
-			const extraWidth = 2; // <-- Adjust this value to match your .tag-badge computed padding
-			const tagWidth = dummy.offsetWidth + extraWidth;
-			if (i > 0) totalWidth += gap;
-			if (totalWidth + tagWidth > containerWidth) break;
-			totalWidth += tagWidth;
-			count++;
-		}
-		// Account for the "+x" badge
-		if (count < sortedCategories.length) {
-			dummy.innerText = `+${sortedCategories.length - count}`;
-			const extraWidth = 16; // Same as above
-			const plusWidth = dummy.offsetWidth + extraWidth;
-			if (totalWidth + (count > 0 ? gap : 0) + plusWidth > containerWidth && count > 0) {
-				count--;
-			}
-		}
-		document.body.removeChild(dummy);
-		setVisibleCount(count);
-	}, [sortedCategories]);
+    // Loop over sorted tags
+    for (let i = 0; i < sortedCategories.length; i++) {
+      dummy.innerText = sortedCategories[i];
+      // The extraWidth value (16) should equal the sum of horizontal paddings (and borders if any)
+      const extraWidth = 2; // <-- Adjust this value to match your .tag-badge computed padding
+      const tagWidth = dummy.offsetWidth + extraWidth;
+      if (i > 0) totalWidth += gap;
+      if (totalWidth + tagWidth > containerWidth) break;
+      totalWidth += tagWidth;
+      count++;
+    }
+    // Account for the "+x" badge
+    if (count < sortedCategories.length) {
+      dummy.innerText = `+${sortedCategories.length - count}`;
+      const extraWidth = 16; // Same as above
+      const plusWidth = dummy.offsetWidth + extraWidth;
+      if (totalWidth + (count > 0 ? gap : 0) + plusWidth > containerWidth && count > 0) {
+        count--;
+      }
+    }
+    document.body.removeChild(dummy);
+    setVisibleCount(count);
+  }, [sortedCategories]);
 
   // Build image URL
   const imageUrl = event.imageId
@@ -111,6 +141,12 @@ function EventCard({ event, currentUser, onToggleSave }) {
           <div className="event-datetime">
             <span>{formattedDateTime}</span>
           </div>
+          {/* Friends saved count */}
+          {friendsSavedCount > 0 && (
+            <div className="friends-saved-badge">
+              {friendsSavedCount} friend{friendsSavedCount > 1 ? "s" : ""} saved this event
+            </div>
+          )}
           <div className="event-tags" ref={tagsContainerRef}>
             {sortedCategories.slice(0, visibleCount).map((cat, idx) => (
               <span key={idx} className={`tag-badge ${getTagColorClass(cat)}`}>

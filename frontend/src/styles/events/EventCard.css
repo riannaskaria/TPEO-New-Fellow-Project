@@ -117,3 +117,14 @@
 .tag-badge.more-tags {
   background-color: var(--more-tags-orange, #f7ba81);
 }
+
+.friends-saved-badge {
+  background: var(--light-orange, #fff3e0);
+  color: var(--text-black, #333);
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 14px;
+  margin: 8px 0 8px 0;
+  width: fit-content;
+  font: var(--event-tags);
+}

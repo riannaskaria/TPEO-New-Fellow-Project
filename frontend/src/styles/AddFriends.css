@@ -1,0 +1,211 @@
+/* Add Friends Page specific styles */
+
+.add-friends-page {
+  display: flex;
+  flex-direction: column;
+}
+
+.add-friends-container {
+  padding: 60px 50px;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.friends-search-bar-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 52px;
+}
+
+.friends-search-bar {
+  padding: 10px 10px 10px 40px;
+  font-size: 16px;
+  width: 528px;
+  border: var(--border-box);
+  border-radius: 8px;
+  background-color: var(--light-orange);
+  outline: none;
+  margin-left: 0;
+  box-sizing: border-box;
+}
+
+.friends-search-icon {
+  position: absolute;
+  left: 14px;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.friends-search-bar:focus {
+  border-color: var(--dark-orange);
+}
+
+.users-content {
+  margin-bottom: 30px;
+}
+
+.section-title {
+  font: var(--page-heading);
+  margin-bottom: 15px;
+}
+
+.suggested-title {
+  font: var(--page-subheading);
+  margin-top: 8px;
+  margin-bottom: 36px;
+}
+
+.users-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.friend-status {
+  display: flex;
+  align-items: center;
+}
+
+.friends-badge, .pending-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  background-color: #e8e8e8;
+  color: #666;
+}
+
+.send-request-button {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: none;
+  background-color: var(--dark-orange);
+  color: white;
+  cursor: pointer;
+  font: var(--send-request);
+}
+
+.back-button-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+}
+
+.back-button {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #ff9d4c;
+  color: white;
+  cursor: pointer;
+}
+
+.no-friends {
+  text-align: center;
+  color: #666;
+  margin-top: 30px;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+.users-layout-box {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  align-items: flex-start;
+}
+
+.left-panel {
+  flex: 3;
+}
+
+.add-right-panel {
+  flex: 1;
+  border-radius: 12px;
+  height: fit-content;
+  padding: 32px;
+  background-color: #F2F2F2;
+  display: flex;
+  flex-direction: column;
+}
+
+.suggested-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.suggested-user {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: white;
+  border-radius: 8px;
+  padding: 10px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.suggested-user .user-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+	font: var(--add-friends-card);
+	color: var(--text-black);
+}
+
+.send-request-button.small {
+  padding: 6px 10px;
+	font: var(--send-request);
+  border-radius: 8px;
+}
+
+.badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badge.friends {
+  background-color: #e6f4ea;
+  color: #2e7d32;
+}
+
+.badge.pending {
+  background-color: var(--white);
+  border: var(--pending-border);
+  color: var(--text-black);
+  font: var(--send-request);
+  border-radius: 8px;
+}
+
+.badge.small {
+  font-size: 11px;
+  padding: 3px 6px;
+}
+
+.user-card {
+  background-color: white;
+  border: var(--border-box);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+	font: var(--add-friends-card);
+	color: var(--text-black);
+}

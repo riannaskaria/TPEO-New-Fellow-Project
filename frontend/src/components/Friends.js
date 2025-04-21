@@ -382,19 +382,19 @@ const Friends = ({onLogout}) => {
 
         {/* Friend Events Grid */}
         {activeTab === 'events' && (
-          <div className="friend-events-section">
-            <div className="events-list">
-              {friendEvents.map((event, index) => (
-                <EventCard
-                  key={`${event._id}-${index}`}
-                  event={event}
-                  currentUser={currentUser}
-                  onToggleSave={handleToggleSave}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+					<div className="friend-events-section">
+						<div className="friend-events-grid">
+							{friendEvents.map((event, index) => (
+								<EventCard
+									key={`${event._id}-${index}`}
+									event={event}
+									currentUser={currentUser}
+									onToggleSave={handleToggleSave}
+								/>
+							))}
+						</div>
+					</div>
+				)}
       </div>
     </div>
   );
