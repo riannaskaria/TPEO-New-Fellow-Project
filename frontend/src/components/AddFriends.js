@@ -24,7 +24,7 @@ const AddFriends = ({onLogout}) => {
     // Fetch all users
     const fetchUsers = async () => {
       try {
-        const response = await authService.fetchWithAuth('http://localhost:3001/users');
+        const response = await authService.fetchWithAuth('http://localhost:5000/users');
         if (response.ok) {
           const data = await response.json();
           setUsers(data.data);
@@ -86,7 +86,7 @@ const AddFriends = ({onLogout}) => {
   const sendFriendRequest = async (userId) => {
     try {
       // Get the target user
-      const userResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${userId}`);
+      const userResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`);
       if (!userResponse.ok) {
         throw new Error('Failed to fetch user data');
       }
@@ -100,7 +100,7 @@ const AddFriends = ({onLogout}) => {
       }
 
       // Update the user object using the existing PUT route
-      const updateResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${userId}`, {
+      const updateResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friendRequests: updatedFriendRequests })
@@ -138,9 +138,7 @@ const AddFriends = ({onLogout}) => {
     <div className="add-friends-page">
       <Header user={currentUser} handleLogout={handleLogout} />
       <h1 className="friends-login-title">Add Friends</h1>
-
       <div className="add-friends-container">
-
         {loading ? (
           <div className="loading">Loading users...</div>
         ) : error ? (
@@ -151,14 +149,15 @@ const AddFriends = ({onLogout}) => {
             <div className="left-panel">
               <h2 className="section-title">Add Friends</h2>
               <div className="friends-search-bar-container">
-            <img src="/assets/search.svg" alt="Search Icon" className="friends-search-icon" />
-            <input
-                 type="text"
-                className="friends-search-bar"
-                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            </div>
+                <input
+                  type="text"
+                  className="friends-search-bar"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search users..."
+                />
+                <img src="/assets/search.svg" alt="Search Icon" className="friends-search-icon" />
+              </div>
               <div className="users-grid">
                 {filteredUsers.length > 0 ? (
                   filteredUsers.map(user => {
@@ -171,8 +170,8 @@ const AddFriends = ({onLogout}) => {
                             alt={`${user.firstName} ${user.lastName}`}
                             className="user-avatar"
                           />
-                          <div className="user-details">
-                            <h3>{user.firstName} {user.lastName}</h3>
+                          <div className="user-details user-card-details">
+                            <span>{user.firstName} {user.lastName}</span>
                           </div>
                         </div>
                         <div className="friend-status">
@@ -202,7 +201,7 @@ const AddFriends = ({onLogout}) => {
 
             {/* Right panel: Suggested */}
             <div className="add-right-panel">
-              <h3 className="section-title">Suggested</h3>
+              <h3 className="suggested-title">Suggested</h3>
               <div className="suggested-list">
                 {filteredUsers.slice(0, 6).map(user => {
                   const status = checkFriendStatus(user);
@@ -237,7 +236,6 @@ const AddFriends = ({onLogout}) => {
       </div>
     </div>
   );
-
 };
 
 export default AddFriends;

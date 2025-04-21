@@ -13,7 +13,7 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 // Get app instance
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Add this line
 
 // Configure middleware

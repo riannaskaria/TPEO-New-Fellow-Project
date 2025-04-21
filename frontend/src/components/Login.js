@@ -41,7 +41,7 @@ function Login({ setIsAuthenticated }) {
               id="username"
               className="input-field"
               type="text"
-              placeholder="Username"
+              placeholder="Email"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               disabled={loading}

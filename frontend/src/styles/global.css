@@ -46,9 +46,12 @@
 
 	--friend-count: bold 14px "Roboto", sans-serif;
 	--friend-request-title: normal 16px "Roboto", sans-serif;
+	--add-friends-card: normal 14px "Roboto", sans-serif;
+	--send-request: bold 12px "Roboto", sans-serif;
 
 	/* border */
   --border-box: 1px solid #D9D9D9;
   --save-event-border: 1px solid #F07605;
+  --pending-border: 1px solid #F07605;
   --ignore-friend-border: 2px solid #f7ba81;
 }

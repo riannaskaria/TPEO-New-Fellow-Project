@@ -11,7 +11,7 @@ function Header({ user, handleLogout }) {
   const [currentUser, setCurrentUser] = useState(user);
 
   // Update this value to match your API URL if needed.
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:3001";
+  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
 
   // On mount, fetch latest user info by ID and update localStorage
   useEffect(() => {

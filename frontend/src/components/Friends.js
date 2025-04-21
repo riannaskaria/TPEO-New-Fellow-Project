@@ -27,7 +27,7 @@ const Friends = ({onLogout}) => {
 
     const fetchFriends = async () => {
       try {
-        const response = await authService.fetchWithAuth('http://localhost:3001/users');
+        const response = await authService.fetchWithAuth('http://localhost:5000/users');
         if (response.ok) {
           const data = await response.json();
           const allUsers = data.data;
@@ -61,7 +61,7 @@ const Friends = ({onLogout}) => {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
@@ -88,7 +88,7 @@ const Friends = ({onLogout}) => {
       let allFriendEvents = [];
 
       for (const friendId of currentUser.friends) {
-        const friendResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${friendId}`);
+        const friendResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`);
         if (!friendResponse.ok) continue;
 
         const friendData = await friendResponse.json();
@@ -96,7 +96,7 @@ const Friends = ({onLogout}) => {
 
         if (friend.savedEvents?.length > 0) {
           for (const eventId of friend.savedEvents) {
-            const eventResponse = await authService.fetchWithAuth(`http://localhost:3001/events/${eventId}`);
+            const eventResponse = await authService.fetchWithAuth(`http://localhost:5000/events/${eventId}`);
             if (!eventResponse.ok) continue;
 
             const eventData = await eventResponse.json();
@@ -132,7 +132,7 @@ const Friends = ({onLogout}) => {
 
       const updatedRequests = (currentUser.friendRequests || []).filter(id => id !== userId);
 
-      const updateResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+      const updateResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,7 +149,7 @@ const Friends = ({onLogout}) => {
       setCurrentUser(updatedUserData.data);
       localStorage.setItem('user', JSON.stringify(updatedUserData.data));
 
-      const otherUserResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${userId}`);
+      const otherUserResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`);
       if (!otherUserResponse.ok) {
         throw new Error('Failed to fetch other user data');
       }
@@ -162,13 +162,13 @@ const Friends = ({onLogout}) => {
         otherUserFriends.push(currentUser._id);
       }
 
-      await authService.fetchWithAuth(`http://localhost:3001/users/${userId}`, {
+      await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friends: otherUserFriends })
       });
 
-      const response = await authService.fetchWithAuth('http://localhost:3001/users');
+      const response = await authService.fetchWithAuth('http://localhost:5000/users');
       if (response.ok) {
         const data = await response.json();
         const updatedFriendsList = data.data.filter(user =>
@@ -186,7 +186,7 @@ const Friends = ({onLogout}) => {
     try {
       const updatedRequests = (currentUser.friendRequests || []).filter(id => id !== userId);
 
-      const updateResponse = await authService.fetchWithAuth(`http://localhost:3001/users/${currentUser._id}`, {
+      const updateResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friendRequests: updatedRequests })
