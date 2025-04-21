@@ -156,7 +156,6 @@ const MyPosts = ({ onLogout }) => {
             ))}
           </div>
         </div>
-        <img src="/assets/dot.svg" alt="Timeline dot" />
         </div>
       );
     });
@@ -193,16 +192,21 @@ const MyPosts = ({ onLogout }) => {
           <div className="saved-loading">Loading your created events...</div>
         ) : (
           <div className="saved-events-container">
-            {Object.keys(groupedEvents).length > 0 ? (
-              renderEventGroups())
-             : (
-              <div className="no-events-message">
-                {viewMode === "upcoming"
-                  ? "You haven’t posted any upcoming events yet."
-                  : "You haven’t posted any past events yet."}
-              </div>
-            )}
+          {Object.keys(groupedEvents).length > 0 ? (
+         <>
+           {renderEventGroups()}
+           <div className="timeline-end-dot">
+            <img src="/assets/dot.svg" alt="Timeline dot" />
+           </div>
+          </>
+          ) : (
+         <div className="no-events-message">
+            {viewMode === "upcoming"
+             ? "You haven’t posted any upcoming events yet."
+              : "You haven’t posted any past events yet."}
           </div>
+        )}
+      </div>
 
         )}
       </div>
