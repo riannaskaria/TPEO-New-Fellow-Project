@@ -20,7 +20,7 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
   // For organization modal, fetch organizations using authService.fetchWithAuth
   useEffect(() => {
     if (modalType === "organization") {
-      authService.fetchWithAuth("http://localhost:5000/orgs")
+      authService.fetchWithAuth("http://localhost:3001/orgs")
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -99,10 +99,10 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
               >
                 <span>{cat}</span>
                 {selectedTags.includes(cat) && (
-                  <img 
-                    src="/assets/add-event/x-circle.svg" 
-                    alt="Remove Tag Icon" 
-                    className="tag-remove-icon" 
+                  <img
+                    src="/assets/add-event/x-circle.svg"
+                    alt="Remove Tag Icon"
+                    className="tag-remove-icon"
                   />
                 )}
               </button>
@@ -118,10 +118,10 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
               >
                 <span>{cat}</span>
                 {selectedTags.includes(cat) && (
-                  <img 
-                    src="/assets/add-event/x-circle.svg" 
-                    alt="Remove Tag Icon" 
-                    className="tag-remove-icon" 
+                  <img
+                    src="/assets/add-event/x-circle.svg"
+                    alt="Remove Tag Icon"
+                    className="tag-remove-icon"
                   />
                 )}
               </button>
@@ -137,10 +137,10 @@ function PopUp({ modalType, initialValue, onClose, onSave }) {
               >
                 <span>{cat}</span>
                 {selectedTags.includes(cat) && (
-                  <img 
-                    src="/assets/add-event/x-circle.svg" 
-                    alt="Remove Tag Icon" 
-                    className="tag-remove-icon" 
+                  <img
+                    src="/assets/add-event/x-circle.svg"
+                    alt="Remove Tag Icon"
+                    className="tag-remove-icon"
                   />
                 )}
               </button>

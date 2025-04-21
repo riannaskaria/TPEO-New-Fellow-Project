@@ -64,7 +64,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
 
   // Build image URL
   const imageUrl = event.imageId
-    ? `http://localhost:5000/events/image/${event.imageId}`
+    ? `http://localhost:3001/events/image/${event.imageId}`
     : null;
 
   // Save toggle
