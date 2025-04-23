@@ -31,12 +31,12 @@ const Profile = ({ onLogout }) => {
   const orgDropdownRef = useRef(null);
   const orgInputRef = useRef(null);
   const navigate = useNavigate();
-  const API_URL = "http://localhost:5000";
+
 
   // Fetch latest user data from backend on mount and when preferences are saved
   const fetchUser = async (userId) => {
     try {
-      const res = await authService.fetchWithAuth(`${API_URL}/users/${userId}`);
+      const res = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${userId}`);
       const json = await res.json();
       if (json.success) {
         setUser(json.data);
@@ -98,7 +98,7 @@ const Profile = ({ onLogout }) => {
   // Fetch all org options (for dropdown)
   const fetchOrgOptions = async () => {
     try {
-      const res = await authService.fetchWithAuth(`${API_URL}/orgs`);
+      const res = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/orgs`);
       const json = await res.json();
       if (json.success) setOrgOptions(json.data);
     } catch (e) {
@@ -115,7 +115,7 @@ const Profile = ({ onLogout }) => {
     try {
       // Fetch all orgs in parallel
       const orgFetches = orgIds.map(id =>
-        authService.fetchWithAuth(`${API_URL}/orgs/${id}`)
+        authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/orgs/${id}`)
           .then(res => res.json())
           .then(json => (json.success ? json.data : null))
           .catch(() => null)
@@ -223,12 +223,12 @@ const Profile = ({ onLogout }) => {
         });
         fd.append("profilePicture", newProfilePic);
         response = await authService.fetchWithAuth(
-          `${API_URL}/users/${user._id}`,
+          `${process.env.REACT_APP_BACKEND}/users/${user._id}`,
           { method: "PUT", body: fd }
         );
       } else {
         response = await authService.fetchWithAuth(
-          `${API_URL}/users/${user._id}`,
+          `${process.env.REACT_APP_BACKEND}/users/${user._id}`,
           {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
@@ -282,7 +282,7 @@ const Profile = ({ onLogout }) => {
       const interests = [...academicInterests, ...socialInterests, ...careerInterests];
       const payload = { interests, orgs: selectedOrgs };
       const res = await authService.fetchWithAuth(
-        `${API_URL}/users/${user._id}`,
+        `${process.env.REACT_APP_BACKEND}/users/${user._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -291,7 +291,7 @@ const Profile = ({ onLogout }) => {
       );
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || "Save failed");
-      // Fetch latest user data from backend to update interests/orgs
+      // Fetch latest user data from backend to update interests
       await fetchUser(user._id);
       setIsEditingPreferences(false);
     } catch (err) {
@@ -339,7 +339,7 @@ const Profile = ({ onLogout }) => {
                     <img src={profilePicPreview} alt="Preview" className="profile-picture" />
                   ) : user.profilePicture ? (
                     <img
-                      src={`${API_URL}/users/image/${user.profilePicture}`}
+                      src={`${process.env.REACT_APP_BACKEND}/users/image/${user.profilePicture}`}
                       alt="Profile"
                       className="profile-picture"
                     />

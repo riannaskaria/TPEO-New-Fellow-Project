@@ -28,7 +28,7 @@ const MyPosts = ({ onLogout }) => {
   const fetchMyEvents = async (user) => {
     setIsLoading(true);
     try {
-      const res = await authService.fetchWithAuth(`http://localhost:5000/events`);
+      const res = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/events`);
       const data = await res.json();
       const createdEvents = data.data.filter(event => event.author === user._id);
       setMyEvents(createdEvents);

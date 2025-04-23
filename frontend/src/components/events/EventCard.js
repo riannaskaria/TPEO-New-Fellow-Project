@@ -16,7 +16,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
     if (currentUser && currentUser.savedEvents) {
       setIsSaved(currentUser.savedEvents.includes(event._id));
     }
-  }, [currentUser, event._id]); 
+  }, [currentUser, event._id]);
 
   // Fetch friends who saved this event
   useEffect(() => {
@@ -29,7 +29,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
       let count = 0;
       // Fetch all friends in parallel
       const friendPromises = currentUser.friends.map(friendId =>
-        authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`)
+        authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${friendId}`)
           .then(res => res.ok ? res.json() : null)
           .then(data => data && data.data && Array.isArray(data.data.savedEvents)
             ? data.data.savedEvents.map(eid => eid.toString())
@@ -94,7 +94,7 @@ function EventCard({ event, currentUser, onToggleSave }) {
 
   // Build image URL
   const imageUrl = event.imageId
-    ? `http://localhost:5000/events/image/${event.imageId}`
+    ? `${process.env.REACT_APP_BACKEND}/events/image/${event.imageId}`
     : null;
 
   // Save toggle

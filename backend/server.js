@@ -13,13 +13,13 @@ const categoryRoutes = require('./routes/categoryRoutes');
 
 // Get app instance
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key"; // Add this line
 
 // Configure middleware
 app.use(
 	cors({
-		origin: "http://localhost:3000", // Frontend URL
+		origin: process.env.FRONTEND_URL || "http://localhost:3000", // Frontend URL
 		methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
 		allowedHeaders: ['Content-Type', 'Authorization'],
 		credentials: true

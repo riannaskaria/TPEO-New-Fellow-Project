@@ -14,12 +14,11 @@ const Saved = ({ onLogout }) => {
   const [currentUser, setCurrentUser] = useState(authService.getCurrentUser());
 
   useEffect(() => {
-    // Fetch latest user by ID and update localStorage
     const refreshUser = async () => {
       const storedUser = authService.getCurrentUser();
       if (storedUser && storedUser._id) {
         try {
-          const res = await authService.fetchWithAuth(`http://localhost:5000/users/${storedUser._id}`);
+          const res = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${storedUser._id}`);
           if (res.ok) {
             const data = await res.json();
             if (data.success && data.data) {
@@ -47,9 +46,8 @@ const Saved = ({ onLogout }) => {
         return;
       }
 
-      // Fetch all the saved events
       const eventPromises = user.savedEvents.map(eventId =>
-        authService.fetchWithAuth(`http://localhost:5000/events/${eventId}`)
+        authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/events/${eventId}`)
           .then(res => res.json())
           .then(data => data.data)
           .catch(err => {
@@ -59,21 +57,12 @@ const Saved = ({ onLogout }) => {
       );
 
       const fetchedEvents = await Promise.all(eventPromises);
-      // Filter out any null events (failed fetches)
       const validEvents = fetchedEvents.filter(event => event !== null);
-
-      // Filter out past events
       const now = new Date();
       const upcomingEvents = validEvents.filter(event => new Date(event.startTime) >= now);
-
-      // Sort events by date
       const sortedEvents = upcomingEvents.sort((a, b) => new Date(a.startTime) - new Date(b.startTime));
       setSavedEvents(sortedEvents);
-
-      // Group events by day
       groupEventsByDay(sortedEvents);
-
-      // Fetch similar events
       fetchSimilarEvents(sortedEvents);
     } catch (error) {
       console.error("Error fetching saved events:", error);
@@ -82,7 +71,6 @@ const Saved = ({ onLogout }) => {
     }
   };
 
-  // Group events by today, tomorrow, and future dates
   const groupEventsByDay = (events) => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -100,7 +88,6 @@ const Saved = ({ onLogout }) => {
         if (!acc.tomorrow) acc.tomorrow = [];
         acc.tomorrow.push(event);
       } else {
-        // Format date like "March 12th"
         const dateKey = formatDateKey(eventDate);
         if (!acc[dateKey]) acc[dateKey] = [];
         acc[dateKey].push(event);
@@ -112,7 +99,6 @@ const Saved = ({ onLogout }) => {
     setGroupedEvents(grouped);
   };
 
-  // Format date for keys (e.g., "March 12th")
   const formatDateKey = (date) => {
     const monthNames = ["January", "February", "March", "April", "May", "June",
       "July", "August", "September", "October", "November", "December"];
@@ -124,7 +110,6 @@ const Saved = ({ onLogout }) => {
     return `${month} ${day}${ordinal}`;
   };
 
-  // Get ordinal suffix (st, nd, rd, th)
   const getOrdinal = (n) => {
     if (n > 3 && n < 21) return "th";
     switch (n % 10) {
@@ -135,7 +120,6 @@ const Saved = ({ onLogout }) => {
     }
   };
 
-  // Format weekday and time (e.g., "Monday, March 3rd • 3:00 PM")
   const formatDateTime = (dateObj) => {
     const day = dateObj.getDate();
     const ordinal = getOrdinal(day);
@@ -147,44 +131,34 @@ const Saved = ({ onLogout }) => {
     });
 
     const datePart = `${weekday}, ${month} ${day}${ordinal}`;
-    const timePart = time; // e.g., 3:00 PM
+    const timePart = time;
 
     return { datePart, timePart };
   };
 
-  // Fetch similar events based on user's interests
   const fetchSimilarEvents = async (events) => {
     try {
-      // Fetch all events to get potential similar ones
-      const response = await authService.fetchWithAuth('http://localhost:5000/events');
+      const response = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/events`);
       const allEvents = await response.json();
       if (!allEvents.data) return;
 
-      // Filter out past events
       const now = new Date();
       const upcomingEvents = allEvents.data.filter(event => new Date(event.startTime) >= now);
-
-      // Use getRecommendedEvents to get recommended events based on the user's interests
       const recommended = getRecommendedEvents(upcomingEvents, currentUser);
-
-      // Filter out events that are already saved by the current user
       const savedEventIds = new Set(currentUser.savedEvents);
       const notSavedEvents = recommended.filter(event => !savedEventIds.has(event._id));
-
-      // Get top 3 recommended events that are not saved
       setSimilarEvents(notSavedEvents.slice(0, 3));
     } catch (error) {
       console.error("Error fetching similar events:", error);
     }
   };
 
-  // Handle toggling saved state of an event
   const handleToggleSave = (eventId, newSavedState) => {
     const updatedSavedEvents = newSavedState
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
@@ -192,15 +166,11 @@ const Saved = ({ onLogout }) => {
       .then((res) => res.json())
       .then((data) => {
         if (data.success) {
-          // Update current user
           setCurrentUser(data.data);
           localStorage.setItem("user", JSON.stringify(data.data));
 
-          // If removing from saved, update the UI
           if (!newSavedState) {
             setSavedEvents(prev => prev.filter(event => event._id !== eventId));
-
-            // Update grouped events
             setGroupedEvents(prev => {
               const updated = { ...prev };
               for (const key in updated) {
@@ -217,39 +187,26 @@ const Saved = ({ onLogout }) => {
       .catch((err) => console.error("Error updating saved events:", err));
   };
 
-  // Render timeline and events
   const renderEventGroups = () => {
     return Object.entries(groupedEvents).map(([dateKey, events], index) => {
-      // Handle special cases for "today" and "tomorrow"
       let displayDate = dateKey;
       let dateString = "";
       let timeString = "";
 
-      if (dateKey === "today") {
-        displayDate = "Today";
+      if (dateKey === "today" || dateKey === "tomorrow") {
+        displayDate = dateKey === "today" ? "Today" : "Tomorrow";
         if (events.length > 0) {
           const date = new Date(events[0].startTime);
           const { datePart, timePart } = formatDateTime(date);
           dateString = datePart;
           timeString = timePart;
         }
-      } else if (dateKey === "tomorrow") {
-        displayDate = "Tomorrow";
-        if (events.length > 0) {
-          const date = new Date(events[0].startTime);
-          const { datePart, timePart } = formatDateTime(date);
-          dateString = datePart;
-          timeString = timePart;
-        }
-      } else {
-        // For future dates, show full date and time
-        if (events.length > 0) {
-          const date = new Date(events[0].startTime);
-          const { datePart, timePart } = formatDateTime(date);
-          displayDate = datePart; // Full date (e.g., March 12th)
-          dateString = displayDate;
-          timeString = timePart; // Time (e.g., 3:00 PM)
-        }
+      } else if (events.length > 0) {
+        const date = new Date(events[0].startTime);
+        const { datePart, timePart } = formatDateTime(date);
+        displayDate = datePart;
+        dateString = datePart;
+        timeString = timePart;
       }
 
       return (
@@ -282,9 +239,7 @@ const Saved = ({ onLogout }) => {
   };
 
   const handleLogout = () => {
-    if (onLogout) {
-      onLogout();
-    }
+    if (onLogout) onLogout();
   };
 
   return (
@@ -292,7 +247,6 @@ const Saved = ({ onLogout }) => {
       <Header user={user} handleLogout={handleLogout} />
       <div className="saved-content">
         <h1 className="page-title">Saved</h1>
-
         {isLoading ? (
           <div className="saved-loading">Loading your saved events...</div>
         ) : (
@@ -303,8 +257,6 @@ const Saved = ({ onLogout }) => {
                   {renderEventGroups()}
                   <img src="/assets/dot.svg" alt="Timeline dot" />
                 </div>
-
-                {/* Similar Events Box */}
                 <div className="similar-events-box">
                   <h2>Similar Events</h2>
                   <div className="similar-events-grid">

@@ -36,7 +36,7 @@ function ViewEvent({ onLogout }) {
 
     try {
       const res = await authService.fetchWithAuth(
-        `http://localhost:5000/users/${currentUser._id}`,
+        `${process.env.REACT_APP_BACKEND}/users/${currentUser._id}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -60,7 +60,7 @@ function ViewEvent({ onLogout }) {
     if (!window.confirm("Are you sure you want to delete this event? This cannot be undone.")) return;
     try {
       const res = await authService.fetchWithAuth(
-        `http://localhost:5000/events/${event._id}`,
+        `${process.env.REACT_APP_BACKEND}/events/${event._id}`,
         { method: "DELETE" }
       );
       const data = await res.json();
@@ -105,7 +105,7 @@ function ViewEvent({ onLogout }) {
 
   // Image URL
   const imageUrl = event.imageId
-    ? `http://localhost:5000/events/image/${event.imageId}`
+    ? `${process.env.REACT_APP_BACKEND}/events/image/${event.imageId}`
     : null;
 
   return (

@@ -27,7 +27,7 @@ function ViewFriend() {
         const mutualIds = userEvents.filter((id) => friendEventsArr.includes(id));
         const events = [];
         for (const eventId of mutualIds) {
-          const res = await authService.fetchWithAuth(`http://localhost:5000/events/${eventId}`);
+          const res = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/events/${eventId}`);
           if (res.ok) {
             const data = await res.json();
             if (data.data) events.push(data.data);
@@ -52,7 +52,7 @@ function ViewFriend() {
 
   // Profile picture
   const profilePicUrl = friend.profilePicture
-    ? `http://localhost:5000/users/image/${friend.profilePicture}`
+    ? `${process.env.REACT_APP_BACKEND}/users/image/${friend.profilePicture}`
     : "/assets/profile.svg";
 
   // Major/year string
