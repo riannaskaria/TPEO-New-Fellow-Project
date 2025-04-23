@@ -145,7 +145,7 @@ const Profile = ({ onLogout }) => {
     }
   }, [activeTab]);
 
-  // Fetch org objects for tags whenever selectedOrgs changes
+  // Fetch org objects for tags selectedOrgs changes
   useEffect(() => {
     if (selectedOrgs && selectedOrgs.length > 0) {
       fetchSelectedOrgObjs(selectedOrgs);
