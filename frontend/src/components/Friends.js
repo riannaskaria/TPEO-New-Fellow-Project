@@ -27,7 +27,7 @@ const Friends = ({onLogout}) => {
 
     const fetchFriends = async () => {
       try {
-        const response = await authService.fetchWithAuth('http://localhost:5000/users');
+        const response = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users`);
         if (response.ok) {
           const data = await response.json();
           const allUsers = data.data;
@@ -61,7 +61,7 @@ const Friends = ({onLogout}) => {
       ? [...(currentUser.savedEvents || []), eventId]
       : (currentUser.savedEvents || []).filter(id => id !== eventId);
 
-    authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+    authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${currentUser._id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ savedEvents: updatedSavedEvents })
@@ -88,7 +88,7 @@ const Friends = ({onLogout}) => {
       let allFriendEvents = [];
 
       for (const friendId of currentUser.friends) {
-        const friendResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`);
+        const friendResponse = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${friendId}`);
         if (!friendResponse.ok) continue;
 
         const friendData = await friendResponse.json();
@@ -96,7 +96,7 @@ const Friends = ({onLogout}) => {
 
         if (friend.savedEvents?.length > 0) {
           for (const eventId of friend.savedEvents) {
-            const eventResponse = await authService.fetchWithAuth(`http://localhost:5000/events/${eventId}`);
+            const eventResponse = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/events/${eventId}`);
             if (!eventResponse.ok) continue;
 
             const eventData = await eventResponse.json();
@@ -132,7 +132,7 @@ const Friends = ({onLogout}) => {
 
       const updatedRequests = (currentUser.friendRequests || []).filter(id => id !== userId);
 
-      const updateResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+      const updateResponse = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${currentUser._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,7 +149,7 @@ const Friends = ({onLogout}) => {
       setCurrentUser(updatedUserData.data);
       localStorage.setItem('user', JSON.stringify(updatedUserData.data));
 
-      const otherUserResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`);
+      const otherUserResponse = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${userId}`);
       if (!otherUserResponse.ok) {
         throw new Error('Failed to fetch other user data');
       }
@@ -162,13 +162,13 @@ const Friends = ({onLogout}) => {
         otherUserFriends.push(currentUser._id);
       }
 
-      await authService.fetchWithAuth(`http://localhost:5000/users/${userId}`, {
+      await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friends: otherUserFriends })
       });
 
-      const response = await authService.fetchWithAuth('http://localhost:5000/users');
+      const response = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users`);
       if (response.ok) {
         const data = await response.json();
         const updatedFriendsList = data.data.filter(user =>
@@ -186,7 +186,7 @@ const Friends = ({onLogout}) => {
     try {
       const updatedRequests = (currentUser.friendRequests || []).filter(id => id !== userId);
 
-      const updateResponse = await authService.fetchWithAuth(`http://localhost:5000/users/${currentUser._id}`, {
+      const updateResponse = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${currentUser._id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ friendRequests: updatedRequests })
@@ -213,7 +213,7 @@ const Friends = ({onLogout}) => {
 
       // Update current user in DB
       const updateCurrentUserRes = await authService.fetchWithAuth(
-        `http://localhost:5000/users/${currentUser._id}`,
+        `${process.env.REACT_APP_BACKEND}/users/${currentUser._id}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -223,7 +223,7 @@ const Friends = ({onLogout}) => {
       if (!updateCurrentUserRes.ok) throw new Error('Failed to update current user');
 
       // Remove currentUser from friend's friends
-      const friendRes = await authService.fetchWithAuth(`http://localhost:5000/users/${friendId}`);
+      const friendRes = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${friendId}`);
       if (!friendRes.ok) throw new Error('Failed to fetch friend user');
       const friendData = await friendRes.json();
       const friendUser = friendData.data;
@@ -231,7 +231,7 @@ const Friends = ({onLogout}) => {
 
       // Update friend user in DB
       const updateFriendRes = await authService.fetchWithAuth(
-        `http://localhost:5000/users/${friendId}`,
+        `${process.env.REACT_APP_BACKEND}/users/${friendId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -311,7 +311,7 @@ const Friends = ({onLogout}) => {
                 <div key={user._id} className="request-card">
                   <div className="user-info">
                     <img
-                      src={user.profilePicture ? `http://localhost:5000/users/image/${user.profilePicture}` : "/assets/profile.svg"}
+                      src={user.profilePicture ? `${process.env.REACT_APP_BACKEND}/users/image/${user.profilePicture}` : "/assets/profile.svg"}
                       alt={`${user.firstName} ${user.lastName}`}
                       className="user-avatar"
                     />
@@ -356,7 +356,7 @@ const Friends = ({onLogout}) => {
                       style={{ cursor: "pointer" }}
                     >
                       <img
-                        src={friend.profilePicture ? `http://localhost:5000/users/image/${friend.profilePicture}` : "/assets/profile.svg"}
+                        src={friend.profilePicture ? `${process.env.REACT_APP_BACKEND}/users/image/${friend.profilePicture}` : "/assets/profile.svg"}
                         alt={`${friend.firstName} ${friend.lastName}`}
                         className="friend-avatar"
                       />

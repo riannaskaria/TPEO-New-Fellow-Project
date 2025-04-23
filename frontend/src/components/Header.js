@@ -10,9 +10,6 @@ function Header({ user, handleLogout }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentUser, setCurrentUser] = useState(user);
 
-  // Update this value to match your API URL if needed.
-  const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5000";
-
   // On mount, fetch latest user info by ID and update localStorage
   useEffect(() => {
     const fetchUser = async () => {
@@ -20,7 +17,7 @@ function Header({ user, handleLogout }) {
       const storedUser = user || authService.getCurrentUser();
       if (!storedUser || !storedUser._id) return;
       try {
-        const response = await authService.fetchWithAuth(`${API_URL}/users/${storedUser._id}`);
+        const response = await authService.fetchWithAuth(`${process.env.REACT_APP_BACKEND}/users/${storedUser._id}`);
         if (response.ok) {
           const data = await response.json();
           if (data.success && data.data) {
@@ -91,7 +88,7 @@ function Header({ user, handleLogout }) {
   // otherwise, use the fallback asset.
   const profileImageSrc =
     currentUser && currentUser.profilePicture
-      ? `${API_URL}/users/image/${currentUser.profilePicture}`
+      ? `${process.env.REACT_APP_BACKEND}/users/image/${currentUser.profilePicture}`
       : "/assets/profile.svg";
 
   return (
