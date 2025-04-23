@@ -19,7 +19,7 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 // Configure middleware
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL || "http://localhost:3000", // Frontend URL
+    origin: process.env.FRONTEND_URL || "https://buzz-sable.vercel.app", // Frontend URL
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true
