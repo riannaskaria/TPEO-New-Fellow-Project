@@ -6,6 +6,7 @@ let gridFSBucket;
 
 const connectDB = async () => {
   try {
+    console.log("Using Mongo URI:", process.env.MONGO_URI);
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB connected successfully');
 
@@ -13,7 +14,7 @@ const connectDB = async () => {
     gridFSBucket = new mongoose.mongo.GridFSBucket(db.db, {
       bucketName: 'images',
     });
-    
+
     return db;
   } catch (err) {
     console.error('MongoDB connection error:', err.message);
@@ -21,8 +22,8 @@ const connectDB = async () => {
   }
 };
 
-module.exports = { 
-  connectDB, 
+module.exports = {
+  connectDB,
   getDB: () => db,
   getGridFsBucket: () => gridFSBucket,
 };
