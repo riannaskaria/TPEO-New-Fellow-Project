@@ -15,7 +15,6 @@ const categoryRoutes = require('./routes/categoryRoutes');
 const app = express();
 const PORT = process.env.PORT || 3001;
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
-console.log('Frontend URL:', process.env.FRONTEND_URL);
 
 // Configure middleware
 app.use(
