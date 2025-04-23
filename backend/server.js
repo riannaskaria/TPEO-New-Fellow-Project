@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
-const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken"); // Add this package
+const bcrypt = require("bcrypt"); // Add this package for password hashing
 require("dotenv").config();
 
 // Database and routes requirements
@@ -50,5 +50,12 @@ initializeApp().catch(err => {
   process.exit(1);
 });
 
-// Export the app for serverless deployment
+// Run server locally only if not in serverless (Vercel) environment
+if (process.env.VERCEL !== '1') {
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+}
+
+// Export the app for serverless deployment (needed for Vercel)
 module.exports = app;
