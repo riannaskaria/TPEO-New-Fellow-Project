@@ -10,7 +10,7 @@ function Header({ user, handleLogout }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentUser, setCurrentUser] = useState(user);
 
-  // On mount, fetch latest user info by ID and update localStorage
+  
   useEffect(() => {
     const fetchUser = async () => {
       // Use either prop user or localStorage user as initial
