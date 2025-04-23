@@ -291,7 +291,7 @@ const Profile = ({ onLogout }) => {
       );
       const json = await res.json();
       if (!res.ok) throw new Error(json.message || "Save failed");
-      // Fetch latest user data from backend to update interests/orgs
+      // Fetch latest user data from backend to update interests
       await fetchUser(user._id);
       setIsEditingPreferences(false);
     } catch (err) {
